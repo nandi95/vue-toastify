@@ -46,7 +46,7 @@
               >
             </p>
             <p class="ml-8" v-if="status.type">
-              type: "<span v-text="status.type">success</span>"
+              type: "<span v-text="status.type">success</span><span>"</span>
               <span
                 v-if="
                   status.duration ||
