@@ -1,7 +1,5 @@
+import Vue from "vue";
 import VueToastify from "./VueToastify.vue";
 
-export default {
-  install(Vue) {
-    Vue.component("VueToastify", VueToastify);
-  }
-};
+Vue.component("VueToastify", VueToastify);
+export default VueToastify;

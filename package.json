@@ -6,6 +6,7 @@
   "main": ".dist/vue-toastify.umd.min.js",
   "scripts": {
     "serve": "vue-cli-service serve",
+    "watch": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "compile": "vue-cli-service build --target lib --dest dist/ --name vue-toastify ./src/components/index.js",

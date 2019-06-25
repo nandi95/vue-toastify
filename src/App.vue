@@ -187,14 +187,14 @@
               </div>
             </div>
           </div>
-          <div class="flex flex-col justify-between w-full">
+          <div class="flex flex-col justify-around w-full">
             <div
-              class="flex justify-between align-middle items-center w-3/4 sm:w-2/3 md:w-4/5 lg:w-auto mx-auto"
+              class="flex justify-around align-middle items-center w-3/4 sm:w-2/3 md:w-4/5 lg:w-auto"
             >
               <label for="duration">Duration:</label>
               <input
                 type="number"
-                class="input w-1/2 sm:w-3/5"
+                class="input w-1/2 md:w-auto"
                 min="0"
                 step="1"
                 id="duration"
@@ -203,11 +203,11 @@
               />
             </div>
             <div
-              class="flex justify-between align-middle items-center w-3/4 sm:w-2/3 md:w-4/5 lg:w-auto mx-auto mt-3"
+              class="flex flex-row justify-around align-middle items-center w-3/4 sm:w-2/3 md:w-4/5 lg:w-auto mt-3"
             >
               <label for="icon">Icon:</label>
               <textarea
-                class="input w-1/2 sm:w-3/5"
+                class="input w-auto sm:w-3/4 md:w-auto"
                 style="min-height: 42px"
                 id="icon"
                 v-model="status.icon"
