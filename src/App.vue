@@ -272,7 +272,7 @@
 
 <script>
 import VueToastify from "./components/VueToastify";
-
+// todo - fix tailwind export for production
 export default {
   name: "app",
   components: {

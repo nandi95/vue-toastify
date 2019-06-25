@@ -80,7 +80,9 @@ positionYDistance|String|"10px"| Distance from the top or bottom depending on th
 
 - Increase test coverage
 
-- Allow customisation of the ring's color around the icon
+- Allow customisation of the ring's color around the icon when passing in custom icon
+
+- Move the progress animation to use purely css
 
 **Contribution:**
 -
