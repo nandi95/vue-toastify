@@ -44,8 +44,8 @@ defaultTitle | Boolean | true | Enables the fallback to the type as the title.
  errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for.
  successDuration | Number | 4000 | The duration in milliseconds the error notification should be visible for.
  alertInfoDuration | Number | 6000 | The duration in milliseconds the error notification should be visible for.
- delay | Number | 750 | If a status passed as a prop, it may already starts the script before the page's content fully loaded. With this you can specify delay in milliseconds the initial notification.
- bodyMaxWidth | Number | 250 | Maximum width the body can take up. The rest of the notification will always be the same width.
+ delay | Number | 750 | If a status passed as a prop, it may already starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification.
+ bodyMaxWidth | Number | 250 | Maximum width the body can take up. in px The rest of the notification will always be the same width.
 position|String|"bottom-right"| Controls where the notification should appear. Accepted values are: 'top-left', 'top-right', 'bottom-left', 'bottom-right'.
 positionXDistance|String|"10px"| Distance from the left or right depending on the position prop. All css values are accepted.
 positionYDistance|String|"10px"| Distance from the top or bottom depending on the position prop. All css values are accepted.
@@ -59,8 +59,7 @@ positionYDistance|String|"10px"| Distance from the top or bottom depending on th
  - *(optional) canPause = you can overwrite what has already been set as
    a prop*
  - *(optional) canTimeout = if set to false the notification has to be dismissed manually, otherwise it defaults to true.*
-- *(optional) defaultTitle = you can overwrite what has already been set as
-      a prop*
+- *(optional) defaultTitle = Should the title fall back to the type as the title*
 - *(optional) duration = this will take priority over all other duration settings*
 - *(optional) icon = you can customize the displayed icon within the circle using v-html*
 
@@ -80,6 +79,8 @@ positionYDistance|String|"10px"| Distance from the top or bottom depending on th
  will point the user to the url (SPA supported)
 
 - Increase test coverage
+
+- Allow customisation of the ring's color around the icon
 
 **Contribution:**
 -
