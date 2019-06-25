@@ -8,7 +8,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "compile": "vue-cli-service build --target lib --dest dist/ --name vue-toastify ./src/components/VueToastify.vue",
+    "compile": "vue-cli-service build --target lib --dest dist/ --name vue-toastify ./src/components/index.js",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
