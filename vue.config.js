@@ -8,5 +8,8 @@ module.exports = {
         title: "Vue Toastify"
       })
     ]
+  },
+  devServer: {
+    open: true
   }
 };
