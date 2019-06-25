@@ -1,8 +1,11 @@
-# Vue Toastify
+# Vue Toastify [![Netlify Status](https://api.netlify.com/api/v1/badges/bc0cc717-a41e-4317-85d5-bc0ba745b3a5/deploy-status)](https://app.netlify.com/sites/vue-toastify/deploys)
+
 
 **Fuss free notification component.**
 
 I wanted a component which I can use by passing props from the server on the first paint but which can also take statuses at run time. With this component it's super easy and it can also be paused.
+
+Check it out at [Netlify](https://vue-toastify.netlify.com/)
 
 
 **To Install:**
