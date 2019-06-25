@@ -1,13 +1,13 @@
 import { expect } from "chai";
 import { shallowMount } from "@vue/test-utils";
-import HelloWorld from "@/components/HelloWorld.vue";
+import VueToastify from "@/components/VueToastify.vue";
 
-describe("HelloWorld.vue", () => {
-  it("renders props.msg when passed", () => {
-    const msg = "new message";
-    const wrapper = shallowMount(HelloWorld, {
-      propsData: { msg }
+describe("VueToastify.vue", () => {
+  it("renders props.status when passed", () => {
+    const status = { title: "title", body: "body", type: "success" };
+    const wrapper = shallowMount(VueToastify, {
+      propsData: { status }
     });
-    expect(wrapper.text()).to.include(msg);
+    expect(wrapper.text()).to.include(status.title);
   });
 });
