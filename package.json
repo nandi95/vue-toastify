@@ -1,6 +1,6 @@
 {
   "name": "vue-toastify",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "private": false,
   "description": "Fuss free toast notification which can be used with props and events. It can also pause on hover.",
   "main": "./dist/vue-toastify.umd.min.js",
