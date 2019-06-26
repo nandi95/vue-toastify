@@ -71,6 +71,8 @@ Vue.component('vue-toastify', VueToastify);
 
  - Pausing the notification is not supporting touch gestures but might work with long press.
  
+ - 1.0.0 will be released once the notification container has been added.
+ 
 **Todos**
 -
  - Add a notification container which will enable displaying multiple notifications at the same time.

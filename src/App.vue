@@ -286,6 +286,7 @@ export default {
   },
   data() {
     return {
+      //status that can be passed as a prop or an event
       status: {
         title: "toastified!",
         body: "This is the body.",
@@ -296,19 +297,20 @@ export default {
         duration: null,
         icon: null
       },
-      eventHandler: "EventBus", // can only be set on initial load
-      eventName: "notify", // can only be set on initial load
+      //props that can be set on initial load
+      eventHandler: "EventBus",
+      eventName: "notify",
       canPause: false,
       lightTheme: false,
       defaultTitle: true,
-      errorDuration: 8000, // can only be set on initial load
-      successDuration: 4000, // can only be set on initial load
-      alertInfoDuration: 6000, // can only be set on initial load
-      bodyMaxWidth: 250, // can only be used for initial load
-      initialDelay: 750, //can only be used for initial load
-      position: "bottom-right", // can only be set on initial load
-      positionXDistance: "10px", // can only be set on initial load
-      positionYDistance: "10px", // can only be set on initial load
+      errorDuration: 8000,
+      successDuration: 4000,
+      alertInfoDuration: 6000,
+      bodyMaxWidth: 250,
+      initialDelay: 750,
+      position: "bottom-right",
+      positionXDistance: "10px",
+      positionYDistance: "10px",
       //example site specific
       body: null
     };
@@ -330,6 +332,7 @@ export default {
     },
     checkTimingProps() {
       if (!this.status.canTimeout) {
+        this.status.duration = null;
         this.status.canPause = false;
         setTimeout(() => {
           document.getElementById("can-pause").checked = false;
@@ -337,7 +340,6 @@ export default {
       }
     },
     checkBody() {
-      console.log(this.body.value.length);
       if (this.body.value.length === 0) {
         this.body.classList.add("invalid");
       } else {
