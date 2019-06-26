@@ -3,7 +3,7 @@
 
 **Fuss free notification component.**
 
-I wanted a component which I can use by passing props from the server on the first paint but which can also take statuses at run time. With this component it's super easy and it can also be paused.
+I wanted a component which I can use by passing props from the server on the first paint but which can also take statuses at run time. With this component it's has just become super easy.
 
 Check it out at [Netlify](https://vue-toastify.netlify.com/)
 
@@ -22,13 +22,13 @@ npm i vue-toastify
 import VueToastify from 'vue-toastify';
 ```
 
-2.  register the component with Vue
+2.  Register the component with Vue:
 ```
-Vue.component('VueToastify', VueToastify);
+Vue.component('vue-toastify', VueToastify);
 ```
-3. add it inside your application
+3. Add it inside your application:
 ```
-<VueToastify :your-props="here" />
+<vue-toastify :your-props="here"></vue-toastify>
 ``` 
 **Props:**
 -
