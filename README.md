@@ -46,7 +46,7 @@ Vue.component('vue-toastify', VueToastify);
 | errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for. |
 | successDuration | Number | 4000 | The duration in milliseconds the error notification should be visible for. |
 | alertInfoDuration | Number | 6000 | The duration in milliseconds the error notification should be visible for. |
-| delay | Number | 750 | If a status passed as a prop, it may already starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification. |
+| initialDelay | Number | 750 | If a status passed as a prop, it may already starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification. |
 | bodyMaxWidth | Number | 250 | Maximum width the body can take up. in px The rest of the notification will always be the same width. |
 | position|String|"bottom-right"| Controls where the notification should appear. Accepted values are: 'top-left', 'top-right', 'bottom-left', 'bottom-right'. |
 | positionXDistance | String | "10px" | Distance from the left or right depending on the position prop. All css values are accepted. |
@@ -69,7 +69,7 @@ Vue.component('vue-toastify', VueToastify);
   - Manually dismissing notification will emit the event "notificationDismissed"
   - Timer events are triggered at the corresponding points: "notificationStarted", "notificationPaused", "notificationResumed", "notificationFinished"
 
- - Pausing the notification is not supporting touch gestures.
+ - Pausing the notification is not supporting touch gestures but might work with long press.
  
 **Todos**
 -

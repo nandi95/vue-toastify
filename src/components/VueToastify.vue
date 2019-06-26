@@ -103,7 +103,7 @@ export default {
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
     alertInfoDuration: { type: Number, default: 6000 },
-    delay: { type: Number, default: 750 },
+    initialDelay: { type: Number, default: 750 },
     canPause: { type: Boolean, default: false },
     bodyMaxWidth: { type: Number, default: 250 },
     position: {
@@ -137,7 +137,8 @@ export default {
       timerId: null,
       timerStartedAt: null,
       timerPausedAt: null,
-      timerFinishesAt: null
+      timerFinishesAt: null,
+      delay: 0
     };
   },
   mounted() {
@@ -215,6 +216,7 @@ export default {
       }
       // set to null so upcoming notification durations will be the expected values
       if (!this.isVisible) {
+        this.delay = 0;
         this.duration = null;
       }
     },
@@ -305,7 +307,7 @@ export default {
           this.timerFinishesAt.getTime() - this.timerStartedAt.getTime();
         const elapsed = Date.now() - this.timerStartedAt.getTime();
 
-        this.progress = Math.ceil((elapsed / wholeTime) * 100);
+        this.progress = (elapsed / wholeTime) * 100;
 
         // if timer is running
         if (this.timerId) {
@@ -366,6 +368,8 @@ export default {
     & > .progress {
       max-width: 100%;
       height: 3px;
+      overflow: hidden;
+      transition: max-width 1ms ease-in-out;
     }
   }
   & > .vt-content {
