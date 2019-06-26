@@ -14,6 +14,7 @@
       :position="position"
       :position-x-distance="positionXDistance"
       :position-y-distance="positionYDistance"
+      :initial-delay="initialDelay"
     />
     <header
       class="flex justify-center text-center flex-col flex-no-wrap mb-10 mt-4"
@@ -108,6 +109,7 @@
                 v-model="status.body"
                 style="min-height: 42px"
                 placeholder="Html is also accepted."
+                @change="checkBody"
               ></textarea>
             </div>
             <div class="flex justify-between align-middle items-center mb-5">
@@ -142,6 +144,7 @@
                   class="cbx"
                   style="display: none"
                   id="can-pause"
+                  @change="checkTimingProps"
                   v-model="status.canPause"
                 />
                 <label for="can-pause" class="toggle"><span></span></label>
@@ -156,6 +159,7 @@
                   style="display: none"
                   id="can-timeout"
                   v-model="status.canTimeout"
+                  @change="checkTimingProps"
                 />
                 <label for="can-timeout" class="toggle"><span></span></label>
               </div>
@@ -195,9 +199,11 @@
               <input
                 type="number"
                 class="input w-1/2 md:w-auto"
-                min="0"
+                min="1"
                 step="1"
                 id="duration"
+                :class="{ disabled: !status.canTimeout }"
+                :disabled="!status.canTimeout"
                 v-model="status.duration"
                 placeholder="ms"
               />
@@ -299,11 +305,16 @@ export default {
       successDuration: 4000, // can only be set on initial load
       alertInfoDuration: 6000, // can only be set on initial load
       bodyMaxWidth: 250, // can only be used for initial load
-      delay: 750, //can only be used for initial load
+      initialDelay: 750, //can only be used for initial load
       position: "bottom-right", // can only be set on initial load
       positionXDistance: "10px", // can only be set on initial load
-      positionYDistance: "10px" // can only be set on initial load
+      positionYDistance: "10px", // can only be set on initial load
+      //example site specific
+      body: null
     };
+  },
+  mounted() {
+    this.body = document.getElementById("body");
   },
   methods: {
     addToastify() {
@@ -315,6 +326,22 @@ export default {
           body: "The body has to be present.",
           type: "error"
         });
+      }
+    },
+    checkTimingProps() {
+      if (!this.status.canTimeout) {
+        this.status.canPause = false;
+        setTimeout(() => {
+          document.getElementById("can-pause").checked = false;
+        }, 75);
+      }
+    },
+    checkBody() {
+      console.log(this.body.value.length);
+      if (this.body.value.length === 0) {
+        this.body.classList.add("invalid");
+      } else {
+        this.body.classList.remove("invalid");
       }
     }
   }
@@ -336,6 +363,16 @@ export default {
   }
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease-out;
+}
+.disabled {
+  cursor: not-allowed;
+  background-color: #d0d0d0;
+  transition: all 0.2s ease-out;
+}
+.invalid {
+  background-color: #c8847d;
+  transition: all 0.2s ease-out;
 }
 * {
   font-family: "Poppins", sans-serif;
