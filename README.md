@@ -1,5 +1,4 @@
-# Vue Toastify [![Netlify Status](https://api.netlify.com/api/v1/badges/bc0cc717-a41e-4317-85d5-bc0ba745b3a5/deploy-status)](https://app.netlify.com/sites/vue-toastify/deploys)
-
+# Vue Toastify [![Netlify Status](https://api.netlify.com/api/v1/badges/bc0cc717-a41e-4317-85d5-bc0ba745b3a5/deploy-status)](https://app.netlify.com/sites/vue-toastify/deploys) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b79acdee41174ed6a25d94e9be8371a7)](https://www.codacy.com/app/nandi95/vue-toastify?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nandi95/vue-toastify&amp;utm_campaign=Badge_Grade)
 
 **Fuss free notification component.**
 
@@ -16,41 +15,42 @@ npm i vue-toastify
 
 **To Use:**
 
-1. Import the component:
+1| Import the component:
 
 ```
 import VueToastify from 'vue-toastify';
 ```
 
-2.  Register the component with Vue:
+2|  Register the component with Vue:
+
 ```
 Vue.component('vue-toastify', VueToastify);
 ```
-3. Add it inside your application:
+
+3| Add it inside your application:
+
 ```
 <vue-toastify :your-props="here"></vue-toastify>
 ``` 
-**Props:**
+
+**Props**
 -
-
- prop | type | default | details 
+ prop | type | default | details |
 ---|---|---|---
-status | Object | null | Not required, you may just let the component listen for future statuses.
-canPause|Boolean|false|Enables pausing of the loader and the timeout on hover.
-defaultTitle | Boolean | true | Enables the fallback to the type as the title.
- eventHandler | String | "EventBus" | This entity will handle the events eg.: Eventbus.$on('notify', ...)
- eventName | String | "notify" | The event the handler will listen for.
- lightTheme | Boolean | false | Change to the light theme.
- errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for.
- successDuration | Number | 4000 | The duration in milliseconds the error notification should be visible for.
- alertInfoDuration | Number | 6000 | The duration in milliseconds the error notification should be visible for.
- delay | Number | 750 | If a status passed as a prop, it may already starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification.
- bodyMaxWidth | Number | 250 | Maximum width the body can take up. in px The rest of the notification will always be the same width.
-position|String|"bottom-right"| Controls where the notification should appear. Accepted values are: 'top-left', 'top-right', 'bottom-left', 'bottom-right'.
-positionXDistance|String|"10px"| Distance from the left or right depending on the position prop. All css values are accepted.
-positionYDistance|String|"10px"| Distance from the top or bottom depending on the position prop. All css values are accepted.
-
-
+| status | Object | null | Not required, you may just let the component listen for future statuses. |
+| canPause | Boolean | false | Enables pausing of the loader and the timeout on hover. |
+| defaultTitle | Boolean | true | Enables the fallback to the type as the title. |
+| eventHandler | String | "EventBus" | This entity will handle the events eg.: Eventbus.$on('notify', ...) |
+| eventName | String | "notify" | The event the handler will listen for. |
+| lightTheme | Boolean | false | Change to the light theme. |
+| errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for. |
+| successDuration | Number | 4000 | The duration in milliseconds the error notification should be visible for. |
+| alertInfoDuration | Number | 6000 | The duration in milliseconds the error notification should be visible for. |
+| delay | Number | 750 | If a status passed as a prop, it may already starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification. |
+| bodyMaxWidth | Number | 250 | Maximum width the body can take up. in px The rest of the notification will always be the same width. |
+| position|String|"bottom-right"| Controls where the notification should appear. Accepted values are: 'top-left', 'top-right', 'bottom-left', 'bottom-right'. |
+| positionXDistance | String | "10px" | Distance from the left or right depending on the position prop. All css values are accepted. |
+| positionYDistance | String | "10px" | Distance from the top or bottom depending on the position prop. All css values are accepted. |
 
 *The status object takes the following attributes:*
  - *body = this is binded using v-html so you can go crazy with it*
@@ -63,7 +63,7 @@ positionYDistance|String|"10px"| Distance from the top or bottom depending on th
 - *(optional) duration = this will take priority over all other duration settings*
 - *(optional) icon = you can customize the displayed icon within the circle using v-html*
 
-**Miscellaneous info:**
+**Miscellaneous info**
 -
 - Events:
   - Manually dismissing notification will emit the event "notificationDismissed"
@@ -71,7 +71,7 @@ positionYDistance|String|"10px"| Distance from the top or bottom depending on th
 
  - Pausing the notification is not supporting touch gestures.
  
-**Todos:**
+**Todos**
 -
  - Add a notification container which will enable displaying multiple notifications at the same time.
  
@@ -84,7 +84,7 @@ positionYDistance|String|"10px"| Distance from the top or bottom depending on th
 
 - Move the progress animation to use purely css
 
-**Contribution:**
+**Contribution**
 -
 1. Fork the project
 2. Set up project
