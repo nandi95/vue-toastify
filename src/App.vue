@@ -4,7 +4,6 @@
       :status="status"
       :can-pause="canPause"
       :event-handler="eventHandler"
-      :event-name="eventName"
       :light-theme="lightTheme"
       :default-title="defaultTitle"
       :error-duration="errorDuration"
@@ -41,7 +40,8 @@
                     status.defaultTitle ||
                     status.canTimeout ||
                     status.canPause ||
-                    status.type
+                    status.type ||
+                    status.mode
                 "
                 >,</span
               >
@@ -54,7 +54,8 @@
                     status.icon ||
                     status.defaultTitle ||
                     status.canTimeout ||
-                    status.canPause
+                    status.canPause ||
+                    status.mode
                 "
                 >,</span
               >
@@ -66,19 +67,32 @@
                   status.duration ||
                     status.icon ||
                     status.defaultTitle ||
-                    status.canTimeout
+                    status.canTimeout ||
+                    status.mode
                 "
                 >,</span
               >
             </p>
             <p class="ml-8" v-if="status.canTimeout">
               canTimeout: <span v-text="status.canTimeout"></span>
-              <span v-if="status.duration || status.icon || status.defaultTitle"
+              <span
+                v-if="
+                  status.duration ||
+                    status.icon ||
+                    status.defaultTitle ||
+                    status.mode
+                "
                 >,</span
               >
             </p>
             <p class="ml-8" v-if="status.defaultTitle">
               defaultTitle: <span v-text="status.defaultTitle"></span
+              ><span v-if="status.duration || status.icon || status.mode"
+                >,</span
+              >
+            </p>
+            <p class="ml-8" v-if="status.mode">
+              mode: "<span v-text="status.mode"></span><span>"</span
               ><span v-if="status.duration || status.icon">,</span>
             </p>
             <p class="ml-8" v-if="status.duration">
@@ -97,7 +111,7 @@
               <input
                 type="text"
                 v-model="status.title"
-                class="input w-3/4 sm:w-2/3 md:w-4/5 lg:w-auto"
+                class="input w-3/4 sm:w-2/3 md:w-4/5"
                 id="title"
               />
             </div>
@@ -105,7 +119,7 @@
               <label for="body">Body:</label>
               <textarea
                 id="body"
-                class="input w-3/4 sm:w-2/3 md:w-4/5 lg:w-auto"
+                class="input w-3/4 sm:w-2/3 md:w-4/5"
                 v-model="status.body"
                 style="min-height: 42px"
                 placeholder="Html is also accepted."
@@ -114,7 +128,12 @@
             </div>
             <div class="flex justify-between align-middle items-center mb-5">
               <label for="type">Type:</label>
-              <select class="input text-center" v-model="status.type" id="type">
+              <select
+                class="input text-center"
+                v-model="status.type"
+                id="type"
+                :disabled="status.mode === 'loader' || status.mode === 'prompt'"
+              >
                 <option value="" class="text-gray-800 font-hairline"
                   >Leave empty</option
                 >
@@ -129,6 +148,25 @@
                 >
                 <option value="info" class="text-gray-800 font-hairline"
                   >Info</option
+                >
+              </select>
+            </div>
+            <div class="flex justify-between align-middle items-center mb-5">
+              <label for="type">Mode:</label>
+              <select
+                class="input text-center"
+                v-model="status.mode"
+                id="mode"
+                @change="disableProps"
+              >
+                <option value="" class="text-gray-800 font-hairline"
+                  >Leave empty</option
+                >
+                <option value="prompt" class="text-gray-800 font-hairline"
+                  >Prompt</option
+                >
+                <option value="loader" class="text-gray-800 font-hairline"
+                  >Loader</option
                 >
               </select>
             </div>
@@ -159,7 +197,10 @@
                   style="display: none"
                   id="can-timeout"
                   v-model="status.canTimeout"
-                  @change="checkTimingProps"
+                  @change="
+                    checkTimingProps();
+                    disableProps();
+                  "
                 />
                 <label for="can-timeout" class="toggle"><span></span></label>
               </div>
@@ -173,6 +214,7 @@
                   style="display: none"
                   id="default-title"
                   v-model="status.defaultTitle"
+                  @change="disableProps"
                 />
                 <label for="default-title" class="toggle"><span></span></label>
               </div>
@@ -292,14 +334,14 @@ export default {
         body: "This is the body.",
         type: null,
         canPause: false,
-        canTimeout: true,
+        canTimeout: false,
         defaultTitle: true,
         duration: null,
-        icon: null
+        icon: null,
+        mode: ""
       },
       //props that can be set on initial load
       eventHandler: "EventBus",
-      eventName: "notify",
       canPause: false,
       lightTheme: false,
       defaultTitle: true,
@@ -321,9 +363,9 @@ export default {
   methods: {
     addToastify() {
       if (this.status.body) {
-        window[this.eventHandler].$emit(this.eventName, this.status);
+        window[this.eventHandler].$emit("vtNotify", this.status);
       } else {
-        window[this.eventHandler].$emit(this.eventName, {
+        window[this.eventHandler].$emit("vtNotify", {
           title: "😠",
           body: "The body has to be present.",
           type: "error"
@@ -336,6 +378,20 @@ export default {
         this.status.canPause = false;
         setTimeout(() => {
           document.getElementById("can-pause").checked = false;
+        }, 75);
+      }
+    },
+    disableProps() {
+      if (this.status.mode === "prompt" || this.status.mode === "loader") {
+        this.status.duration = null;
+        this.status.defaultTitle = false;
+        this.status.canPause = false;
+        this.status.canTimeout = false;
+        this.status.type = "";
+        setTimeout(() => {
+          document.getElementById("can-pause").checked = false;
+          document.getElementById("can-timeout").checked = false;
+          document.getElementById("default-title").checked = false;
         }, 75);
       }
     },

@@ -3,9 +3,9 @@
     <div
       v-if="isVisible"
       class="notification"
-      :style="positionStyle"
+      :style="notificationStyle"
       :class="{ 'theme-light': lightTheme, 'theme-dark': !lightTheme }"
-      @click="toggleVisibility()"
+      @click="dismiss()"
       @mouseenter="timerPause()"
       @mouseleave="timerStart()"
     >
@@ -16,10 +16,26 @@
         <h2 class="vt-title">{{ title | capitalise }}</h2>
         <p class="vt-paragraph" v-html="body"></p>
       </div>
-      <div class="vt-icon-container" v-if="status.icon" :class="colorClass">
+      <div class="vt-icon-container" v-if="status.icon">
         <div class="vt-icon" v-html="status.icon"></div>
       </div>
-      <div v-else class="vt-icon-container" :class="colorClass">
+      <div v-else-if="status.mode === 'loader'" class="vt-icon-container">
+        <div class="vt-spinner"></div>
+      </div>
+      <div
+        v-else-if="status.mode === 'prompt'"
+        class="vt-icon-container vt-circle"
+        :class="{ promptDark: !lightTheme, promptLight: lightTheme }"
+      >
+        <div class="vt-icon">
+          <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+            <path
+              d="M10,19H13V22H10V19M12,2C17.35,2.22 19.68,7.62 16.5,11.67C15.67,12.67 14.33,13.33 13.67,14.17C13,15 13,16 13,17H10C10,15.33 10,13.92 10.67,12.92C11.33,11.92 12.67,11.33 13.5,10.67C15.92,8.43 15.32,5.26 12,5A3,3 0 0,0 9,8H6A6,6 0 0,1 12,2Z"
+            />
+          </svg>
+        </div>
+      </div>
+      <div v-else class="vt-icon-container vt-circle" :class="colorClass">
         <div v-if="colorClass.success" class="vt-icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -72,6 +88,10 @@
           </svg>
         </div>
       </div>
+      <div class="vt-buttons" v-if="status.mode === 'prompt'">
+        <button @click="respond(1)">Yes</button>
+        <button @click="respond(0)">No</button>
+      </div>
     </div>
   </transition>
 </template>
@@ -97,7 +117,6 @@ export default {
   props: {
     status: { type: Object, default: null },
     eventHandler: { type: String, default: "EventBus" },
-    eventName: { type: String, default: "notify" },
     lightTheme: { type: Boolean, default: false },
     defaultTitle: { type: Boolean, default: true },
     errorDuration: { type: Number, default: 8000 },
@@ -110,9 +129,16 @@ export default {
       validator: function(value) {
         // The value must match one of these strings
         return (
-          ["top-left", "top-right", "bottom-left", "bottom-right"].indexOf(
-            value
-          ) !== -1
+          [
+            "top-left",
+            "top-center",
+            "top-right",
+            "left-center",
+            "right-center",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ].indexOf(value) !== -1
         );
       },
       default: "bottom-right"
@@ -123,7 +149,7 @@ export default {
   data() {
     return {
       colorClass: {},
-      positionStyle: {},
+      notificationStyle: {},
       transitionName: "",
       title: "",
       body: "",
@@ -149,7 +175,7 @@ export default {
     }
 
     // listen for notification event
-    window[this.eventHandler].$on(this.eventName, status => {
+    window[this.eventHandler].$on("vtNotify", status => {
       const notification = status;
       if (notification.body) {
         this.setData(notification);
@@ -163,22 +189,39 @@ export default {
       }
       this.startController();
     });
+
+    // listen for loader end event
+    if (this.status.mode === "loader") {
+      window[this.eventHandler].$on("vtLoadStop", () => this.toggleVisibility);
+    }
   },
   beforeMount() {
     if (this.status) {
       this.setData(this.status);
     }
     //dynamic positioning
-    this.positionStyle[this.position.split("-")[0]] = this.positionYDistance;
-    this.positionStyle[this.position.split("-")[1]] = this.positionXDistance;
-    this.transitionName = this.position.split("-")[1];
+    const position = this.position.split("-");
+    this.notificationStyle[position[0]] = this.positionYDistance;
+    if (position[1] === "center") {
+      if (["left", "right"].indexOf(position[0]) !== -1) {
+        this.notificationStyle["top"] = "50%";
+        this.notificationStyle["transform"] = "translateY(-50%)";
+      } else {
+        this.notificationStyle["left"] = "50%";
+        this.notificationStyle["transform"] = "translateX(-50%)";
+      }
+      this.transitionName = position.join("-");
+    } else {
+      this.notificationStyle[position[1]] = this.positionXDistance;
+      this.transitionName = position[1];
+    }
   },
   methods: {
     startController(delay = 0) {
       setTimeout(() => {
         this.toggleVisibility();
         if (this.timesOut) {
-          window[this.eventHandler].$emit("notificationStarted");
+          window[this.eventHandler].$emit("vtStarted");
           // start of the timer (a constant)
           this.timerStartedAt = new Date();
           // initial time to calculate with on the first start
@@ -199,11 +242,15 @@ export default {
     },
     toggleVisibility() {
       // if notification manually dismissed
-      if ((this.progress < 100 || this.timesOut === false) && this.isVisible) {
-        window[this.eventHandler].$emit("notificationDismissed");
+      if (
+        (Math.ceil(this.progress) < 100 || this.timesOut === false) &&
+        this.isVisible &&
+        this.progress !== 0
+      ) {
+        window[this.eventHandler].$emit("vtDismissed");
       }
-      if (this.progress === 100) {
-        window[this.eventHandler].$emit("notificationFinished");
+      if (Math.ceil(this.progress) === 100) {
+        window[this.eventHandler].$emit("vtFinished");
       }
       this.isVisible = !this.isVisible;
       this.progress = 0;
@@ -232,22 +279,38 @@ export default {
             title = status.defaultTitle ? status.type : "";
           }
         } else {
-          if (typeof status.defaultTitle === "undefined") {
-            title = this.titleToDefault ? "info" : "";
+          if (status.defaultTitle === true) {
+            title =
+              this.titleToDefault &&
+              (status.mode !== "prompt" && status.mode !== "loader")
+                ? "info"
+                : "";
           } else {
-            title = status.defaultTitle ? "info" : "";
+            title =
+              status.defaultTitle &&
+              (status.mode !== "prompt" && status.mode !== "loader")
+                ? "info"
+                : "";
           }
         }
       }
       return title;
     },
     setData(status) {
-      this.title = this.decideTitle(status);
       this.body = status.body;
       this.pausable = status.canPause === true ? status.canPause : false;
-      this.timesOut = status.canTimeout === false ? status.canTimeout : true;
+      this.timesOut =
+        status.mode === "prompt" || status.mode === "loader"
+          ? false
+          : status.canTimeout !== false;
+      this.notificationStyle["cursor"] =
+        status.mode === "prompt" || status.mode === "loader"
+          ? "default"
+          : "pointer";
       this.titleToDefault =
-        typeof status.defaultTitle !== "undefined" ? status.defaultTitle : true;
+        status.defaultTitle === true &&
+        (status.mode !== "prompt" || status.mode !== "loader");
+      this.title = this.decideTitle(status);
       // clear any pre-existing classes
       this.colorClass = {};
       this.colorClass[status.type ? status.type : "info"] = true;
@@ -276,7 +339,7 @@ export default {
         );
 
         if (!this.timerId && this.progress > 0) {
-          window[this.eventHandler].$emit("notificationResumed");
+          window[this.eventHandler].$emit("vtResumed");
         }
 
         // set new timeout
@@ -297,7 +360,7 @@ export default {
         // stop loader animation from progressing
         cancelAnimationFrame(this.progressId);
         this.progressId = null;
-        window[this.eventHandler].$emit("notificationPaused");
+        window[this.eventHandler].$emit("vtPaused");
         this.timerPausedAt = new Date();
       }
     },
@@ -316,6 +379,15 @@ export default {
       } else {
         this.progressId = cancelAnimationFrame(this.progressId);
       }
+    },
+    dismiss() {
+      if (this.status.mode !== "prompt" && this.status.mode !== "loader") {
+        this.toggleVisibility();
+      }
+    },
+    respond(response) {
+      this.toggleVisibility();
+      window[this.eventHandler].$emit("vtPrompt", response === 1);
     }
   }
 };
@@ -351,7 +423,6 @@ export default {
   padding: 1% 2%;
   width: auto;
   border-radius: 5px;
-  cursor: pointer;
 
   z-index: 9999;
   position: fixed;
@@ -386,14 +457,16 @@ export default {
       margin: 0.5rem 0;
     }
   }
-  & > .vt-icon-container {
-    margin-left: 5px;
-    margin-bottom: 0;
+  & > .vt-circle {
     border-style: solid;
     border-width: 2px;
     width: 65px;
     height: 65px;
     border-radius: 50%;
+    margin: 0 5px 0 !important;
+  }
+  & > .vt-icon-container {
+    margin: 0 20px;
     position: relative;
     & > .vt-icon {
       position: absolute;
@@ -401,6 +474,49 @@ export default {
       left: 50%;
       transform: translate(-50%, -50%);
     }
+  }
+  & > .vt-buttons {
+    flex-basis: 100%;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: space-evenly;
+    margin: 5px -23px 0;
+    & > button {
+      flex-basis: 48%;
+      width: 30px;
+      border-radius: 4px;
+    }
+  }
+}
+
+.vt-spinner {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: transparent;
+  animation: 1s spin linear infinite;
+}
+
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
   }
 }
 
@@ -421,9 +537,32 @@ export default {
       color: lighten($backgroundColor, 75%);
     }
   }
+  & > .vt-buttons {
+    & > button {
+      border: solid 1px lighten($backgroundColor, 10%);
+      background-color: lighten($backgroundColor, 10%);
+      color: lighten($backgroundColor, 75%);
+      transition: all 0.2s ease-out;
+      &:hover {
+        background-color: lighten($backgroundColor, 65%);
+        color: lighten($backgroundColor, 5%);
+        transition: all 0.2s ease-out;
+      }
+    }
+  }
+  & > .promptDark {
+    & > .vt-icon > svg {
+      fill: lighten($backgroundColor, 70%);
+    }
+    border-color: lighten($backgroundColor, 70%);
+  }
+  & > .vt-icon-container > .vt-spinner {
+    border: 2px solid lighten($backgroundColor, 30%);
+    border-top: 2px solid lighten($backgroundColor, 90%);
+  }
 }
 .theme-light {
-  $backgroundColor: #ffffff;
+  $backgroundColor: #f0f0f0;
   $borderColor: darken($backgroundColor, 30%);
   background-color: $backgroundColor;
   & > .progress-bar {
@@ -439,6 +578,29 @@ export default {
     & > .vt-paragraph {
       color: darken($backgroundColor, 75%);
     }
+  }
+  & > .vt-buttons {
+    & > button {
+      border: solid 1px darken($backgroundColor, 10%);
+      background-color: darken($backgroundColor, 20%);
+      color: darken($backgroundColor, 75%);
+      transition: all 0.2s ease-out;
+      &:hover {
+        background-color: darken($backgroundColor, 55%);
+        color: darken($backgroundColor, 5%);
+        transition: all 0.2s ease-out;
+      }
+    }
+  }
+  & > .promptLight {
+    & > .vt-icon > svg {
+      fill: darken($backgroundColor, 70%);
+    }
+    border-color: darken($backgroundColor, 70%);
+  }
+  & > .vt-icon-container > .vt-spinner {
+    border: 2px solid darken($backgroundColor, 30%);
+    border-top: 2px solid darken($backgroundColor, 90%);
   }
 }
 
@@ -457,6 +619,42 @@ export default {
 }
 .left-enter, .left-leave-to /* .fade-leave-active below version 2.1.8 */ {
   transform: translateX(-50px);
+  opacity: 0;
+}
+
+.bottom-center-enter-active,
+.bottom-center-leave-active {
+  transition: all 0.2s ease-in;
+}
+.bottom-center-enter, .bottom-center-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  margin-bottom: -50px;
+  opacity: 0;
+}
+
+.top-center-enter-active,
+.top-center-leave-active {
+  transition: all 0.2s ease-in;
+}
+.top-center-enter, .top-center-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  margin-top: -50px;
+  opacity: 0;
+}
+
+.left-center-enter-active,
+.left-center-leave-active {
+  transition: all 0.2s ease-in;
+}
+.left-center-enter, .left-center-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  margin-left: -50px;
+  opacity: 0;
+}
+
+.right-center-enter-active,
+.right-center-leave-active {
+  transition: all 0.2s ease-in;
+}
+.right-center-enter, .right-center-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  margin-right: -50px;
   opacity: 0;
 }
 </style>

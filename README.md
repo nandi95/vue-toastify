@@ -20,6 +20,9 @@ npm i vue-toastify
 ```
 import VueToastify from 'vue-toastify';
 ```
+or with CDNs:
+ - [jsDeliver](https://cdn.jsdelivr.net/npm/vue-toastify@latest)
+ - [unpkg](https://unpkg.com/vue-toastify@0.2.1/dist/vue-toastify.umd.min.js)
 
 2|  Register the component with Vue:
 
@@ -41,14 +44,13 @@ Vue.component('vue-toastify', VueToastify);
 | canPause | Boolean | false | Enables pausing of the loader and the timeout on hover. |
 | defaultTitle | Boolean | true | Enables the fallback to the type as the title. |
 | eventHandler | String | "EventBus" | This entity will handle the events eg.: Eventbus.$on('notify', ...) |
-| eventName | String | "notify" | The event the handler will listen for. |
 | lightTheme | Boolean | false | Change to the light theme. |
 | errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for. |
 | successDuration | Number | 4000 | The duration in milliseconds the error notification should be visible for. |
 | alertInfoDuration | Number | 6000 | The duration in milliseconds the error notification should be visible for. |
 | initialDelay | Number | 750 | If a status passed as a prop, it may already starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification. |
 | bodyMaxWidth | Number | 250 | Maximum width the body can take up. in px The rest of the notification will always be the same width. |
-| position|String|"bottom-right"| Controls where the notification should appear. Accepted values are: 'top-left', 'top-right', 'bottom-left', 'bottom-right'. |
+| position|String|"bottom-right"| Controls where the notification should appear. Accepted values are: 'top-left', 'top-center', 'top-right', 'left-center', 'right-center', 'bottom-left',  'bottom-center', 'bottom-right'. (when using centered positions the manual displacement will not work for the axis it's centered on)|
 | positionXDistance | String | "10px" | Distance from the left or right depending on the position prop. All css values are accepted. |
 | positionYDistance | String | "10px" | Distance from the top or bottom depending on the position prop. All css values are accepted. |
 
@@ -58,31 +60,36 @@ Vue.component('vue-toastify', VueToastify);
  - *(optional) type =  accepted values are: 'success', 'alert', 'info', 'error'. If no type given, it falls back to info*
  - *(optional) canPause = you can overwrite what has already been set as
    a prop*
- - *(optional) canTimeout = if set to false the notification has to be dismissed manually, otherwise it defaults to true.*
-- *(optional) defaultTitle = Should the title fall back to the type as the title*
+ - *(optional) canTimeout = if set to false the notification has to be dismissed manually, otherwise it defaults to true*
+- *(optional) defaultTitle = should the title fall back to the type as the title*
 - *(optional) duration = this will take priority over all other duration settings*
 - *(optional) icon = you can customize the displayed icon within the circle using v-html*
+- *(optional) mode = available modes: 'prompt' which will display a yes/no button and emits the vtPrompt event with the respective boolean value (canTimeout automatically gets disabled) or 'loader' which will stay present until it hears the vtLoaderStop event*
 
 **Miscellaneous info**
 -
 - Events:
-  - Manually dismissing notification will emit the event "notificationDismissed"
-  - Timer events are triggered at the corresponding points: "notificationStarted", "notificationPaused", "notificationResumed", "notificationFinished"
+  - To add an event at runtime us the "vtNotify" event, passing the status object
+  - Manually dismissing notification will emit the event "vtDismissed"
+  - Timer events are triggered at the corresponding points: "vtStarted", "vtPaused", "vtResumed", "vtFinished"
+  - Loader can be dismissed using the "vtLoadStop" event
+  - Prompt on answer will emit the "vtPrompt" event with a boolean value
 
- - Pausing the notification is not supporting touch gestures but might work with long press.
+ - Pausing the notification is not supporting touch gestures but might work with long press on some devices.
  
  - 1.0.0 will be released once the notification container has been added.
  
 **Todos**
 -
  - Add a notification container which will enable displaying multiple notifications at the same time.
+    - queueing notification
  
 - Add option that if url attribute specified on the status object, clicking on the notification
  will point the user to the url (SPA supported)
 
 - Increase test coverage
 
-- Allow customisation of the ring's color around the icon when passing in custom icon
+- Add backdrop
 
 - Move the progress animation to use purely css
 
