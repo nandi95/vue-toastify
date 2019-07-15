@@ -22,7 +22,7 @@ import VueToastify from 'vue-toastify';
 ```
 or with CDNs:
  - [jsDeliver](https://cdn.jsdelivr.net/npm/vue-toastify@latest)
- - [unpkg](https://unpkg.com/vue-toastify@0.2.1/dist/vue-toastify.umd.min.js)
+ - [unpkg](https://unpkg.com/vue-toastify@0.3.0/dist/vue-toastify.umd.min.js)
 
 2|  Register the component with Vue:
 
