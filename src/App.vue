@@ -5,6 +5,7 @@
       :can-pause="canPause"
       :event-handler="eventHandler"
       :light-theme="lightTheme"
+      :with-backdrop="withBackdrop"
       :default-title="defaultTitle"
       :error-duration="errorDuration"
       :success-duration="successDuration"
@@ -232,6 +233,19 @@
                 <label for="light-theme" class="toggle"><span></span></label>
               </div>
             </div>
+            <div class="flex justify-between align-middle items-center my-1">
+              <p>With backdrop:</p>
+              <div>
+                <input
+                  type="checkbox"
+                  class="cbx"
+                  style="display: none"
+                  id="with-backdrop"
+                  v-model="withBackdrop"
+                />
+                <label for="with-backdrop" class="toggle"><span></span></label>
+              </div>
+            </div>
           </div>
           <div class="flex flex-col justify-around w-full">
             <div
@@ -308,6 +322,13 @@
           height="30px"
         ></iframe>
         <button
+          v-if="status.mode === 'loader'"
+          @click="loadStop"
+          class="shadow-md rounded bg-blue-800 text-gray-200 px-5 py-3 hover:bg-blue-700 transition active:bg-blue-500"
+        >
+          Fire 'vtLoadStop'
+        </button>
+        <button
           @click="addToastify"
           class="shadow-md rounded bg-blue-800 text-gray-200 px-5 py-3 hover:bg-blue-700 transition active:bg-blue-500"
         >
@@ -345,6 +366,7 @@ export default {
       canPause: false,
       lightTheme: false,
       defaultTitle: true,
+      withBackdrop: false,
       errorDuration: 8000,
       successDuration: 4000,
       alertInfoDuration: 6000,
@@ -359,6 +381,10 @@ export default {
   },
   mounted() {
     this.body = document.getElementById("body");
+    window[this.eventHandler].$on("vtPrompt", response => {
+      console.info("The response was:");
+      console.log(response);
+    });
   },
   methods: {
     addToastify() {
@@ -401,6 +427,9 @@ export default {
       } else {
         this.body.classList.remove("invalid");
       }
+    },
+    loadStop() {
+      window[this.eventHandler].$emit("vtLoadStop");
     }
   }
 };

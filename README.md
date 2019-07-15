@@ -83,13 +83,12 @@ Vue.component('vue-toastify', VueToastify);
 -
  - Add a notification container which will enable displaying multiple notifications at the same time.
     - queueing notification
+    - move backdrop and accept object too
  
 - Add option that if url attribute specified on the status object, clicking on the notification
  will point the user to the url (SPA supported)
 
 - Increase test coverage
-
-- Add backdrop
 
 - Move the progress animation to use purely css
 
