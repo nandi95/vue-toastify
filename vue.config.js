@@ -7,7 +7,10 @@ module.exports = {
       new WebpackBuildNotifierPlugin({
         title: "Vue Toastify"
       })
-    ]
+    ],
+    watchOptions: {
+      ignored: "/node_modules/"
+    }
   },
   devServer: {
     open: true

@@ -1,4 +1,4 @@
-<template>
+<template class="relative">
   <div id="app">
     <VueToastify
       :status="status"
@@ -321,21 +321,28 @@
           width="180px"
           height="30px"
         ></iframe>
-        <button
-          v-if="status.mode === 'loader'"
-          @click="loadStop"
-          class="shadow-md rounded bg-blue-800 text-gray-200 px-5 py-3 hover:bg-blue-700 transition active:bg-blue-500"
-        >
+        <button v-if="status.mode === 'loader'" @click="loadStop" class="btn">
           Fire 'vtLoadStop'
         </button>
-        <button
-          @click="addToastify"
-          class="shadow-md rounded bg-blue-800 text-gray-200 px-5 py-3 hover:bg-blue-700 transition active:bg-blue-500"
-        >
+        <button @click="addToastify" class="btn">
           Toastify!
         </button>
       </div>
     </main>
+    <transition name="warning">
+      <div
+        class="bg-gray-200 rounded-lg shadow-lg px-4 py-3 warning z-50 absolute text-center"
+        v-if="showWarning"
+      >
+        <h3 class="font-bold">
+          With backdrop the rest of the page is inaccessible.
+        </h3>
+        <h4 class="text-sm mb-3">
+          Make sure to also cancel the loading if your process has failed.
+        </h4>
+        <button @click="loadStop" class="btn">Fire 'vtLoadStop'</button>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -376,7 +383,8 @@ export default {
       positionXDistance: "10px",
       positionYDistance: "10px",
       //example site specific
-      body: null
+      body: null,
+      showWarning: false
     };
   },
   mounted() {
@@ -390,6 +398,9 @@ export default {
     addToastify() {
       if (this.status.body) {
         window[this.eventHandler].$emit("vtNotify", this.status);
+        if (this.status.mode === "loader" && this.withBackdrop) {
+          this.showWarning = true;
+        }
       } else {
         window[this.eventHandler].$emit("vtNotify", {
           title: "😠",
@@ -430,6 +441,7 @@ export default {
     },
     loadStop() {
       window[this.eventHandler].$emit("vtLoadStop");
+      this.showWarning = false;
     }
   }
 };
@@ -469,7 +481,6 @@ html {
 }
 body {
   background: rgb(246, 246, 246);
-  /*min-height: 100%;*/
   width: 100%;
   height: auto;
   background: -moz-linear-gradient(
@@ -491,5 +502,30 @@ body {
 }
 #app {
   margin: auto;
+}
+.btn {
+  @apply shadow-md rounded bg-blue-800 text-gray-200 px-5 py-3 bg-blue-700 transition bg-blue-500;
+  &:hover {
+    @apply bg-blue-700;
+  }
+  &:active {
+    @apply bg-blue-800;
+  }
+}
+.warning {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+.warning-enter-active {
+  transition: all 150ms ease-out;
+  transition-delay: 150ms;
+}
+.warning-leave-active {
+  transition: all 100ms ease-in;
+}
+.warning-enter,
+.warning-leave-to {
+  opacity: 0;
 }
 </style>
