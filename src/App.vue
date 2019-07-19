@@ -102,7 +102,7 @@
               <span v-if="status.icon">,</span>
             </p>
             <p v-if="status.icon" class="ml-8">
-              icon: <span v-text="status.icon"></span>
+              icon: "<span v-text="status.icon"></span><span>"</span>
             </p>
             <p>}</p>
           </div>
