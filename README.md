@@ -45,6 +45,7 @@ Vue.component('vue-toastify', VueToastify);
 | defaultTitle | Boolean | true | Enables the fallback to the type as the title. |
 | eventHandler | String | "EventBus" | This entity will handle the events eg.: Eventbus.$on('notify', ...) |
 | lightTheme | Boolean | false | Change to the light theme. |
+| withBackdrop | Boolean | false | Add backdrop. |
 | errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for. |
 | successDuration | Number | 4000 | The duration in milliseconds the error notification should be visible for. |
 | alertInfoDuration | Number | 6000 | The duration in milliseconds the error notification should be visible for. |
