@@ -42,7 +42,8 @@
                     status.canTimeout ||
                     status.canPause ||
                     status.type ||
-                    status.mode
+                    status.mode ||
+                    status.answers
                 "
                 >,</span
               >
@@ -56,7 +57,8 @@
                     status.defaultTitle ||
                     status.canTimeout ||
                     status.canPause ||
-                    status.mode
+                    status.mode ||
+                    status.answers
                 "
                 >,</span
               >
@@ -69,7 +71,8 @@
                     status.icon ||
                     status.defaultTitle ||
                     status.canTimeout ||
-                    status.mode
+                    status.mode ||
+                    status.answers
                 "
                 >,</span
               >
@@ -81,19 +84,32 @@
                   status.duration ||
                     status.icon ||
                     status.defaultTitle ||
-                    status.mode
+                    status.mode ||
+                    status.answers
                 "
                 >,</span
               >
             </p>
             <p class="ml-8" v-if="status.defaultTitle">
               defaultTitle: <span v-text="status.defaultTitle"></span
-              ><span v-if="status.duration || status.icon || status.mode"
+              ><span
+                v-if="
+                  status.duration ||
+                    status.icon ||
+                    status.mode ||
+                    status.answers
+                "
                 >,</span
               >
             </p>
             <p class="ml-8" v-if="status.mode">
               mode: "<span v-text="status.mode"></span><span>"</span
+              ><span v-if="status.duration || status.icon || status.answers"
+                >,</span
+              >
+            </p>
+            <p class="ml-8" v-if="status.answers">
+              answers: <span v-text="status.answers"></span
               ><span v-if="status.duration || status.icon">,</span>
             </p>
             <p class="ml-8" v-if="status.duration">
@@ -122,7 +138,6 @@
                 id="body"
                 class="input w-3/4 sm:w-2/3 md:w-4/5"
                 v-model="status.body"
-                style="min-height: 42px"
                 placeholder="Html is also accepted."
                 @change="checkBody"
               ></textarea>
@@ -170,6 +185,19 @@
                   >Loader</option
                 >
               </select>
+            </div>
+            <div
+              class="flex justify-between align-middle items-center mb-5"
+              v-if="status.mode === 'prompt'"
+            >
+              <label for="type">Answers:</label>
+              <textarea
+                v-model="status.answers"
+                id="answers"
+                class="input w-3/4 sm:w-2/3 md:w-4/5"
+                placeholder="eg.: {Yes: true, No: false}"
+              >
+              </textarea>
             </div>
           </div>
         </div>
@@ -241,6 +269,7 @@
                   class="cbx"
                   style="display: none"
                   id="with-backdrop"
+                  @change="checkIfLoading"
                   v-model="withBackdrop"
                 />
                 <label for="with-backdrop" class="toggle"><span></span></label>
@@ -249,7 +278,7 @@
           </div>
           <div class="flex flex-col justify-around w-full">
             <div
-              class="flex justify-around align-middle items-center w-3/4 sm:w-2/3 md:w-4/5 lg:w-auto"
+              class="flex flex-row justify-between align-middle items-center w-3/4 md:w-2/3 lg:w-10/12 mx-auto"
             >
               <label for="duration">Duration:</label>
               <input
@@ -265,12 +294,11 @@
               />
             </div>
             <div
-              class="flex flex-row justify-around align-middle items-center w-3/4 sm:w-2/3 md:w-4/5 lg:w-auto mt-3"
+              class="flex flex-row justify-between align-middle items-center w-3/4 md:w-2/3 lg:w-10/12 mt-3 mx-auto"
             >
               <label for="icon">Icon:</label>
               <textarea
                 class="input w-auto sm:w-3/4 md:w-auto"
-                style="min-height: 42px"
                 id="icon"
                 v-model="status.icon"
                 placeholder="Html is expected"
@@ -305,7 +333,7 @@
                 <a
                   target="_blank"
                   href="https://github.com/nandi95/vue-toastify"
-                  class="transition underline hover:no-underline text-blue-500 hover:text-blue-900"
+                  class="transition-all underline hover:no-underline text-blue-500 hover:text-blue-900"
                   >Github</a
                 >
               </p>
@@ -367,7 +395,8 @@ export default {
         defaultTitle: true,
         duration: null,
         icon: null,
-        mode: ""
+        mode: "",
+        answers: null
       },
       //props that can be set on initial load
       eventHandler: "EventBus",
@@ -385,7 +414,8 @@ export default {
       positionYDistance: "10px",
       //example site specific
       body: null,
-      showWarning: false
+      showWarning: false,
+      loading: false
     };
   },
   mounted() {
@@ -398,9 +428,28 @@ export default {
   methods: {
     addToastify() {
       if (this.status.body) {
-        window[this.eventHandler].$emit("vtNotify", this.status);
-        if (this.status.mode === "loader" && this.withBackdrop) {
-          this.showWarning = true;
+        if (this.status.answers && this.status.mode === "prompt") {
+          try {
+            const answersString = this.status.answers;
+            this.status.answers = eval("(" + answersString + ")");
+            window[this.eventHandler].$emit("vtNotify", this.status);
+            this.status.answers = answersString; // {gf:"zdfg",fd:true}
+          } catch (error) {
+            window[this.eventHandler].$emit("vtNotify", {
+              body:
+                "Invalid answers object. More info can be found in the console.",
+              type: "error"
+            });
+            console.error(error);
+          }
+        } else {
+          window[this.eventHandler].$emit("vtNotify", this.status);
+          if (this.status.mode === "loader") {
+            this.loading = true;
+            if (this.withBackdrop) {
+              this.showWarning = true;
+            }
+          }
         }
       } else {
         window[this.eventHandler].$emit("vtNotify", {
@@ -442,7 +491,13 @@ export default {
     },
     loadStop() {
       window[this.eventHandler].$emit("vtLoadStop");
+      this.loading = false;
       this.showWarning = false;
+    },
+    checkIfLoading() {
+      if (this.loading) {
+        this.showWarning = true;
+      }
     }
   }
 };
@@ -450,8 +505,11 @@ export default {
 
 <style lang="scss">
 @import "./assets/styles";
+.transition-all {
+  transition: all 0.2s ease-out;
+}
 .input {
-  @apply rounded-bl-sm h-10 transition p-2 bg-gray-200 shadow w-auto;
+  @apply rounded-bl-sm h-10 p-2 bg-gray-200 shadow w-auto;
   &:focus {
     box-shadow: inset 0 0 7px 0 rgba(0, 0, 0, 0.05);
     background-color: #eeeeee;
@@ -460,10 +518,12 @@ export default {
     border-top: none;
     border-bottom: none;
     outline: none;
+    transition: all 0.2s ease-out;
   }
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  transition: background-color 0.2s ease-out;
+  transition: all 0.2s ease-out;
+  min-height: 42px;
 }
 .disabled {
   cursor: not-allowed;
@@ -505,12 +565,15 @@ body {
   margin: auto;
 }
 .btn {
-  @apply shadow-md rounded bg-blue-800 text-gray-200 px-5 py-3 bg-blue-700 transition bg-blue-500;
+  @apply shadow-md rounded bg-blue-800 text-gray-200 px-5 py-3 bg-blue-700 bg-blue-500;
+  transition: all 0.2s ease-out;
   &:hover {
     @apply bg-blue-700;
+    transition: all 0.2s ease-out;
   }
   &:active {
     @apply bg-blue-800;
+    transition: all 0.2s ease-out;
   }
 }
 .warning {

@@ -1,4 +1,4 @@
-# Vue Toastify [![Netlify Status](https://api.netlify.com/api/v1/badges/bc0cc717-a41e-4317-85d5-bc0ba745b3a5/deploy-status)](https://app.netlify.com/sites/vue-toastify/deploys) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b79acdee41174ed6a25d94e9be8371a7)](https://www.codacy.com/app/nandi95/vue-toastify?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nandi95/vue-toastify&amp;utm_campaign=Badge_Grade)
+# Vue Toastify [![Netlify Status](https://api.netlify.com/api/v1/badges/bc0cc717-a41e-4317-85d5-bc0ba745b3a5/deploy-status)](https://app.netlify.com/sites/vue-toastify/deploys)
 
 **Fuss free notification component.**
 
@@ -43,13 +43,13 @@ Vue.component('vue-toastify', VueToastify);
 | status | Object | null | Not required, you may just let the component listen for future statuses. |
 | canPause | Boolean | false | Enables pausing of the loader and the timeout on hover. |
 | defaultTitle | Boolean | true | Enables the fallback to the type as the title. |
-| eventHandler | String | "EventBus" | This entity will handle the events eg.: Eventbus.$on('notify', ...) |
+| eventHandler | String | "EventBus" | This entity will handle the events eg.: Eventbus.$on('vtNotify', ...) |
 | lightTheme | Boolean | false | Change to the light theme. |
 | withBackdrop | Boolean | false | Add backdrop. |
 | errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for. |
 | successDuration | Number | 4000 | The duration in milliseconds the error notification should be visible for. |
 | alertInfoDuration | Number | 6000 | The duration in milliseconds the error notification should be visible for. |
-| initialDelay | Number | 750 | If a status passed as a prop, it may already starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification. |
+| initialDelay | Number | 750 | If a status passed as a prop, it may starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification. |
 | bodyMaxWidth | Number | 250 | Maximum width the body can take up. in px The rest of the notification will always be the same width. |
 | position|String|"bottom-right"| Controls where the notification should appear. Accepted values are: 'top-left', 'top-center', 'top-right', 'left-center', 'right-center', 'bottom-left',  'bottom-center', 'bottom-right'. (when using centered positions the manual displacement will not work for the axis it's centered on)|
 | positionXDistance | String | "10px" | Distance from the left or right depending on the position prop. All css values are accepted. |
@@ -65,16 +65,19 @@ Vue.component('vue-toastify', VueToastify);
 - *(optional) defaultTitle = should the title fall back to the type as the title*
 - *(optional) duration = this will take priority over all other duration settings*
 - *(optional) icon = you can customize the displayed icon within the circle using v-html*
-- *(optional) mode = available modes: 'prompt' which will display a yes/no button and emits the vtPrompt event with the respective boolean value (canTimeout automatically gets disabled) or 'loader' which will stay present until it hears the vtLoaderStop event*
+- *(optional) mode = available modes: 'prompt' which will display a yes/no button by default and emits the vtPrompt event with the respective boolean value (canTimeout automatically gets disabled) or 'loader' which will stay present until it hears the vtLoaderStop event*
+- *(optional) answers = a javascript object of answers eg.: { displayedValue: "emittedValue" }*
+
+You may alternatively pass in an html error response.
 
 **Miscellaneous info**
 -
 - Events:
-  - To add an event at runtime us the "vtNotify" event, passing the status object
+  - To add an event at runtime, use the "vtNotify" event, passing the status object
   - Manually dismissing notification will emit the event "vtDismissed"
   - Timer events are triggered at the corresponding points: "vtStarted", "vtPaused", "vtResumed", "vtFinished"
   - Loader can be dismissed using the "vtLoadStop" event
-  - Prompt on answer will emit the "vtPrompt" event with a boolean value
+  - Prompt on answer will emit the "vtPrompt" event with the defined answer
 
  - Pausing the notification is not supporting touch gestures but might work with long press on some devices.
  
@@ -90,6 +93,8 @@ Vue.component('vue-toastify', VueToastify);
  will point the user to the url (SPA supported)
 
 - Increase test coverage
+
+- Remove core-js dependency
 
 - Move the progress animation to use purely css
 

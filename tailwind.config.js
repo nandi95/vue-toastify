@@ -391,25 +391,39 @@ module.exports = {
     },
     textColor: theme => theme("colors"),
     transitionDelay: {
-      none: "0ms"
+      default: "0ms",
+      "0": "0ms",
+      "100": "100ms",
+      "250": "250ms",
+      "500": "500ms",
+      "750": "750ms",
+      "1000": "1000ms"
     },
     transitionDuration: {
       default: "250ms",
+      "0": "0ms",
       "100": "100ms",
-      "200": "200ms",
-      "300": "300ms",
-      "400": "400ms",
-      "500": "500ms"
+      "250": "250ms",
+      "500": "500ms",
+      "750": "750ms",
+      "1000": "1000ms"
     },
     transitionProperty: {
-      color: "color",
-      "border-color": "border-color",
+      none: "none",
+      all: "all",
       bg: "background-color",
+      border: "border-color",
+      colors: ["color", "background-color", "border-color"],
       opacity: "opacity",
       transform: "transform"
     },
     transitionTimingFunction: {
-      default: "ease-out"
+      default: "ease",
+      linear: "linear",
+      ease: "ease",
+      "ease-in": "ease-in",
+      "ease-out": "ease-out",
+      "ease-in-out": "ease-in-out"
     },
     width: theme => ({
       auto: "auto",
@@ -453,6 +467,9 @@ module.exports = {
       "50": 50
     },
     willChange: {
+      auto: "auto",
+      scroll: "scroll-position",
+      contents: "contents",
       opacity: "opacity",
       transform: "transform"
     }
@@ -529,15 +546,5 @@ module.exports = {
     zIndex: ["responsive"]
   },
   corePlugins: {},
-  plugins: [
-    require("tailwindcss-transition")({
-      standard: "all .2s ease",
-      transitions: {
-        slow: "all 2s ease",
-        "normal-in-out-quad": "all 2s cubic-bezier(0.455, 0.03, 0.515, 0.955)",
-        "slow-in-out-quad": "all 2s cubic-bezier(0.455, 0.03, 0.515, 0.955)"
-      },
-      variants: ["responsive", "hover"]
-    })
-  ]
+  plugins: []
 };

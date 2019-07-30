@@ -3,7 +3,7 @@
     <transition :name="transitionName">
       <div
         v-if="isVisible"
-        class="notification"
+        class="vt-notification"
         :style="notificationStyle"
         :class="{ 'theme-light': lightTheme, 'theme-dark': !lightTheme }"
         @click="dismiss()"
@@ -90,8 +90,12 @@
           </div>
         </div>
         <div class="vt-buttons" v-if="mode === 'prompt'">
-          <button @click="respond(1)">Yes</button>
-          <button @click="respond(0)">No</button>
+          <button
+            v-for="(value, answerProperty, index) in promptAnswers"
+            :key="index"
+            @click="respond(value)"
+            v-text="answerProperty"
+          ></button>
         </div>
       </div>
     </transition>
@@ -157,6 +161,7 @@ export default {
       title: "",
       body: "",
       mode: "",
+      promptAnswers: null,
       isVisible: false,
       pausable: false,
       timesOut: true,
@@ -177,7 +182,7 @@ export default {
       //delay to make sure the client fully loads the page
       this.startController(this.delay);
       if (this.status.mode === "loader") {
-        window[this.eventHandler].$on("vtLoadStop", () =>
+        window[this.eventHandler].$once("vtLoadStop", () =>
           this.toggleVisibility()
         );
       }
@@ -187,18 +192,19 @@ export default {
     window[this.eventHandler].$on("vtNotify", status => {
       if (status.body) {
         this.setData(status);
-      } else {
+        this.startController();
+      } else if (status.status && status.statusText) {
         // http error expected to be passed in
         this.setData({
           title: status.status.toString(),
           body: status.statusText,
           type: "error"
         });
+        this.startController();
       }
-      this.startController();
       // listen for loader end event
       if (status.mode === "loader") {
-        window[this.eventHandler].$on("vtLoadStop", () => {
+        window[this.eventHandler].$once("vtLoadStop", () => {
           // loader on second vtLoaderStop fires twice
           if (this.isVisible) {
             this.toggleVisibility();
@@ -313,6 +319,10 @@ export default {
       this.body = status.body;
       this.pausable = status.canPause === true ? status.canPause : false;
       this.mode = status.mode;
+      this.promptAnswers =
+        status.answers && Object.keys(status.answers).length > 0
+          ? status.answers
+          : { Yes: true, No: false };
       this.timesOut =
         status.mode === "prompt" || status.mode === "loader"
           ? false
@@ -401,7 +411,7 @@ export default {
     },
     respond(response) {
       this.toggleVisibility();
-      window[this.eventHandler].$emit("vtPrompt", response === 1);
+      window[this.eventHandler].$emit("vtPrompt", response);
     }
   }
 };
@@ -432,7 +442,7 @@ export default {
   }
   border-color: #b11414;
 }
-.notification {
+.vt-notification {
   box-shadow: 0 0 10px 0.5px rgba(0, 0, 0, 0.35);
   padding: 1% 2%;
   width: auto;
@@ -492,13 +502,15 @@ export default {
   & > .vt-buttons {
     flex-basis: 100%;
     display: flex;
+    flex-flow: row wrap;
     align-content: center;
     align-items: center;
     justify-content: space-evenly;
     margin: 5px -23px 0;
     & > button {
       flex-basis: 48%;
-      width: 30px;
+      width: auto;
+      margin-bottom: 4px;
       border-radius: 4px;
     }
   }
