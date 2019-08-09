@@ -377,7 +377,6 @@
 
 <script>
 import VueToastify from "./components/VueToastify";
-// todo - fix tailwind export for production
 export default {
   name: "app",
   components: {
@@ -433,7 +432,7 @@ export default {
             const answersString = this.status.answers;
             this.status.answers = eval("(" + answersString + ")");
             window[this.eventHandler].$emit("vtNotify", this.status);
-            this.status.answers = answersString; // {gf:"zdfg",fd:true}
+            this.status.answers = answersString;
           } catch (error) {
             window[this.eventHandler].$emit("vtNotify", {
               body:

@@ -22,7 +22,7 @@ import VueToastify from 'vue-toastify';
 ```
 or with CDNs:
  - [jsDeliver](https://cdn.jsdelivr.net/npm/vue-toastify@latest)
- - [unpkg](https://unpkg.com/vue-toastify@0.3.0/dist/vue-toastify.umd.min.js)
+ - [unpkg](https://unpkg.com/vue-toastify@0.4.0/dist/vue-toastify.umd.min.js)
 
 2|  Register the component with Vue:
 
@@ -35,6 +35,13 @@ Vue.component('vue-toastify', VueToastify);
 ```
 <vue-toastify :your-props="here"></vue-toastify>
 ``` 
+
+4| Call it from the script:
+
+```
+EventBus.$emit('vtNotify', statusObject);
+```
+###### _For more elaborate example, see the site's code_
 
 **Props**
 -
@@ -68,7 +75,7 @@ Vue.component('vue-toastify', VueToastify);
 - *(optional) mode = available modes: 'prompt' which will display a yes/no button by default and emits the vtPrompt event with the respective boolean value (canTimeout automatically gets disabled) or 'loader' which will stay present until it hears the vtLoaderStop event*
 - *(optional) answers = a javascript object of answers eg.: { displayedValue: "emittedValue" }*
 
-You may alternatively pass in an html error response.
+You may alternatively pass in an http error response.
 
 **Miscellaneous info**
 -
