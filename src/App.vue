@@ -1,5 +1,5 @@
-<template class="relative">
-  <div id="app">
+<template>
+  <div id="app" class="relative">
     <VueToastify
       :status="status"
       :can-pause="canPause"
@@ -17,7 +17,7 @@
       :initial-delay="initialDelay"
     />
     <header
-      class="flex justify-center text-center flex-col flex-no-wrap mb-10 mt-4"
+      class="flex justify-center text-center flex-col flex-no-wrap mb-10 pt-4"
     >
       <h2 class="text-blue-800 font-bold text-3xl mb-2">Vue Toastify</h2>
       <p class="text-gray-600">A fuss free notification component.</p>
@@ -342,7 +342,7 @@
           </div>
         </div>
       </div>
-      <div class="flex justify-around items-center align-middle flex-wrap mb-4">
+      <div class="flex justify-around items-center align-middle flex-wrap pb-4">
         <iframe
           src="https://ghbtns.com/github-btn.html?user=nandi95&repo=vue-toastify&type=star&count=true&size=large"
           frameborder="0"
