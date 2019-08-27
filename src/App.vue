@@ -1,6 +1,7 @@
 <template>
   <div id="app" class="relative">
     <VueToastify
+      :alerts="alerts"
       :status="status"
       :can-pause="canPause"
       :event-handler="eventHandler"
@@ -17,7 +18,7 @@
       :initial-delay="initialDelay"
     />
     <header
-      class="flex justify-center text-center flex-col flex-no-wrap mb-10 pt-4"
+      class="flex justify-center text-center flex-col flex-no-wrap mb-10 pt-3"
     >
       <h2 class="text-blue-800 font-bold text-3xl mb-2">Vue Toastify</h2>
       <p class="text-gray-600">A fuss free notification component.</p>
@@ -396,9 +397,11 @@ export default {
         icon: null,
         mode: "",
         answers: null
+        // id optional
       },
       //props that can be set on initial load
       eventHandler: "EventBus",
+      alerts: [],
       canPause: false,
       lightTheme: false,
       defaultTitle: true,
@@ -532,6 +535,9 @@ export default {
 .invalid {
   background-color: #c8847d;
   transition: all 0.2s ease-out;
+  &::placeholder {
+    color: #2d3748;
+  }
 }
 * {
   font-family: "Poppins", sans-serif;

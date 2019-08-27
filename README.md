@@ -105,6 +105,8 @@ You may alternatively pass in an http error response.
 
 - Move the progress animation to use purely css
 
+- Add colour customization
+
 **Contribution**
 -
 1. Fork the project
