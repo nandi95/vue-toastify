@@ -88,7 +88,7 @@ You may alternatively pass in an http error response.
 
  - Pausing the notification is not supporting touch gestures but might work with long press on some devices.
  
- - 1.0.0 will be released once the notification container has been added.
+  **1.0.0 will be released once the notification container has been added.**
  
 **Todos**
 -
@@ -104,6 +104,10 @@ You may alternatively pass in an http error response.
 - Remove core-js dependency
 
 - Move the progress animation to use purely css
+
+- Extract styles
+
+- Add a method on the instance like `$this.vtNotify.success(Object|String)` which returns a promise
 
 **Contribution**
 -
