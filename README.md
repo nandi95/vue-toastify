@@ -92,9 +92,8 @@ You may alternatively pass in an http error response.
  
 **Todos**
 -
- - Add a notification container which will enable displaying multiple notifications at the same time.
+ - Add a notification container which will enable displaying multiple notifications at the same time. (in progress)
     - queueing notification
-    - move backdrop and accept object too
  
 - Add option that if url attribute specified on the status object, clicking on the notification
  will point the user to the url (SPA supported)
@@ -107,7 +106,7 @@ You may alternatively pass in an http error response.
 
 - Extract styles
 
-- Add a method on the instance like `$this.vtNotify.success(Object|String)` which returns a promise
+- Add a method on the instance like `$this.vToastify.success(Object|String)` which returns a promise (in progress)
 
 **Contribution**
 -
