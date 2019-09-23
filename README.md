@@ -103,9 +103,13 @@ You may alternatively pass in an http error response.
 
 - Remove core-js dependency
 
+- Add touch swipe gestures
+
 - Move the progress animation to use purely css
 
-- Add colour customization
+- Re-write in TypeScript and use the vue core's `validateProps()`
+
+- Styles customizable
 
 **Contribution**
 -

@@ -1,22 +1,5 @@
 <template>
   <div id="app" class="relative">
-    <VueToastify
-      :alerts="alerts"
-      :status="status"
-      :can-pause="canPause"
-      :event-handler="eventHandler"
-      :light-theme="lightTheme"
-      :with-backdrop="withBackdrop"
-      :default-title="defaultTitle"
-      :error-duration="errorDuration"
-      :success-duration="successDuration"
-      :alert-info-duration="alertInfoDuration"
-      :body-max-width="bodyMaxWidth"
-      :position="position"
-      :position-x-distance="positionXDistance"
-      :position-y-distance="positionYDistance"
-      :initial-delay="initialDelay"
-    />
     <header
       class="flex justify-center text-center flex-col flex-no-wrap mb-10 pt-3"
     >
@@ -343,7 +326,7 @@
           </div>
         </div>
       </div>
-      <div class="flex justify-around items-center align-middle flex-wrap pb-4">
+      <div class="flex justify-around items-center align-middle flex-wrap my-4">
         <iframe
           src="https://ghbtns.com/github-btn.html?user=nandi95&repo=vue-toastify&type=star&count=true&size=large"
           frameborder="0"
@@ -361,7 +344,8 @@
     </main>
     <transition name="warning">
       <div
-        class="bg-gray-200 rounded-lg shadow-lg px-4 py-3 warning z-50 absolute text-center"
+        class="bg-gray-200 rounded-lg shadow-lg px-4 py-3 warning absolute text-center"
+        style="z-index: 51"
         v-if="showWarning"
       >
         <h3 class="font-bold">
@@ -377,15 +361,10 @@
 </template>
 
 <script>
-import VueToastify from "./components/VueToastify";
 export default {
   name: "app",
-  components: {
-    VueToastify
-  },
   data() {
     return {
-      //status that can be passed as a prop or an event
       status: {
         title: "toastified!",
         body: "This is the body.",
@@ -397,10 +376,7 @@ export default {
         icon: null,
         mode: "",
         answers: null
-        // id optional
       },
-      //props that can be set on initial load
-      eventHandler: "EventBus",
       alerts: [],
       canPause: false,
       lightTheme: false,
@@ -414,17 +390,17 @@ export default {
       position: "bottom-right",
       positionXDistance: "10px",
       positionYDistance: "10px",
-      //example site specific
+      //example site specific data
       body: null,
       showWarning: false,
       loading: false
     };
   },
   mounted() {
-    this.body = document.getElementById("body");
-    window[this.eventHandler].$on("vtPrompt", response => {
+    this.$vtNotify(this.status);
+    this.$on("vtPromptResponse", resp => {
       console.info("The response was:");
-      console.log(response);
+      console.log(resp.response);
     });
   },
   methods: {
@@ -434,18 +410,16 @@ export default {
           try {
             const answersString = this.status.answers;
             this.status.answers = eval("(" + answersString + ")");
-            window[this.eventHandler].$emit("vtNotify", this.status);
+            this.$vtNotify(this.status);
             this.status.answers = answersString;
           } catch (error) {
-            window[this.eventHandler].$emit("vtNotify", {
-              body:
-                "Invalid answers object. More info can be found in the console.",
-              type: "error"
-            });
+            this.$vToastify.error(
+              "Invalid answers object. More info can be found in the console."
+            );
             console.error(error);
           }
         } else {
-          window[this.eventHandler].$emit("vtNotify", this.status);
+          this.$vtNotify(this.status);
           if (this.status.mode === "loader") {
             this.loading = true;
             if (this.withBackdrop) {
@@ -454,11 +428,7 @@ export default {
           }
         }
       } else {
-        window[this.eventHandler].$emit("vtNotify", {
-          title: "😠",
-          body: "The body has to be present.",
-          type: "error"
-        });
+        this.$vToastify.error("The body has to be present.", "😠");
       }
     },
     checkTimingProps() {
@@ -492,7 +462,7 @@ export default {
       }
     },
     loadStop() {
-      window[this.eventHandler].$emit("vtLoadStop");
+      this.$vToastify.stopLoader();
       this.loading = false;
       this.showWarning = false;
     },
@@ -500,6 +470,11 @@ export default {
       if (this.loading) {
         this.showWarning = true;
       }
+    }
+  },
+  watch: {
+    withBackdrop: function(newValue) {
+      this.$vToastify.setSettings({ withBackdrop: newValue });
     }
   }
 };

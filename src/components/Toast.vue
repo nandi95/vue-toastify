@@ -1,12 +1,16 @@
 <template>
-<!--  https://artemsky.github.io/vue-snotify/-->
+  <!--  https://artemsky.github.io/vue-snotify/-->
   <div>
     <transition :name="transitionName">
       <div
         v-if="isVisible"
         class="vt-notification"
         :style="notificationStyle"
-        :class="{ 'theme-light': lightTheme, 'theme-dark': !lightTheme }"
+        :class="{
+          'theme-light': lightTheme,
+          'theme-dark': !lightTheme,
+          'vt-cursor-loading': mode === 'loader'
+        }"
         @click="dismiss()"
         @mouseenter="timerPause()"
         @mouseleave="timerStart()"
@@ -123,8 +127,6 @@ export default {
   },
   props: {
     status: { type: Object, default: null },
-    eventHandler: { type: String, default: "EventBus" },
-    eventSuffix: { type: String, required: false },
     lightTheme: { type: Boolean, default: false },
     defaultTitle: { type: Boolean, default: true },
     errorDuration: { type: Number, default: 8000 },
@@ -181,9 +183,16 @@ export default {
     if (this.status !== null) {
       this.startController();
       if (this.status.mode === "loader") {
-        window[this.eventHandler].$once("vtLoadStop", () =>
-          this.toggleVisibility()
-        );
+        this.$root.$once("vtLoadStop", payload => {
+          //if all loaders should stop or only this
+          if (payload.hasOwnProperty("id") && payload.id !== null) {
+            if (payload.id === this.status.id) {
+              this.toggleVisibility();
+            }
+          } else {
+            this.toggleVisibility();
+          }
+        });
       }
     }
   },
@@ -212,7 +221,7 @@ export default {
     startController() {
       this.toggleVisibility();
       if (this.timesOut) {
-        window[this.eventHandler].$emit("vtStarted");
+        this.$root.$emit("vtStarted", { id: this.status.id });
         // start of the timer (a constant)
         this.timerStartedAt = new Date();
         // initial time to calculate with on the first start
@@ -233,14 +242,18 @@ export default {
     toggleVisibility() {
       // if notification manually dismissed
       if (
-        (Math.ceil(this.progress) < 100 || this.timesOut === false) &&
+        ((Math.ceil(this.progress) < 100 && this.progress !== 0) ||
+          this.timesOut === false) &&
         this.isVisible &&
-        this.progress !== 0
+        ["prompt", "loader"].indexOf(this.mode) === -1
       ) {
-        window[this.eventHandler].$emit("vtDismissed");
+        this.$root.$emit("vtDismissed", { id: this.status.id });
       }
-      if (Math.ceil(this.progress) === 100) {
-        window[this.eventHandler].$emit("vtFinished");
+      if (
+        Math.ceil(this.progress) === 100 &&
+        ["prompt", "loader"].indexOf(this.mode) === -1
+      ) {
+        this.$root.$emit("vtFinished", { id: this.status.id });
       }
       this.isVisible = !this.isVisible;
       this.progress = 0;
@@ -254,7 +267,6 @@ export default {
       }
       // set to null so upcoming notification durations will be the expected values
       if (!this.isVisible) {
-        this.delay = 0;
         this.duration = null;
       }
     },
@@ -300,9 +312,7 @@ export default {
           ? false
           : status.canTimeout !== false;
       this.notificationStyle["cursor"] =
-        status.mode === "prompt" || status.mode === "loader"
-          ? "default"
-          : "pointer";
+        status.mode === "loader" ? "wait" : "default";
       this.titleToDefault =
         status.defaultTitle === true &&
         (status.mode !== "prompt" || status.mode !== "loader");
@@ -319,7 +329,7 @@ export default {
         : status.type === "success"
         ? this.successDuration
         : this.alertInfoDuration;
-      this.timerFinishesAt = new Date(duration + Date.now() + this.delay);
+      this.timerFinishesAt = new Date(duration + Date.now());
     },
     timerStart() {
       if (this.pausable) {
@@ -335,7 +345,7 @@ export default {
         );
 
         if (!this.timerId && this.progress > 0) {
-          window[this.eventHandler].$emit("vtResumed");
+          this.$root.$emit("vtResumed", { id: this.status.id });
         }
 
         // set new timeout
@@ -356,7 +366,7 @@ export default {
         // stop loader animation from progressing
         cancelAnimationFrame(this.progressId);
         this.progressId = null;
-        window[this.eventHandler].$emit("vtPaused");
+        this.$root.$emit("vtPaused", { id: this.status.id });
         this.timerPausedAt = new Date();
       }
     },
@@ -383,7 +393,10 @@ export default {
     },
     respond(response) {
       this.toggleVisibility();
-      window[this.eventHandler].$emit("vtPrompt", response);
+      this.$root.$emit("vtPromptResponse", {
+        id: this.status.id,
+        response: response
+      });
     }
   }
 };
@@ -417,12 +430,11 @@ export default {
 .vt-notification {
   box-shadow: 0 0 10px 0.5px rgba(0, 0, 0, 0.35);
   padding: 1% 2%;
+  max-width: max-content;
   width: auto;
   border-radius: 5px;
-
+  margin: 5px auto;
   z-index: 9999;
-  position: fixed;
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -486,6 +498,9 @@ export default {
       border-radius: 4px;
     }
   }
+}
+.vt-cursor-loading {
+  cursor: wait;
 }
 
 .vt-spinner {

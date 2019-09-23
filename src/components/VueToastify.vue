@@ -1,12 +1,21 @@
 <template>
-  <div :class="{ backdrop: toasts.length > 0 && withBackdrop }">
-    <toast
-      v-for="(status, index) in toasts"
-      :key="index"
-      :status="status"
-      :event-handler="eventHandler"
-      :event-suffix="status.id ? '-' + status.id : ''"
-    ></toast>
+  <div
+    :class="{
+      'vt-backdrop': currentlyShowing.length > 0 && settings.withBackdrop,
+      'vt-cursor-loading':
+        currentlyShowing.length > 0 && settings.withBackdrop && hasLoader
+    }"
+    :style="{
+      backgroundColor: 'rgba(0, 0, 0,' + settings.backdropOpacity + ')'
+    }"
+  >
+    <div class="vt-notification-container">
+      <toast
+        v-for="(status, index) in toasts"
+        :key="index"
+        :status="status"
+      ></toast>
+    </div>
   </div>
 </template>
 
@@ -17,32 +26,38 @@ export default {
   components: {
     Toast
   },
+  //todo: timesOut, older also cancels double but not the other way around
   props: {
-    alerts: { type: Array, required: false },
-    initialDelay: { type: Number, default: 750 },
-    eventHandler: { type: String, default: "EventBus" },
     singular: { type: Boolean, default: false },
     withBackdrop: { type: Boolean, default: false },
-    backdropOpacity: { type: Number, default: 0.2 }
+    backdropOpacity: {
+      type: Number,
+      default: 0.2,
+      validator: function(value) {
+        return 0 < value && 1 >= value;
+      }
+    },
+    history: { type: Boolean, default: false }
   },
   data() {
     return {
-      toasts: []
+      toasts: [],
+      currentlyShowing: [],
+      settings: {
+        singular: false,
+        withBackdrop: false,
+        backdropOpacity: 0.2,
+        history: false
+      }
     };
   },
   // todo prompt promise?
   mounted() {
-    //delay to make sure the client fully loads the page
-    setTimeout(() => {
-      this.toasts = this.alerts;
-    }, this.initialDelay);
+    this.setSettings();
     // listen for notification event
-    window[this.eventHandler].$on("vtNotify", status => {
+    this.$root.$on("vtNotify", status => {
       if (status.body) {
-        // only 1 loader at a time
-        if (typeof this.getLoader() === "boolean") {
-          this.toasts.push(status);
-        }
+        this.toasts.push(status);
       } else if (status.status && status.statusText) {
         // http error expected to be passed in
         this.toasts.push({
@@ -51,39 +66,122 @@ export default {
           type: "error"
         });
       }
-      // listen for loader end event
-      if (status.mode === "loader") {
-        window[this.eventHandler].$once("vtLoadStop", () => {
-          // loader on second vtLoaderStop fires twice
-          this.toasts.slice(this.getLoader(), 1);
-        });
-      }
     });
+    this.$root.$on(
+      ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
+      payload => {
+        let index = this.currentlyShowing.indexOf(payload.id);
+        if (index !== -1) {
+          this.currentlyShowing.splice(index, 1);
+        }
+        if (!this.settings.history) {
+          setTimeout(() => {
+            this.toasts.splice(this.findToast(payload.id), 1);
+          }, 200);
+        }
+      }
+    );
   },
   methods: {
-    //get loader position else return false
-    getLoader() {
-      let value = false;
-      this.toasts.map((status, index) => {
-        if (status.type === "loader") {
-          value = index;
+    setSettings(settings = null) {
+      if (settings) {
+        Object.keys(this.settings).forEach(key => {
+          if (settings.hasOwnProperty(key)) {
+            this.settings[key] = settings[key];
+          }
+        });
+      } else {
+        for (let [key, value] of Object.entries(this._props)) {
+          this.settings[key] = value;
         }
+      }
+    },
+    getToast(id) {
+      return this.toasts.find(toast => {
+        return toast.id === id;
       });
-      return value;
+    },
+    findToast(id) {
+      return this.toasts.findIndex(toast => {
+        return toast.id === id;
+      });
+    },
+    uuidv4() {
+      return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+        (
+          c ^
+          (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+        ).toString(16)
+      );
+    },
+    stopLoader(id = null) {
+      let ids;
+      if (id) {
+        ids = [id];
+      } else {
+        //get all loaders
+        ids = this.toasts.map(toast => {
+          if (toast.hasOwnProperty("mode") && toast.mode === "loader") {
+            return toast.id;
+          }
+        });
+      }
+      ids.forEach(id => {
+        this.$root.$emit("vtLoadStop", { id: id });
+      });
+    },
+    add(status) {
+      status.id = this.uuidv4();
+      this.$set(this.toasts, this.toasts.length, status);
+      this.currentlyShowing.push(status.id);
+      return status.id;
+    },
+    get(id = null) {
+      if (id) {
+        return this.getToast(id);
+      }
+      return this.toasts;
+    },
+    set(id, status) {
+      this.$set(this.toasts, this.findToast(id), status);
+    }
+  },
+  computed: {
+    hasLoader: function() {
+      return !!this.toasts.find(toast => {
+        return (
+          this.currentlyShowing.includes(toast.id) &&
+          toast.hasOwnProperty("mode") &&
+          toast.mode === "loader"
+        );
+      });
     }
   }
 };
 </script>
 
 <style scoped lang="scss">
-.backdrop {
+.vt-notification-container {
+  position: fixed;
+  /*display: flex;*/
+  /*align-items: flex-end;*/
+  /*justify-content: center;*/
+  /*  todo: this to be controlled by dynamic positioning */
+  bottom: 10px;
+  right: 10px;
+  width: auto;
+  height: auto;
+}
+.vt-backdrop {
   transition: background-color 0.2s ease-out;
   z-index: 50;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.2);
+  position: fixed;
+}
+.vt-cursor-loading {
+  cursor: wait;
 }
 </style>
