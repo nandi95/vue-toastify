@@ -319,6 +319,7 @@ export default {
       this.body = status.body;
       this.pausable = status.canPause === true ? status.canPause : false;
       this.mode = status.mode;
+      this.delay = this.initialDelay;
       this.promptAnswers =
         status.answers && Object.keys(status.answers).length > 0
           ? status.answers
@@ -328,9 +329,7 @@ export default {
           ? false
           : status.canTimeout !== false;
       this.notificationStyle["cursor"] =
-        status.mode === "prompt" || status.mode === "loader"
-          ? "default"
-          : "pointer";
+        status.mode === "loader" ? "wait" : "default";
       this.titleToDefault =
         status.defaultTitle === true &&
         (status.mode !== "prompt" || status.mode !== "loader");
@@ -447,7 +446,7 @@ export default {
   padding: 1% 2%;
   width: auto;
   border-radius: 5px;
-
+  max-width: max-content;
   z-index: 9999;
   position: fixed;
 

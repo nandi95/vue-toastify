@@ -342,7 +342,7 @@
           </div>
         </div>
       </div>
-      <div class="flex justify-around items-center align-middle flex-wrap pb-4">
+      <div class="flex justify-around items-center align-middle flex-wrap py-4">
         <iframe
           src="https://ghbtns.com/github-btn.html?user=nandi95&repo=vue-toastify&type=star&count=true&size=large"
           frameborder="0"
