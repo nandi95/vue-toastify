@@ -1,5 +1,4 @@
 <template>
-  <!--  https://artemsky.github.io/vue-snotify/-->
   <div>
     <transition :name="transitionName">
       <div
@@ -240,7 +239,7 @@ export default {
       }
     },
     toggleVisibility() {
-      // if notification manually dismissed
+      // if notification manually dismissed AND is visible AND isn't prompt or loader
       if (
         ((Math.ceil(this.progress) < 100 && this.progress !== 0) ||
           this.timesOut === false) &&
@@ -249,6 +248,7 @@ export default {
       ) {
         this.$root.$emit("vtDismissed", { id: this.status.id });
       }
+      // if the loader has finished
       if (
         Math.ceil(this.progress) === 100 &&
         ["prompt", "loader"].indexOf(this.mode) === -1
@@ -265,7 +265,7 @@ export default {
         cancelAnimationFrame(this.progressId);
         this.progressId = null;
       }
-      // set to null so upcoming notification durations will be the expected values
+      // set to null so in case it is in history mode and will be re-used
       if (!this.isVisible) {
         this.duration = null;
       }

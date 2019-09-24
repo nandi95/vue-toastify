@@ -3,17 +3,18 @@ import { default as vToastify } from "./components/VueToastify";
 const VueToastify = {
   install(Vue, settings = {}) {
     let Constructor = Vue.extend(vToastify);
-    let Notification = new Constructor();
+    let ToastContainer = new Constructor();
 
-    Notification._props = Object.assign(Notification._props, settings);
+    ToastContainer._props = Object.assign(ToastContainer._props, settings);
 
-    let vm = Notification.$mount();
+    let vm = ToastContainer.$mount();
 
     document.querySelector("body").appendChild(vm.$el);
 
     if (typeof window !== "undefined" && window.Vue) {
-      window.Vue.use(Notification);
+      window.Vue.use(ToastContainer);
     }
+
     Vue.prototype.$vtNotify = (status, title = null) => {
       if (typeof status === "string") {
         status = {
@@ -24,20 +25,11 @@ const VueToastify = {
           status.title = title;
         }
       }
-      return Notification.add(status);
+      return ToastContainer.add(status);
     };
     Vue.prototype.$vToastify = {
       success(status, title = null) {
-        if (typeof status === "string") {
-          status = {
-            body: status
-          };
-          if (title) {
-            status.title = title;
-          }
-          status.type = "success";
-        }
-        return this.$vtNotify(status);
+        return this.$vtNotify(status, title);
       },
       info(status, title = null) {
         if (typeof status === "string") {
@@ -97,22 +89,29 @@ const VueToastify = {
           }
           status.mode = "prompt";
         }
-        return this.$vtNotify(status);
+        const id = ToastContainer.add(status);
+        return new Promise(resolve => {
+          ToastContainer.$root.$once("vtPromptResponse", payload => {
+            if (payload.id === id) {
+              resolve(payload.response);
+            }
+          });
+        });
       },
       stopLoader(id = null) {
-        Notification.stopLoader(id);
+        ToastContainer.stopLoader(id);
       },
       getToasts(id = null) {
-        return Notification.get(id);
+        return ToastContainer.get(id);
       },
       changeToast(id, status) {
-        Notification.set(id, status);
+        ToastContainer.set(id, status);
       },
       setSettings(settings) {
-        Notification.setSettings(settings);
+        ToastContainer.setSettings(settings);
       }
     };
-    Vue.component(vToastify.name, Notification);
+    Vue.component(vToastify.name, ToastContainer);
   }
 };
 

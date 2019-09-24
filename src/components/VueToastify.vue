@@ -26,7 +26,9 @@ export default {
   components: {
     Toast
   },
-  //todo: timesOut, older also cancels double but not the other way around
+  //todo: older cancels double but not the other way around
+  //todo: container messing up the toast width
+  //todo: singular feature / one type on screen at a time
   props: {
     singular: { type: Boolean, default: false },
     withBackdrop: { type: Boolean, default: false },
@@ -51,7 +53,6 @@ export default {
       }
     };
   },
-  // todo prompt promise?
   mounted() {
     this.setSettings();
     // listen for notification event

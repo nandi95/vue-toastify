@@ -398,19 +398,18 @@ export default {
   },
   mounted() {
     this.$vtNotify(this.status);
-    this.$on("vtPromptResponse", resp => {
-      console.info("The response was:");
-      console.log(resp.response);
-    });
   },
   methods: {
     addToastify() {
       if (this.status.body) {
-        if (this.status.answers && this.status.mode === "prompt") {
+        if (this.status.mode === "prompt") {
           try {
             const answersString = this.status.answers;
             this.status.answers = eval("(" + answersString + ")");
-            this.$vtNotify(this.status);
+            this.$vToastify.prompt(this.status).then(value => {
+              console.info("The answer was:");
+              console.log(value);
+            });
             this.status.answers = answersString;
           } catch (error) {
             this.$vToastify.error(
