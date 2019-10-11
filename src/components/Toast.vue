@@ -6,8 +6,8 @@
         class="vt-notification"
         :style="notificationStyle"
         :class="{
-          'theme-light': lightTheme,
-          'theme-dark': !lightTheme,
+          'vt-theme-light': lightTheme,
+          'vt-theme-dark': !lightTheme,
           'vt-cursor-loading': mode === 'loader'
         }"
         @click="dismiss()"
@@ -125,6 +125,7 @@ export default {
     }
   },
   props: {
+    // todo - move to the container
     status: { type: Object, default: null },
     lightTheme: { type: Boolean, default: false },
     defaultTitle: { type: Boolean, default: true },
@@ -152,8 +153,7 @@ export default {
       },
       default: "bottom-right"
     },
-    positionXDistance: { type: String, default: "10px" },
-    positionYDistance: { type: String, default: "10px" }
+    containerAdjustment: { type: Number, required: true }
   },
   data() {
     return {
@@ -201,7 +201,6 @@ export default {
     }
     //dynamic positioning
     const position = this.position.split("-");
-    this.notificationStyle[position[0]] = this.positionYDistance;
     if (position[1] === "center") {
       if (["left", "right"].indexOf(position[0]) !== -1) {
         this.notificationStyle["top"] = "50%";
@@ -212,9 +211,10 @@ export default {
       }
       this.transitionName = position.join("-");
     } else {
-      this.notificationStyle[position[1]] = this.positionXDistance;
       this.transitionName = position[1];
     }
+    this.notificationStyle["minWidth"] =
+      "calc(100% + " + this.containerAdjustment + "px)";
   },
   methods: {
     startController() {
@@ -533,7 +533,7 @@ export default {
   }
 }
 
-.theme-dark {
+.vt-theme-dark {
   $backgroundColor: #1d1d1d;
   background-color: $backgroundColor;
   & > .progress-bar {
@@ -574,7 +574,7 @@ export default {
     border-top: 2px solid lighten($backgroundColor, 90%);
   }
 }
-.theme-light {
+.vt-theme-light {
   $backgroundColor: #f0f0f0;
   $borderColor: darken($backgroundColor, 30%);
   background-color: $backgroundColor;

@@ -7,7 +7,7 @@ const VueToastify = {
 
     ToastContainer._props = Object.assign(ToastContainer._props, settings);
 
-    let vm = ToastContainer.$mount();
+    const vm = ToastContainer.$mount();
 
     document.querySelector("body").appendChild(vm.$el);
 
@@ -106,6 +106,9 @@ const VueToastify = {
       },
       changeToast(id, status) {
         ToastContainer.set(id, status);
+      },
+      removeToasts(id = null) {
+        return ToastContainer.remove(id);
       },
       setSettings(settings) {
         ToastContainer.setSettings(settings);

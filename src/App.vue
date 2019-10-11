@@ -408,14 +408,18 @@ export default {
             this.status.answers = eval("(" + answersString + ")");
             this.$vToastify.prompt(this.status).then(value => {
               console.info("The answer was:");
-              console.log(value);
+              console.log(
+                "%c%s",
+                "color: #10bd0a;",
+                value + " (" + typeof value + ")"
+              );
             });
             this.status.answers = answersString;
           } catch (error) {
             this.$vToastify.error(
               "Invalid answers object. More info can be found in the console."
             );
-            console.error(error);
+            console.error("%c%s", "color: red; font-size: 18px;", error);
           }
         } else {
           this.$vtNotify(this.status);

@@ -9,11 +9,12 @@
       backgroundColor: 'rgba(0, 0, 0,' + settings.backdropOpacity + ')'
     }"
   >
-    <div class="vt-notification-container">
+    <div class="vt-notification-container" :style="styles">
       <toast
         v-for="(status, index) in toasts"
         :key="index"
         :status="status"
+        :container-adjustment="internalSettings.containerAdjustment"
       ></toast>
     </div>
   </div>
@@ -27,7 +28,6 @@ export default {
     Toast
   },
   //todo: older cancels double but not the other way around
-  //todo: container messing up the toast width
   //todo: singular feature / one type on screen at a time
   props: {
     singular: { type: Boolean, default: false },
@@ -50,7 +50,18 @@ export default {
         withBackdrop: false,
         backdropOpacity: 0.2,
         history: false
-      }
+      },
+      internalSettings: {
+        containerAdjustment: 20 // don't judge, it works, for now...
+      },
+      styles: {}
+    };
+  },
+  beforeMount() {
+    // todo multiple positions
+    this.styles = {
+      right: "35px",
+      bottom: "10px"
     };
   },
   mounted() {
@@ -97,11 +108,6 @@ export default {
         }
       }
     },
-    getToast(id) {
-      return this.toasts.find(toast => {
-        return toast.id === id;
-      });
-    },
     findToast(id) {
       return this.toasts.findIndex(toast => {
         return toast.id === id;
@@ -139,12 +145,24 @@ export default {
     },
     get(id = null) {
       if (id) {
-        return this.getToast(id);
+        return this.toasts.find(toast => {
+          return toast.id === id;
+        });
       }
       return this.toasts;
     },
     set(id, status) {
       this.$set(this.toasts, this.findToast(id), status);
+    },
+    remove(id = null) {
+      if (id) {
+        this.currentlyShowing = this.currentlyShowing.filter(
+          currentlyShowingId => currentlyShowingId !== id
+        );
+        return (this.toasts = this.toasts.filter(toast => toast.id !== id));
+      }
+      this.currentlyShowing = [];
+      return (this.toasts = []);
     }
   },
   computed: {
@@ -164,12 +182,7 @@ export default {
 <style scoped lang="scss">
 .vt-notification-container {
   position: fixed;
-  /*display: flex;*/
-  /*align-items: flex-end;*/
-  /*justify-content: center;*/
-  /*  todo: this to be controlled by dynamic positioning */
-  bottom: 10px;
-  right: 10px;
+  display: block;
   width: auto;
   height: auto;
 }
