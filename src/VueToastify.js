@@ -101,20 +101,19 @@ const VueToastify = {
       stopLoader(id = null) {
         ToastContainer.stopLoader(id);
       },
-      getToasts(id = null) {
+      getToast(id = null) {
         return ToastContainer.get(id);
       },
       changeToast(id, status) {
         ToastContainer.set(id, status);
       },
-      removeToasts(id = null) {
+      removeToast(id = null) {
         return ToastContainer.remove(id);
       },
       setSettings(settings) {
         ToastContainer.setSettings(settings);
       }
     };
-    Vue.component(vToastify.name, ToastContainer);
   }
 };
 

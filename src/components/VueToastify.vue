@@ -1,27 +1,31 @@
 <template>
   <div
     :class="{
-      'vt-backdrop': currentlyShowing.length > 0 && settings.withBackdrop,
-      'vt-cursor-loading':
-        currentlyShowing.length > 0 && settings.withBackdrop && hasLoader
+      'vt-backdrop': currentlyShowing.length > 0 && settings.withBackdrop
     }"
     :style="{
       backgroundColor: 'rgba(0, 0, 0,' + settings.backdropOpacity + ')'
     }"
   >
-    <div class="vt-notification-container" :style="styles">
-      <toast
+    <div class="vt-notification-container" :style="internalSettings.styles">
+      <Toast
         v-for="(status, index) in toasts"
         :key="index"
         :status="status"
+        :transition="getTransition"
+        :class="{
+          'vt-cursor-loading':
+            status.hasOwnProperty('mode') && status.mode === 'loader'
+        }"
         :container-adjustment="internalSettings.containerAdjustment"
-      ></toast>
+      />
     </div>
   </div>
 </template>
 
 <script>
 import Toast from "./Toast";
+
 export default {
   name: "VueToastify",
   components: {
@@ -39,6 +43,25 @@ export default {
         return 0 < value && 1 >= value;
       }
     },
+    position: {
+      validator: function(value) {
+        // The value must match one of these strings
+        return (
+          [
+            "top-left",
+            "top-center",
+            "top-right",
+            "center-left",
+            "center-center",
+            "center-right",
+            "bottom-left",
+            "bottom-center",
+            "bottom-right"
+          ].indexOf(value) !== -1
+        );
+      },
+      default: "center-right"
+    },
     history: { type: Boolean, default: false }
   },
   data() {
@@ -49,19 +72,13 @@ export default {
         singular: false,
         withBackdrop: false,
         backdropOpacity: 0.2,
-        history: false
+        history: false,
+        position: "bottom-right"
       },
       internalSettings: {
-        containerAdjustment: 20 // don't judge, it works, for now...
-      },
-      styles: {}
-    };
-  },
-  beforeMount() {
-    // todo multiple positions
-    this.styles = {
-      right: "35px",
-      bottom: "10px"
+        styles: {},
+        containerAdjustment: 50 // don't judge, it works, for now...
+      }
     };
   },
   mounted() {
@@ -82,21 +99,13 @@ export default {
     this.$root.$on(
       ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
       payload => {
-        let index = this.currentlyShowing.indexOf(payload.id);
-        if (index !== -1) {
-          this.currentlyShowing.splice(index, 1);
-        }
-        if (!this.settings.history) {
-          setTimeout(() => {
-            this.toasts.splice(this.findToast(payload.id), 1);
-          }, 200);
-        }
+        this.remove(payload.id); // todo history mode
       }
     );
   },
   methods: {
     setSettings(settings = null) {
-      if (settings) {
+      if (settings instanceof Object) {
         Object.keys(this.settings).forEach(key => {
           if (settings.hasOwnProperty(key)) {
             this.settings[key] = settings[key];
@@ -123,7 +132,7 @@ export default {
     },
     stopLoader(id = null) {
       let ids;
-      if (id) {
+      if (id instanceof String) {
         ids = [id];
       } else {
         //get all loaders
@@ -139,7 +148,7 @@ export default {
     },
     add(status) {
       status.id = this.uuidv4();
-      this.$set(this.toasts, this.toasts.length, status);
+      this.toasts.push(status);
       this.currentlyShowing.push(status.id);
       return status.id;
     },
@@ -156,24 +165,86 @@ export default {
     },
     remove(id = null) {
       if (id) {
+        console.log(this.toasts.map(toast => toast.id));
         this.currentlyShowing = this.currentlyShowing.filter(
-          currentlyShowingId => currentlyShowingId !== id
+          showingId => showingId !== id
         );
-        return (this.toasts = this.toasts.filter(toast => toast.id !== id));
+        this.toasts = this.toasts.filter(toast => toast.id !== id);
+        return this.toasts;
       }
       this.currentlyShowing = [];
-      return (this.toasts = []);
-    }
-  },
-  computed: {
-    hasLoader: function() {
+      this.toasts = [];
+      return this.toasts;
+    },
+    queueHasMode(mode) {
       return !!this.toasts.find(toast => {
         return (
           this.currentlyShowing.includes(toast.id) &&
           toast.hasOwnProperty("mode") &&
-          toast.mode === "loader"
+          toast.mode === mode
         );
       });
+    }
+  },
+  computed: {
+    getTransition: function() {
+      const position = this.position.split("-");
+      if (position[1] === "left") {
+        return "left";
+      }
+      if (position[1] === "center") {
+        return position[0];
+      }
+      return "right";
+    }
+  },
+  watch: {
+    internalSettings: {
+      handler: function(newSettings) {
+        if (newSettings.styles.hasOwnProperty("left")) {
+          this.internalSettings.containerAdjustment = Number(
+            newSettings.styles.left.slice(0, -2)
+          );
+        }
+        if (newSettings.styles.hasOwnProperty("right")) {
+          this.internalSettings.containerAdjustment = Number(
+            newSettings.styles.right.slice(0, -2)
+          );
+        }
+      },
+      deep: true
+    },
+    settings: {
+      handler: function(newSettings) {
+        if (newSettings.hasOwnProperty("position")) {
+          const position = newSettings.position.split("-");
+          // remove values
+          this.$delete(this.internalSettings.styles, "left");
+          this.$delete(this.internalSettings.styles, "right");
+          this.$delete(this.internalSettings.styles, "top");
+          this.$delete(this.internalSettings.styles, "bottom");
+
+          if (position[0] === "center") {
+            this.internalSettings.styles["top"] = "50%";
+            this.internalSettings.styles["transform"] = "translateY(-50%)";
+          } else if (position[0] === "bottom") {
+            this.internalSettings.styles["bottom"] = "0";
+          } else {
+            this.internalSettings.styles["top"] = "0";
+          }
+
+          if (position[1] === "center") {
+            this.internalSettings.styles["left"] = "50%";
+            this.internalSettings.styles["transform"] = "translateX(-50%)";
+          } else if (position[1] === "right") {
+            this.internalSettings.styles["right"] =
+              this.internalSettings.containerAdjustment.toString() + "px";
+          } else {
+            this.internalSettings.styles["left"] = "0";
+          }
+        }
+      },
+      deep: true
     }
   }
 };
@@ -183,6 +254,7 @@ export default {
 .vt-notification-container {
   position: fixed;
   display: block;
+  margin: 10px;
   width: auto;
   height: auto;
 }

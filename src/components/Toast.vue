@@ -1,6 +1,6 @@
 <template>
   <div>
-    <transition :name="transitionName">
+    <transition :name="transition">
       <div
         v-if="isVisible"
         class="vt-notification"
@@ -135,23 +135,14 @@ export default {
     withBackdrop: { type: Boolean, default: false },
     canPause: { type: Boolean, default: false },
     bodyMaxWidth: { type: Number, default: 250 },
-    position: {
+    transition: {
       validator: function(value) {
         // The value must match one of these strings
         return (
-          [
-            "top-left",
-            "top-center",
-            "top-right",
-            "left-center",
-            "right-center",
-            "bottom-left",
-            "bottom-center",
-            "bottom-right"
-          ].indexOf(value) !== -1
+          ["top", "left", "center", "right", "bottom"].indexOf(value) !== -1
         );
       },
-      default: "bottom-right"
+      default: "right"
     },
     containerAdjustment: { type: Number, required: true }
   },
@@ -200,19 +191,6 @@ export default {
       this.setData(this.status);
     }
     //dynamic positioning
-    const position = this.position.split("-");
-    if (position[1] === "center") {
-      if (["left", "right"].indexOf(position[0]) !== -1) {
-        this.notificationStyle["top"] = "50%";
-        this.notificationStyle["transform"] = "translateY(-50%)";
-      } else {
-        this.notificationStyle["left"] = "50%";
-        this.notificationStyle["transform"] = "translateX(-50%)";
-      }
-      this.transitionName = position.join("-");
-    } else {
-      this.transitionName = position[1];
-    }
     this.notificationStyle["minWidth"] =
       "calc(100% + " + this.containerAdjustment + "px)";
   },
@@ -265,7 +243,7 @@ export default {
         cancelAnimationFrame(this.progressId);
         this.progressId = null;
       }
-      // set to null so in case it is in history mode and will be re-used
+      // set to null in case it is in history mode and will be re-used
       if (!this.isVisible) {
         this.duration = null;
       }
@@ -429,11 +407,11 @@ export default {
 }
 .vt-notification {
   box-shadow: 0 0 10px 0.5px rgba(0, 0, 0, 0.35);
-  padding: 1% 2%;
+  padding: 5% 2%;
   max-width: max-content;
   width: auto;
   border-radius: 5px;
-  margin: 5px auto;
+  margin: 2.5px auto;
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -618,62 +596,47 @@ export default {
 }
 
 .right-enter-active,
-.right-leave-active {
+.left-enter-active,
+.bottom-enter-active,
+.top-enter-active,
+.center-enter-active {
+  transition: all 0.2s ease-out;
+}
+
+.right-leave-active,
+.left-leave-active,
+.bottom-leave-active,
+.top-leave-active,
+.center-leave-active {
   transition: all 0.2s ease-in;
 }
+
 .right-enter,
 .right-leave-to {
   transform: translateX(50px);
   opacity: 0;
 }
 
-.left-enter-active,
-.left-leave-active {
-  transition: all 0.2s ease-in;
-}
 .left-enter,
 .left-leave-to {
   transform: translateX(-50px);
   opacity: 0;
 }
 
-.bottom-center-enter-active,
-.bottom-center-leave-active {
-  transition: all 0.2s ease-in;
-}
-.bottom-center-enter,
-.bottom-center-leave-to {
+.bottom-enter,
+.bottom-leave-to {
   margin-bottom: -50px;
   opacity: 0;
 }
 
-.top-center-enter-active,
-.top-center-leave-active {
-  transition: all 0.2s ease-in;
-}
-.top-center-enter,
-.top-center-leave-to {
+.top-enter,
+.top-leave-to {
   margin-top: -50px;
   opacity: 0;
 }
 
-.left-center-enter-active,
-.left-center-leave-active {
-  transition: all 0.2s ease-in;
-}
-.left-center-enter,
-.left-center-leave-to {
-  margin-left: -50px;
-  opacity: 0;
-}
-
-.right-center-enter-active,
-.right-center-leave-active {
-  transition: all 0.2s ease-in;
-}
-.right-center-enter,
-.right-center-leave-to {
-  margin-right: -50px;
+.center-enter,
+.center-leave-to {
   opacity: 0;
 }
 </style>

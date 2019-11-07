@@ -105,11 +105,9 @@ You may alternatively pass in an http error response.
 
 - Add touch swipe gestures
 
-- Move the progress animation to use purely css
+- Re-write in TypeScript and use the vue core's `validateProps()`, rewrite for vue 3
 
-- Re-write in TypeScript and use the vue core's `validateProps()`
-
-- Styles customizable
+- Make styles customizable
 
 **Contribution**
 -
@@ -120,14 +118,14 @@ You may alternatively pass in an http error response.
     ```
 3. Compile and use hot-reloads for development
     ```
-    npm run serve
+    npm run watch
     ```
 4. Make your changes
 5. Lint and fix the code
     ```
     npm run lint
     ```
-6. Run your tests
+6. Run tests
     ```
     npm run test
     ```
