@@ -1,16 +1,17 @@
 <template>
   <div
+    v-cloak
     :class="{
-      'vt-backdrop': currentlyShowing.length > 0 && settings.withBackdrop
+      'vt-backdrop': toasts.length > 0 && settings.withBackdrop
     }"
     :style="{
-      backgroundColor: 'rgba(0, 0, 0,' + settings.backdropOpacity + ')'
+      backgroundColor: settings.backdrop
     }"
   >
     <div class="vt-notification-container" :style="internalSettings.styles">
       <Toast
-        v-for="(status, index) in toasts"
-        :key="index"
+        v-for="status in toasts"
+        :key="status.id"
         :status="status"
         :transition="getTransition"
         :class="{
@@ -27,21 +28,17 @@
 import Toast from "./Toast";
 
 export default {
+  //todo - max on screen
   name: "VueToastify",
   components: {
     Toast
   },
-  //todo: older cancels double but not the other way around
-  //todo: singular feature / one type on screen at a time
   props: {
     singular: { type: Boolean, default: false },
     withBackdrop: { type: Boolean, default: false },
-    backdropOpacity: {
-      type: Number,
-      default: 0.2,
-      validator: function(value) {
-        return 0 < value && 1 >= value;
-      }
+    backdrop: {
+      type: String,
+      default: "rgba(0, 0, 0, 0.2)"
     },
     position: {
       validator: function(value) {
@@ -60,19 +57,17 @@ export default {
           ].indexOf(value) !== -1
         );
       },
-      default: "center-right"
-    },
-    history: { type: Boolean, default: false }
+      default: "center-center"
+    }
   },
   data() {
     return {
       toasts: [],
-      currentlyShowing: [],
+      queue: [],
       settings: {
         singular: false,
         withBackdrop: false,
-        backdropOpacity: 0.2,
-        history: false,
+        backdrop: "rgba(0, 0, 0, 0.2)",
         position: "bottom-right"
       },
       internalSettings: {
@@ -87,7 +82,10 @@ export default {
     this.$root.$on("vtNotify", status => {
       if (status.body) {
         this.toasts.push(status);
-      } else if (status.status && status.statusText) {
+      } else if (
+        status.hasOwnProperty("status") &&
+        status.hasOwnProperty("statusText")
+      ) {
         // http error expected to be passed in
         this.toasts.push({
           title: status.status.toString(),
@@ -99,7 +97,9 @@ export default {
     this.$root.$on(
       ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
       payload => {
-        this.remove(payload.id); // todo history mode
+        if (payload.hasOwnProperty("id")) {
+          this.remove(payload.id);
+        }
       }
     );
   },
@@ -108,17 +108,20 @@ export default {
       if (settings instanceof Object) {
         Object.keys(this.settings).forEach(key => {
           if (settings.hasOwnProperty(key)) {
-            this.settings[key] = settings[key];
+            this.$set(this.settings, key, settings[key]);
           }
         });
       } else {
-        for (let [key, value] of Object.entries(this._props)) {
-          this.settings[key] = value;
-        }
+        this.settings = Object.assign({}, this._props);
       }
     },
     findToast(id) {
       return this.toasts.findIndex(toast => {
+        return toast.id === id;
+      });
+    },
+    findQueuedToast(id) {
+      return this.queue.findIndex(toast => {
         return toast.id === id;
       });
     },
@@ -147,10 +150,14 @@ export default {
       });
     },
     add(status) {
-      status.id = this.uuidv4();
-      this.toasts.push(status);
-      this.currentlyShowing.push(status.id);
-      return status.id;
+      let toast = Object.assign({}, status); //todo update to deep copy
+      toast.id = this.uuidv4();
+      if (this.singular && this.toasts.length !== 0) {
+        this.queue.push(toast);
+        return this.currentlyShowing;
+      }
+      this.toasts.push(toast);
+      return toast.id;
     },
     get(id = null) {
       if (id) {
@@ -165,25 +172,19 @@ export default {
     },
     remove(id = null) {
       if (id) {
-        console.log(this.toasts.map(toast => toast.id));
-        this.currentlyShowing = this.currentlyShowing.filter(
-          showingId => showingId !== id
-        );
-        this.toasts = this.toasts.filter(toast => toast.id !== id);
-        return this.toasts;
+        if (this.singular) {
+          const index = this.findQueuedToast(id);
+          if (index !== -1) {
+            this.$delete(this.queue, index);
+          }
+        }
+        setTimeout(() => {
+          this.$delete(this.toasts, this.findToast(id));
+        }, 200); // 200ms for the animation
+        return this.currentlyShowing;
       }
-      this.currentlyShowing = [];
       this.toasts = [];
       return this.toasts;
-    },
-    queueHasMode(mode) {
-      return !!this.toasts.find(toast => {
-        return (
-          this.currentlyShowing.includes(toast.id) &&
-          toast.hasOwnProperty("mode") &&
-          toast.mode === mode
-        );
-      });
     }
   },
   computed: {
@@ -196,24 +197,12 @@ export default {
         return position[0];
       }
       return "right";
+    },
+    currentlyShowing: function() {
+      return this.toasts.map(toast => toast.id);
     }
   },
   watch: {
-    internalSettings: {
-      handler: function(newSettings) {
-        if (newSettings.styles.hasOwnProperty("left")) {
-          this.internalSettings.containerAdjustment = Number(
-            newSettings.styles.left.slice(0, -2)
-          );
-        }
-        if (newSettings.styles.hasOwnProperty("right")) {
-          this.internalSettings.containerAdjustment = Number(
-            newSettings.styles.right.slice(0, -2)
-          );
-        }
-      },
-      deep: true
-    },
     settings: {
       handler: function(newSettings) {
         if (newSettings.hasOwnProperty("position")) {
@@ -224,24 +213,38 @@ export default {
           this.$delete(this.internalSettings.styles, "top");
           this.$delete(this.internalSettings.styles, "bottom");
 
+          let styles = {};
           if (position[0] === "center") {
-            this.internalSettings.styles["top"] = "50%";
-            this.internalSettings.styles["transform"] = "translateY(-50%)";
+            styles.top = "50%";
+            styles.transform = "translateY(-50%)";
           } else if (position[0] === "bottom") {
-            this.internalSettings.styles["bottom"] = "0";
+            styles.bottom = "0";
           } else {
-            this.internalSettings.styles["top"] = "0";
+            styles.top = "0";
           }
 
           if (position[1] === "center") {
-            this.internalSettings.styles["left"] = "50%";
-            this.internalSettings.styles["transform"] = "translateX(-50%)";
+            styles.left = "50%";
+            styles.transform = styles.transform
+              ? "translate(-50%, -50%)"
+              : "translateX(-50%)";
           } else if (position[1] === "right") {
-            this.internalSettings.styles["right"] =
+            styles.right =
               this.internalSettings.containerAdjustment.toString() + "px";
           } else {
-            this.internalSettings.styles["left"] = "0";
+            styles.left = "0";
           }
+          this.internalSettings.styles = styles;
+        }
+      },
+      deep: true
+    },
+    toasts: {
+      handler: function(newValue) {
+        if (this.singular && newValue.length === 0 && this.queue.length !== 0) {
+          this.$nextTick(() => {
+            this.$set(this.toasts, this.toasts.length, this.queue.shift());
+          });
         }
       },
       deep: true

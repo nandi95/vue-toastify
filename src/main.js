@@ -5,11 +5,8 @@ import VueToastify from "./VueToastify";
 
 Vue.config.productionTip = false;
 Vue.config.performance = true;
-Vue.config.devtools = true;
 
-Vue.use(VueToastify, {
-  singular: true
-});
+Vue.use(VueToastify);
 
 new Vue({
   render: h => h(App)

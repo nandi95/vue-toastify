@@ -92,9 +92,7 @@ You may alternatively pass in an http error response.
  
 **Todos**
 -
- - Add a notification container which will enable displaying multiple notifications at the same time.
-    - queueing notification
-    - move backdrop and accept object too
+- Option for showing one type at a time.
  
 - Add option that if url attribute specified on the status object, clicking on the notification
  will point the user to the url (SPA supported)
@@ -104,6 +102,8 @@ You may alternatively pass in an http error response.
 - Remove core-js dependency
 
 - Add touch swipe gestures
+
+- Move animation to purely css with animation-play-state
 
 - Re-write in TypeScript and use the vue core's `validateProps()`, rewrite for vue 3
 
