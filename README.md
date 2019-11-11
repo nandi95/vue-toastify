@@ -109,6 +109,10 @@ You may alternatively pass in an http error response.
 
 - Make styles customizable
 
+**Alternative**
+-
+[Vue Snotify](https://artemsky.github.io/vue-snotify/)
+
 **Contribution**
 -
 1. Fork the project

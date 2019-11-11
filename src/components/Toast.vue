@@ -125,16 +125,9 @@ export default {
     }
   },
   props: {
-    // todo - move to the container
     status: { type: Object, default: null },
     lightTheme: { type: Boolean, default: false },
-    defaultTitle: { type: Boolean, default: true },
-    errorDuration: { type: Number, default: 8000 },
-    successDuration: { type: Number, default: 4000 },
-    alertInfoDuration: { type: Number, default: 6000 },
-    withBackdrop: { type: Boolean, default: false },
-    canPause: { type: Boolean, default: false },
-    bodyMaxWidth: { type: Number, default: 250 },
+    bodyMaxWidth: { type: Number, default: 250 }, //todo expose to the user
     transition: {
       validator: function(value) {
         // The value must match one of these strings
@@ -298,16 +291,8 @@ export default {
       // clear any pre-existing classes
       this.colorClass = {};
       this.colorClass[status.type ? status.type : "info"] = true;
-      // making sure duration is only overwriting if present in the status
-      this.duration = status.duration ? Number(status.duration) : null;
-      let duration = this.duration
-        ? this.duration
-        : status.type === "error"
-        ? this.errorDuration
-        : status.type === "success"
-        ? this.successDuration
-        : this.alertInfoDuration;
-      this.timerFinishesAt = new Date(duration + Date.now());
+      this.duration = status.duration;
+      this.timerFinishesAt = new Date(status.duration + Date.now());
     },
     timerStart() {
       if (this.pausable) {

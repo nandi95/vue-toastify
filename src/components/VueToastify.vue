@@ -57,8 +57,13 @@ export default {
           ].indexOf(value) !== -1
         );
       },
-      default: "center-center"
-    }
+      default: "bottom-right"
+    },
+    defaultTitle: { type: Boolean, default: true },
+    canPause: { type: Boolean, default: false },
+    errorDuration: { type: Number, default: 8000 },
+    successDuration: { type: Number, default: 4000 },
+    alertInfoDuration: { type: Number, default: 6000 }
   },
   data() {
     return {
@@ -68,7 +73,12 @@ export default {
         singular: false,
         withBackdrop: false,
         backdrop: "rgba(0, 0, 0, 0.2)",
-        position: "bottom-right"
+        position: "bottom-right",
+        defaultTitle: true,
+        canPause: false,
+        errorDuration: 8000,
+        successDuration: 4000,
+        alertInfoDuration: 6000
       },
       internalSettings: {
         styles: {},
@@ -81,13 +91,13 @@ export default {
     // listen for notification event
     this.$root.$on("vtNotify", status => {
       if (status.body) {
-        this.toasts.push(status);
+        this.$set(this.toasts, this.toasts.length, status);
       } else if (
         status.hasOwnProperty("status") &&
         status.hasOwnProperty("statusText")
       ) {
         // http error expected to be passed in
-        this.toasts.push({
+        this.$set(this.toasts, this.toasts.length, {
           title: status.status.toString(),
           body: status.statusText,
           type: "error"
@@ -151,12 +161,29 @@ export default {
     },
     add(status) {
       let toast = Object.assign({}, status); //todo update to deep copy
+      toast.duration = this.alertInfoDuration;
+      if (status.hasOwnProperty("duration") && Number(status.duration) > 0) {
+        toast.duration = Number(status.duration);
+      } else if (status.hasOwnProperty("type")) {
+        toast.duration =
+          status.type === "error"
+            ? this.errorDuration
+            : status.type === "success"
+            ? this.successDuration
+            : this.alertInfoDuration;
+      }
+      status.defaultTitle = !status.hasOwnProperty("defaultTitle")
+        ? this.defaultTitle
+        : status.canPause;
+      status.defaultTitle = !status.hasOwnProperty("canPause")
+        ? this.canPause
+        : status.canPause;
       toast.id = this.uuidv4();
       if (this.singular && this.toasts.length !== 0) {
-        this.queue.push(toast);
+        this.$set(this.queue, this.queue.length, toast);
         return this.currentlyShowing;
       }
-      this.toasts.push(toast);
+      this.$set(this.toasts, this.toasts.length, toast);
       return toast.id;
     },
     get(id = null) {
@@ -179,7 +206,10 @@ export default {
           }
         }
         setTimeout(() => {
-          this.$delete(this.toasts, this.findToast(id));
+          const index = this.findToast(id);
+          if (index !== -1) {
+            this.$delete(this.toasts, index);
+          }
         }, 200); // 200ms for the animation
         return this.currentlyShowing;
       }
@@ -228,6 +258,8 @@ export default {
             styles.transform = styles.transform
               ? "translate(-50%, -50%)"
               : "translateX(-50%)";
+            styles.marginLeft =
+              -this.internalSettings.containerAdjustment / 2 + "px";
           } else if (position[1] === "right") {
             styles.right =
               this.internalSettings.containerAdjustment.toString() + "px";
