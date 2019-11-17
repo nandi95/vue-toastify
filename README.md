@@ -48,13 +48,13 @@ this.vToastify.setSettings(settingsObject);
  setting | type | default | details |
 ---|---|---|---
 | singular | Boolean | false | Only allow one notification on the screen at a time, others will be queued up for showing later. |
-| withBackdrop | Boolean | false | Enables backdrop to be show. |
+| withBackdrop | Boolean | false | Enables backdrop to be shown. |
 | backdrop | String | "rgba(0, 0, 0, 0.2)" | The rgba value for the backdrop. |
 | position | String | "bottom-right" | Defines where the notifications should be showing on the screen. Available values are: `"top-left"`, `"top-center"`, `"top-right"`, `"center-left"`, `"center-center"`, `"center-right"`, `"bottom-left"`, `"bottom-center"`, `"bottom-right"` |
 | errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for. |
 | successDuration | Number | 4000 | The duration in milliseconds the success notification should be visible for. |
 | alertInfoDuration | Number | 6000 | The duration in milliseconds the alert and info notification should be visible for. |
-| canTimeout | Boolean | true | Whether the notifications disappear after the set time. |
+| canTimeout | Boolean | true | Whether the notifications disappears after the set time. |
 | canPause | Boolean | true | Whether the notifications can be paused by hovering over them. |
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
 
@@ -95,8 +95,9 @@ Every call notification method returns a unique id associated to your notificati
  
 Additional methods
 =
-#####The notification supports multiple modes
-You can either pass the mode property on the status object which is one of the following strings: `"prompt"`, `"loader"` or by calling:
+**The notification supports multiple modes**
+
+You can either pass the `mode` property on the status object which is one of the following strings: `"prompt"`, `"loader"` or by calling:
 ```
 this.vToastify.loader("Please Wait...")
 ```
@@ -119,9 +120,10 @@ The prompt does not return an id instead it returns a Promise so may use it as:
 })
 ```
 The answers object consist of a key value pairs in the object where the key is displayed to the user and the value returned by the promise.
-#####Additional methods available:
 
-For stopping a loader use:
+**Additional methods available:**
+
+A loader cannot be dismissed, you'll have to stop the loader yourself like so:
 ```
 this.vToastify.stopLoader(id)
 ```
