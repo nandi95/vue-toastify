@@ -1,101 +1,159 @@
-# Vue Toastify [![Netlify Status](https://api.netlify.com/api/v1/badges/bc0cc717-a41e-4317-85d5-bc0ba745b3a5/deploy-status)](https://app.netlify.com/sites/vue-toastify/deploys)
+# Vue Toastify
 
 **Fuss free notification component.**
 
-I wanted a component which I can use by passing props from the server on the first paint but which can also take statuses at run time. With this component it's has just become super easy.
+I wanted a notification plugin which I can use by passing props from the server and it can also take statuses at run time. With this component it's has just become super easy.
 
 Check it out at [Netlify](https://vue-toastify.netlify.com/)
 
 
-**To Install:**
+**To use:**
 
 ```
 npm i vue-toastify
 ```
-
-**To Use:**
-
-1| Import the component:
-
-```
-import VueToastify from 'vue-toastify';
-```
 or with CDNs:
  - [jsDeliver](https://cdn.jsdelivr.net/npm/vue-toastify@latest)
- - [unpkg](https://unpkg.com/vue-toastify@0.4.0/dist/vue-toastify.umd.min.js)
+ - [unpkg](https://unpkg.com/vue-toastify@1.0.0/dist/vue-toastify.umd.min.js)
+ 
+ ***
 
-2|  Register the component with Vue:
-
-```
-Vue.component('vue-toastify', VueToastify);
-```
-
-3| Add it inside your application:
+In your main js file:
 
 ```
-<vue-toastify :your-props="here"></vue-toastify>
-``` 
-
-4| Call it from the script:
-
+Vue.use(VueToastify);
 ```
-EventBus.$emit('vtNotify', statusObject);
+ Then anywhere just call:
 ```
-###### _For more elaborate example, see the site's code_
+this.vToastify.success("easy-peasy");
+```
 
-**Props**
+**Settings**
 -
- prop | type | default | details |
+You may pass a settings object to the use statement like so:
+
+```
+Vue.use(VueToastify, {
+    my: "settings"
+});
+```
+or change any of the settings during run-time with the following
+ 
+```
+this.vToastify.setSettings(settingsObject);
+```
+
+####Available settings
+ setting | type | default | details |
 ---|---|---|---
-| status | Object | null | Not required, you may just let the component listen for future statuses. |
-| canPause | Boolean | false | Enables pausing of the loader and the timeout on hover. |
-| defaultTitle | Boolean | true | Enables the fallback to the type as the title. |
-| eventHandler | String | "EventBus" | This entity will handle the events eg.: Eventbus.$on('vtNotify', ...) |
-| lightTheme | Boolean | false | Change to the light theme. |
-| withBackdrop | Boolean | false | Add backdrop. |
+| singular | Boolean | false | Only allow one notification on the screen at a time, others will be queued up for showing later. |
+| withBackdrop | Boolean | false | Enables backdrop to be show. |
+| backdrop | String | "rgba(0, 0, 0, 0.2)" | The rgba value for the backdrop. |
+| position | String | "bottom-right" | Defines where the notifications should be showing on the screen. Available values are: `"top-left"`, `"top-center"`, `"top-right"`, `"center-left"`, `"center-center"`, `"center-right"`, `"bottom-left"`, `"bottom-center"`, `"bottom-right"` |
 | errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for. |
-| successDuration | Number | 4000 | The duration in milliseconds the error notification should be visible for. |
-| alertInfoDuration | Number | 6000 | The duration in milliseconds the error notification should be visible for. |
-| initialDelay | Number | 750 | If a status passed as a prop, it may starts the script before the page's content fully loaded. With this you can specify delay in milliseconds for the initial notification. |
-| bodyMaxWidth | Number | 250 | Maximum width the body can take up. in px The rest of the notification will always be the same width. |
-| position|String|"bottom-right"| Controls where the notification should appear. Accepted values are: 'top-left', 'top-center', 'top-right', 'left-center', 'right-center', 'bottom-left',  'bottom-center', 'bottom-right'. (when using centered positions the manual displacement will not work for the axis it's centered on)|
-| positionXDistance | String | "10px" | Distance from the left or right depending on the position prop. All css values are accepted. |
-| positionYDistance | String | "10px" | Distance from the top or bottom depending on the position prop. All css values are accepted. |
+| successDuration | Number | 4000 | The duration in milliseconds the success notification should be visible for. |
+| alertInfoDuration | Number | 6000 | The duration in milliseconds the alert and info notification should be visible for. |
+| canTimeout | Boolean | true | Whether the notifications disappear after the set time. |
+| canPause | Boolean | true | Whether the notifications can be paused by hovering over them. |
+| defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
 
-*The status object takes the following attributes:*
- - *body = this is binded using v-html so you can go crazy with it*
- - *(optional) title = if left empty, the type will be set as the title (first letter will always be capitalized)*
- - *(optional) type =  accepted values are: 'success', 'alert', 'info', 'error'. If no type given, it falls back to info*
- - *(optional) canPause = you can overwrite what has already been set as
-   a prop*
- - *(optional) canTimeout = if set to false the notification has to be dismissed manually, otherwise it defaults to true*
-- *(optional) defaultTitle = should the title fall back to the type as the title*
-- *(optional) duration = this will take priority over all other duration settings*
-- *(optional) icon = you can customize the displayed icon within the circle using v-html*
-- *(optional) mode = available modes: 'prompt' which will display a yes/no button by default and emits the vtPrompt event with the respective boolean value (canTimeout automatically gets disabled) or 'loader' which will stay present until it hears the vtLoaderStop event*
-- *(optional) answers = a javascript object of answers eg.: { displayedValue: "emittedValue" }*
+**Status**
+-
+You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
+```
+this.vToastify.error("body", "title"); 
+```
+Or pass an object to the method:
+```
+this.vToastify.info(stausObject);
+```
+The following properties can be set on the object:
 
-You may alternatively pass in an http error response.
+ property | type  | details |
+---|---|---
+| body | String | Required parameter, you may pass html to this. |
+| title | String | Enables pausing of the loader and the timeout on hover. |
+| type | String | Defines what notification type should be showing available types: `"success"`, `"alert"`, `"info"`, `"error"` defaults to `"success"`. Alternatively you may use the methods: `this.vToastify.alert("more readable")` |
+| url | String  | If set, clicking on the notification will take the user to the given location (supports vue router) |
+
+You may additionally overwrite the plugin settings on a notification by notification basis.
+
+ property | type  | details |
+---|---|---
+| canTimeout | Boolean | Whether the notifications disappear after the set time. |
+| canPause | Boolean | Whether the notifications can be paused by hovering over them. |
+| duration | Number | The time the notification is displayed in milliseconds. |
+| defaultTitle | Boolean | Overwrites the globally set setting. |
+
+You may alternatively pass in an http error response like:
+```
+fetch().then().catch(error => this.vtNotify(error));
+```
+***
+Every call notification method returns a unique id associated to your notification object.
+ 
+Additional methods
+=
+#####The notification supports multiple modes
+You can either pass the mode property on the status object which is one of the following strings: `"prompt"`, `"loader"` or by calling:
+```
+this.vToastify.loader("Please Wait...")
+```
+```
+this.vToastify.prompt({
+    body: "Are there hot singles in your area?"
+    answers: { Yes: true, No: false }
+})
+```
+The prompt does not return an id instead it returns a Promise so may use it as:
+```
+...}).then(value => {
+    if (value) {
+        this.vToastify.prompt({
+            body: "Is it a scam?"
+            answers: { Yes: true, No: false }
+        })
+        .then(value => console.log(value ? "Yay!" : "Nay"))
+    }
+})
+```
+The answers object consist of a key value pairs in the object where the key is displayed to the user and the value returned by the promise.
+#####Additional methods available:
+
+For stopping a loader use:
+```
+this.vToastify.stopLoader(id)
+```
+This will stops the loader with the given id. If no id provided, all loaders will be closed.
+
+
+For returning a notification object use:
+```
+this.vToastify.getToast(id)
+```
+This if found returns the notification object otherwise all of the notification objects in an array.
+
+For updating the notification object during run-time use:
+```
+this.vToastify.changeToast(id, statusObject)
+```
+This will merge the object you pass in and the existing notification. It will return true on success and false if the notification isn't found.
+
+For removing a notification use:
+```
+this.vToastify.removeToast(id)
+```
+This will remove the notification if the id is given otherwise it will remove all of the notifications. The function returns the ids of the currently visible notifications.
+***
+To pass a notification from the server, assign your notification to `window.notification`. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
 
 **Miscellaneous info**
 -
-- Events:
-  - To add an event at runtime, use the "vtNotify" event, passing the status object
-  - Manually dismissing notification will emit the event "vtDismissed"
-  - Timer events are triggered at the corresponding points: "vtStarted", "vtPaused", "vtResumed", "vtFinished"
-  - Loader can be dismissed using the "vtLoadStop" event
-  - Prompt on answer will emit the "vtPrompt" event with the defined answer
-
  - Pausing the notification is not supporting touch gestures but might work with long press on some devices.
- 
- - 1.0.0 will be released once the notification container has been added.
  
 **Todos**
 -
 - Option for showing one type at a time.
- 
-- Add option that if url attribute specified on the status object, clicking on the notification
- will point the user to the url (SPA supported)
 
 - Increase test coverage
 
@@ -103,34 +161,16 @@ You may alternatively pass in an http error response.
 
 - Add touch swipe gestures
 
+- Create php library for fluently setting the initial notification
+
 - Move animation to purely css with animation-play-state
 
 - Re-write in TypeScript and use the vue core's `validateProps()`, rewrite for vue 3
 
+- Get url props on the answers object for redirecting on click of button
+
 - Make styles customizable
 
-**Alternative**
+**Alternatives**
 -
 [Vue Snotify](https://artemsky.github.io/vue-snotify/)
-
-**Contribution**
--
-1. Fork the project
-2. Set up project
-    ```
-    npm install
-    ```
-3. Compile and use hot-reloads for development
-    ```
-    npm run watch
-    ```
-4. Make your changes
-5. Lint and fix the code
-    ```
-    npm run lint
-    ```
-6. Run tests
-    ```
-    npm run test
-    ```
-7. Push to git and create a pull request.

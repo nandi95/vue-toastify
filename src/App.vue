@@ -1,12 +1,12 @@
 <template>
-  <div id="app" class="relative">
+  <div>
     <header
       class="flex justify-center text-center flex-col flex-no-wrap mb-10 pt-3"
     >
       <h2 class="text-blue-800 font-bold text-3xl mb-2">Vue Toastify</h2>
       <p class="text-gray-600">A fuss free notification component.</p>
     </header>
-    <main>
+    <main class="px-2">
       <div class="flex xl:justify-center justify-around flex-wrap flex-row">
         <div class="flex flex-col w-auto sm:max-w-50 sm:mr-2">
           <div
@@ -27,7 +27,8 @@
                     status.canPause ||
                     status.type ||
                     status.mode ||
-                    status.answers
+                    status.answers ||
+                    status.url
                 "
                 >,</span
               >
@@ -42,7 +43,8 @@
                     status.canTimeout ||
                     status.canPause ||
                     status.mode ||
-                    status.answers
+                    status.answers ||
+                    status.url
                 "
                 >,</span
               >
@@ -56,7 +58,8 @@
                     status.defaultTitle ||
                     status.canTimeout ||
                     status.mode ||
-                    status.answers
+                    status.answers ||
+                    status.url
                 "
                 >,</span
               >
@@ -69,7 +72,8 @@
                     status.icon ||
                     status.defaultTitle ||
                     status.mode ||
-                    status.answers
+                    status.answers ||
+                    status.url
                 "
                 >,</span
               >
@@ -81,28 +85,38 @@
                   status.duration ||
                     status.icon ||
                     status.mode ||
-                    status.answers
+                    status.answers ||
+                    status.url
                 "
                 >,</span
               >
             </p>
             <p class="ml-8" v-if="status.mode">
               mode: "<span v-text="status.mode"></span><span>"</span
-              ><span v-if="status.duration || status.icon || status.answers"
+              ><span
+                v-if="
+                  status.duration || status.icon || status.answers || status.url
+                "
                 >,</span
               >
             </p>
             <p class="ml-8" v-if="status.answers">
               answers: <span v-text="status.answers"></span
-              ><span v-if="status.duration || status.icon">,</span>
+              ><span v-if="status.duration || status.icon || status.url"
+                >,</span
+              >
             </p>
             <p class="ml-8" v-if="status.duration">
               duration:
               <span v-text="status.duration"></span>
-              <span v-if="status.icon">,</span>
+              <span v-if="status.icon || status.url">,</span>
             </p>
             <p v-if="status.icon" class="ml-8">
               icon: "<span v-text="status.icon"></span><span>"</span>
+              <span v-if="status.url">,</span>
+            </p>
+            <p v-if="status.url" class="ml-8">
+              url: "<span v-text="status.url"></span><span>"</span>
             </p>
             <p>}</p>
           </div>
@@ -123,7 +137,7 @@
                 class="input w-3/4 sm:w-2/3 md:w-4/5"
                 v-model="status.body"
                 placeholder="Html is also accepted."
-                @change="checkBody"
+                :class="{ invalid: status.body < 1 }"
               ></textarea>
             </div>
             <div class="flex justify-between align-middle items-center mb-5">
@@ -182,6 +196,16 @@
                 placeholder="eg.: {Yes: true, No: false}"
               >
               </textarea>
+            </div>
+            <div class="flex justify-between align-middle items-center mb-5">
+              <label for="url">Url:</label>
+              <input
+                type="text"
+                id="url"
+                class="input w-3/4 sm:w-2/3 md:w-4/5"
+                v-model="status.url"
+                placeholder="https://www.example.com"
+              />
             </div>
           </div>
         </div>
@@ -288,41 +312,6 @@
                 placeholder="Html is expected"
               ></textarea>
             </div>
-            <div
-              class="flex flex-col justify-start text-gray-700 text-center mt-5"
-            >
-              <hr class="border-gray-800 opacity-25 border w-4/5 sm:w-11/12" />
-              <h4 class="font-bold">Additional properties:</h4>
-              <p class="mb-3">The following can only be set on initial load</p>
-              <div
-                class="flex justify-around align-middle leading-normal flex-wrap xs:flex-no-wrap sm:flex-wrap md:flex-no-wrap"
-              >
-                <ul class="ml-5 w-1/2">
-                  <li>-&nbsp;eventHandler</li>
-                  <li>-&nbsp;eventName</li>
-                  <li>-&nbsp;errorDuration</li>
-                  <li>-&nbsp;successDuration</li>
-                  <li>-&nbsp;alertInfoDuration</li>
-                </ul>
-                <ul class="ml-5 w-1/2">
-                  <li>-&nbsp;bodyMaxWidth</li>
-                  <li>-&nbsp;position</li>
-                  <li>-&nbsp;positionXDistance</li>
-                  <li>-&nbsp;positionYDistance</li>
-                  <li>-&nbsp;withBackdrop</li>
-                </ul>
-              </div>
-              <p class="my-3 text-blue-900">
-                More information on:
-                <a
-                  target="_blank"
-                  href="https://github.com/nandi95/vue-toastify"
-                  class="transition-all underline hover:no-underline text-blue-500 hover:text-blue-900"
-                  >Github</a
-                >
-              </p>
-              <hr class="border-gray-800 opacity-25 border w-4/5 sm:w-11/12" />
-            </div>
           </div>
         </div>
       </div>
@@ -375,21 +364,13 @@ export default {
         duration: null,
         icon: null,
         mode: "",
-        answers: null
+        answers: null,
+        url: ""
       },
       alerts: [],
-      canPause: false,
       lightTheme: false,
       defaultTitle: true,
       withBackdrop: false,
-      errorDuration: 8000,
-      successDuration: 4000,
-      alertInfoDuration: 6000,
-      bodyMaxWidth: 250,
-      initialDelay: 750,
-      position: "bottom-right",
-      positionXDistance: "10px",
-      positionYDistance: "10px",
       //example site specific data
       body: null,
       showWarning: false,
@@ -401,7 +382,7 @@ export default {
   },
   methods: {
     addToastify() {
-      if (this.status.body) {
+      if (this.status.body.length > 0) {
         if (this.status.mode === "prompt") {
           try {
             const answersString = this.status.answers;
@@ -457,19 +438,16 @@ export default {
         }, 75);
       }
     },
-    checkBody() {
-      if (this.body.value.length === 0) {
-        this.body.classList.add("invalid");
-      } else {
-        this.body.classList.remove("invalid");
-      }
-    },
     loadStop() {
       this.$vToastify.stopLoader();
       this.loading = false;
       this.showWarning = false;
     },
     checkIfLoading() {
+      console.log(this.$vToastify.getToast());
+      if (this.$vToastify.getToast().length < 1) {
+        this.withBackdrop = false;
+      }
       if (this.loading) {
         this.showWarning = true;
       }

@@ -60,7 +60,8 @@ export default {
       default: "bottom-right"
     },
     defaultTitle: { type: Boolean, default: true },
-    canPause: { type: Boolean, default: false },
+    canPause: { type: Boolean, default: true },
+    canTimeout: { type: Boolean, default: true },
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
     alertInfoDuration: { type: Number, default: 6000 }
@@ -107,15 +108,21 @@ export default {
     this.$root.$on(
       ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
       payload => {
-        if (payload.hasOwnProperty("id")) {
+        if (payload.hasOwnProperty("id") && typeof payload.id === "string") {
           this.remove(payload.id);
         }
       }
     );
+    if (window.notification) {
+      const delay = window.notification.delay ? window.notification.delay : 0;
+      setTimeout(() => {
+        this.add(window.notification);
+      }, delay);
+    }
   },
   methods: {
     setSettings(settings = null) {
-      if (settings instanceof Object) {
+      if (settings) {
         Object.keys(this.settings).forEach(key => {
           if (settings.hasOwnProperty(key)) {
             this.$set(this.settings, key, settings[key]);
@@ -145,7 +152,7 @@ export default {
     },
     stopLoader(id = null) {
       let ids;
-      if (id instanceof String) {
+      if (typeof id === "string") {
         ids = [id];
       } else {
         //get all loaders
@@ -160,7 +167,15 @@ export default {
       });
     },
     add(status) {
+      // copy object
       let toast = Object.assign({}, status); //todo update to deep copy
+      // if object doesn't have default values, set them
+      if (status.hasOwnProperty("canTimeout")) {
+        toast.canTimeout = status.canTimeout;
+      } else {
+        toast.canTimeout = this.canTimeout;
+      }
+      //todo update these to object merger
       toast.duration = this.alertInfoDuration;
       if (status.hasOwnProperty("duration") && Number(status.duration) > 0) {
         toast.duration = Number(status.duration);
@@ -174,8 +189,8 @@ export default {
       }
       status.defaultTitle = !status.hasOwnProperty("defaultTitle")
         ? this.defaultTitle
-        : status.canPause;
-      status.defaultTitle = !status.hasOwnProperty("canPause")
+        : status.defaultTitle;
+      status.canPause = !status.hasOwnProperty("canPause")
         ? this.canPause
         : status.canPause;
       toast.id = this.uuidv4();
@@ -188,14 +203,29 @@ export default {
     },
     get(id = null) {
       if (id) {
-        return this.toasts.find(toast => {
+        let toast = this.toasts.find(toast => {
+          return toast.id === id;
+        });
+        if (toast) {
+          return toast;
+        }
+        return this.queue.find(toast => {
           return toast.id === id;
         });
       }
       return this.toasts;
     },
     set(id, status) {
-      this.$set(this.toasts, this.findToast(id), status);
+      let toast = this.get(id);
+      if (toast instanceof Array) {
+        return false;
+      }
+      if (this.findToast(id) !== -1) {
+        this.$set(this.toasts, this.findToast(id), { ...toast, ...status });
+        return true;
+      }
+      this.$set(this.toasts, this.findQueuedToast(id), { ...toast, ...status });
+      return true;
     },
     remove(id = null) {
       if (id) {
@@ -204,6 +234,7 @@ export default {
           if (index !== -1) {
             this.$delete(this.queue, index);
           }
+          return this.currentlyShowing;
         }
         setTimeout(() => {
           const index = this.findToast(id);
@@ -214,7 +245,7 @@ export default {
         return this.currentlyShowing;
       }
       this.toasts = [];
-      return this.toasts;
+      return this.currentlyShowing;
     }
   },
   computed: {
@@ -281,6 +312,15 @@ export default {
       },
       deep: true
     }
+  },
+  beforeDestroy() {
+    this.$root.$off([
+      "vtFinished",
+      "vtDismissed",
+      "vtPromptResponse",
+      "vtLoadStop",
+      "vtNotify"
+    ]);
   }
 };
 </script>
