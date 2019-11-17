@@ -43,7 +43,7 @@ or change any of the settings during run-time with the following
 this.vToastify.setSettings(settingsObject);
 ```
 
-####Available settings
+**Available settings**
 
  setting | type | default | details |
 ---|---|---|---
