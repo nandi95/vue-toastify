@@ -53,7 +53,7 @@
   "author": "Nandor Kraszlan",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/nandi95/vue-notification/issues"
+    "url": "https://github.com/nandi95/vue-toastify/issues"
   },
-  "homepage": "https://github.com/nandi95/vue-notification#readme"
+  "homepage": "https://github.com/nandi95/vue-toastify#readme"
 }
