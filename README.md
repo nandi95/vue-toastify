@@ -44,6 +44,7 @@ this.vToastify.setSettings(settingsObject);
 ```
 
 ####Available settings
+
  setting | type | default | details |
 ---|---|---|---
 | singular | Boolean | false | Only allow one notification on the screen at a time, others will be queued up for showing later. |
