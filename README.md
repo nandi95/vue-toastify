@@ -53,7 +53,7 @@ this.vToastify.setSettings(settingsObject);
 | position | String | "bottom-right" | Defines where the notifications should be showing on the screen. Available values are: `"top-left"`, `"top-center"`, `"top-right"`, `"center-left"`, `"center-center"`, `"center-right"`, `"bottom-left"`, `"bottom-center"`, `"bottom-right"` |
 | errorDuration | Number | 8000 | The duration in milliseconds the error notification should be visible for. |
 | successDuration | Number | 4000 | The duration in milliseconds the success notification should be visible for. |
-| alertInfoDuration | Number | 6000 | The duration in milliseconds the alert and info notification should be visible for. |
+| warningInfoDuration | Number | 6000 | The duration in milliseconds the warning and info notification should be visible for. |
 | canTimeout | Boolean | true | Whether the notifications disappears after the set time. |
 | canPause | Boolean | true | Whether the notifications can be paused by hovering over them. |
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
@@ -74,7 +74,7 @@ The following properties can be set on the object:
 ---|---|---
 | body | String | Required parameter, you may pass html to this. |
 | title | String | Enables pausing of the loader and the timeout on hover. |
-| type | String | Defines what notification type should be showing available types: `"success"`, `"alert"`, `"info"`, `"error"` defaults to `"success"`. Alternatively you may use the methods: `this.vToastify.alert("more readable")` |
+| type | String | Defines what notification type should be showing available types: `"success"`, `"warning"`, `"info"`, `"error"` defaults to `"success"`. Alternatively you may use the methods: `this.vToastify.warning("more readable")` |
 | url | String  | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
 
 You may additionally overwrite the plugin settings on a notification by notification basis.

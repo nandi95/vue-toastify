@@ -45,7 +45,7 @@ const VueToastify = {
         status.type = "info";
         return vtNotify(status);
       },
-      alert(status, title = null) {
+      warning(status, title = null) {
         if (typeof status === "string") {
           status = {
             body: status
@@ -54,7 +54,7 @@ const VueToastify = {
         if (title) {
           status.title = title;
         }
-        status.type = "alert";
+        status.type = "warning";
         return vtNotify(status);
       },
       error(status, title = null) {

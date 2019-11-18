@@ -42,7 +42,7 @@
         </div>
       </div>
       <div v-else class="vt-icon-container vt-circle" :class="colorClass">
-        <div v-if="colorClass.success" class="vt-icon">
+        <div v-if="colorClass['vt-success']" class="vt-icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="36"
@@ -54,7 +54,7 @@
             />
           </svg>
         </div>
-        <div v-if="colorClass.error" class="vt-icon">
+        <div v-if="colorClass['vt-error']" class="vt-icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="36"
@@ -66,7 +66,7 @@
             />
           </svg>
         </div>
-        <div v-if="colorClass.alert" class="vt-icon">
+        <div v-if="colorClass['vt-warning']" class="vt-icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="36"
@@ -79,7 +79,7 @@
             />
           </svg>
         </div>
-        <div v-if="colorClass.info" class="vt-icon">
+        <div v-if="colorClass['vt-info']" class="vt-icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             style="transform: rotate(180deg)"
@@ -162,7 +162,7 @@ export default {
     };
   },
   mounted() {
-    //if there is an initial alert
+    //if there is an initial notification
     if (this.status !== null) {
       this.startController();
       if (this.status.mode === "loader") {
@@ -315,7 +315,7 @@ export default {
       this.title = this.decideTitle(status);
       // clear any pre-existing classes
       this.colorClass = {};
-      this.colorClass[status.type ? status.type : "info"] = true;
+      this.colorClass["vt-" + (status.type ? status.type : "info")] = true;
       this.duration = status.duration;
       this.timerFinishesAt = new Date(status.duration + Date.now());
       if (this.status.hasOwnProperty("url") && this.status.url.length > 0) {
@@ -402,25 +402,25 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.success {
+.vt-success {
   & > .vt-icon > svg {
     fill: #199919;
   }
   border-color: #199919;
 }
-.info {
+.vt-info {
   & > .vt-icon > svg {
     fill: #003bc8;
   }
   border-color: #003bc8;
 }
-.alert {
+.vt-warning {
   & > .vt-icon > svg {
     fill: #ffb300;
   }
   border-color: #ffb300;
 }
-.error {
+.vt-error {
   & > .vt-icon > svg {
     fill: #b11414;
   }

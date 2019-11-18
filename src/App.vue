@@ -157,8 +157,8 @@
                 <option value="error" class="text-gray-800 font-hairline"
                   >Error</option
                 >
-                <option value="alert" class="text-gray-800 font-hairline"
-                  >Alert</option
+                <option value="warning" class="text-gray-800 font-hairline"
+                  >Warning</option
                 >
                 <option value="info" class="text-gray-800 font-hairline"
                   >Info</option

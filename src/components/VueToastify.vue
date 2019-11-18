@@ -65,7 +65,7 @@ export default {
     canTimeout: { type: Boolean, default: true },
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
-    alertInfoDuration: { type: Number, default: 6000 },
+    warningInfoDuration: { type: Number, default: 6000 },
     lightTheme: { type: Boolean, default: false }
   },
   data() {
@@ -81,7 +81,7 @@ export default {
         canPause: false,
         errorDuration: 8000,
         successDuration: 4000,
-        alertInfoDuration: 6000,
+        warningInfoDuration: 6000,
         lightTheme: false
       },
       internalSettings: {
@@ -179,7 +179,7 @@ export default {
         toast.canTimeout = this.canTimeout;
       }
       //todo update these to object merger
-      toast.duration = this.alertInfoDuration;
+      toast.duration = this.warningInfoDuration;
       if (status.hasOwnProperty("duration") && Number(status.duration) > 0) {
         toast.duration = Number(status.duration);
       } else if (status.hasOwnProperty("type")) {
@@ -188,7 +188,7 @@ export default {
             ? this.errorDuration
             : status.type === "success"
             ? this.successDuration
-            : this.alertInfoDuration;
+            : this.warningInfoDuration;
       }
       toast.defaultTitle = !status.hasOwnProperty("defaultTitle")
         ? this.defaultTitle
