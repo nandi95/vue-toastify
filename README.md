@@ -75,7 +75,7 @@ The following properties can be set on the object:
 | body | String | Required parameter, you may pass html to this. |
 | title | String | Enables pausing of the loader and the timeout on hover. |
 | type | String | Defines what notification type should be showing available types: `"success"`, `"alert"`, `"info"`, `"error"` defaults to `"success"`. Alternatively you may use the methods: `this.vToastify.alert("more readable")` |
-| url | String  | If set, clicking on the notification will take the user to the given location (supports vue router) |
+| url | String  | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
 
 You may additionally overwrite the plugin settings on a notification by notification basis.
 
@@ -148,7 +148,7 @@ this.vToastify.removeToast(id)
 ```
 This will remove the notification if the id is given otherwise it will remove all of the notifications. The function returns the ids of the currently visible notifications.
 ***
-To pass a notification from the server, assign your notification to `window.notification`. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
+To pass a notification from the server, assign your notification to `window.notification` before importing the other scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
 
 **Miscellaneous info**
 -

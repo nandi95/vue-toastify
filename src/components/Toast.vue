@@ -192,19 +192,24 @@ export default {
       if (!this.status.hasOwnProperty("url") || this.status.url.length === 0) {
         return "div";
       }
-      if (this.$root.hasOwnProperty("$router") && this.status.url.length > 0) {
-        return "router-link";
-      }
+      // if (this.hasRouter && this.status.url.length > 0) { // todo = notification doesn't show if has router
+      //   return "router-link";
+      // }
       return "a";
     },
     urlTarget() {
       if (!this.status.hasOwnProperty("url") || this.status.url.length === 0) {
         return {};
       }
-      if (this.$root.hasOwnProperty("$router")) {
-        return { route: this.status.url };
-      }
+      // if (this.hasRouter) {
+      //   return { to: this.status.url };
+      // }
       return { href: this.status.url };
+    },
+    hasRouter() {
+      return !!this.$root.$options._base._installedPlugins.find(entry => {
+        return entry.hasOwnProperty("name") && entry.name === "VueRouter";
+      });
     }
   },
   methods: {
@@ -430,7 +435,7 @@ export default {
   margin: 2.5px auto;
   z-index: 9999;
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   flex-flow: wrap row;
   align-content: center;

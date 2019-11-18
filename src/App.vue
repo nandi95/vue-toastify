@@ -367,11 +367,9 @@ export default {
         answers: null,
         url: ""
       },
-      alerts: [],
       lightTheme: false,
       defaultTitle: true,
       withBackdrop: false,
-      //example site specific data
       body: null,
       showWarning: false,
       loading: false
@@ -456,6 +454,12 @@ export default {
   watch: {
     withBackdrop: function(newValue) {
       this.$vToastify.setSettings({ withBackdrop: newValue });
+    },
+    lightTheme: function(newValue) {
+      this.$vToastify.setSettings({ lightTheme: newValue });
+    },
+    defaultTitle: function(newValue) {
+      this.$vToastify.setSettings({ defaultTitle: newValue });
     }
   }
 };

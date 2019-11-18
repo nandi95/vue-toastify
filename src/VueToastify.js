@@ -15,7 +15,7 @@ const VueToastify = {
       window.Vue.use(ToastContainer);
     }
 
-    Vue.prototype.$vtNotify = (status, title = null) => {
+    const vtNotify = (Vue.prototype.$vtNotify = (status, title = null) => {
       if (typeof status === "string") {
         status = {
           body: status
@@ -28,10 +28,10 @@ const VueToastify = {
         status.type = "success";
       }
       return ToastContainer.add(status);
-    };
+    });
     Vue.prototype.$vToastify = {
       success(status, title = null) {
-        return this.$vtNotify(status, title);
+        return vtNotify(status, title);
       },
       info(status, title = null) {
         if (typeof status === "string") {
@@ -43,7 +43,7 @@ const VueToastify = {
           status.title = title;
         }
         status.type = "info";
-        return this.$vtNotify(status);
+        return vtNotify(status);
       },
       alert(status, title = null) {
         if (typeof status === "string") {
@@ -55,7 +55,7 @@ const VueToastify = {
           status.title = title;
         }
         status.type = "alert";
-        return this.$vtNotify(status);
+        return vtNotify(status);
       },
       error(status, title = null) {
         if (typeof status === "string") {
@@ -67,7 +67,7 @@ const VueToastify = {
           status.title = title;
         }
         status.type = "error";
-        return Vue.prototype.$vtNotify(status);
+        return vtNotify(status);
       },
       loader(status, title = null) {
         if (typeof status === "string") {
@@ -79,7 +79,7 @@ const VueToastify = {
           status.title = title;
         }
         status.mode = "loader";
-        return this.$vtNotify(status);
+        return vtNotify(status);
       },
       prompt(status, title = null) {
         if (typeof status === "string") {

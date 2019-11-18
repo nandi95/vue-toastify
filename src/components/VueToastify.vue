@@ -19,6 +19,7 @@
             status.hasOwnProperty('mode') && status.mode === 'loader'
         }"
         :container-adjustment="internalSettings.containerAdjustment"
+        :light-theme="settings.lightTheme"
       />
     </div>
   </div>
@@ -64,7 +65,8 @@ export default {
     canTimeout: { type: Boolean, default: true },
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
-    alertInfoDuration: { type: Number, default: 6000 }
+    alertInfoDuration: { type: Number, default: 6000 },
+    lightTheme: { type: Boolean, default: false }
   },
   data() {
     return {
@@ -79,7 +81,8 @@ export default {
         canPause: false,
         errorDuration: 8000,
         successDuration: 4000,
-        alertInfoDuration: 6000
+        alertInfoDuration: 6000,
+        lightTheme: false
       },
       internalSettings: {
         styles: {},
@@ -187,10 +190,10 @@ export default {
             ? this.successDuration
             : this.alertInfoDuration;
       }
-      status.defaultTitle = !status.hasOwnProperty("defaultTitle")
+      toast.defaultTitle = !status.hasOwnProperty("defaultTitle")
         ? this.defaultTitle
         : status.defaultTitle;
-      status.canPause = !status.hasOwnProperty("canPause")
+      toast.canPause = !status.hasOwnProperty("canPause")
         ? this.canPause
         : status.canPause;
       toast.id = this.uuidv4();
@@ -332,6 +335,7 @@ export default {
   margin: 10px;
   width: auto;
   height: auto;
+  z-index: 9999;
 }
 .vt-backdrop {
   transition: background-color 0.2s ease-out;
