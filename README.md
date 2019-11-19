@@ -147,6 +147,33 @@ For removing a notification use:
 this.vToastify.removeToast(id)
 ```
 This will remove the notification if the id is given otherwise it will remove all of the notifications. The function returns the ids of the currently visible notifications.
+
+
+**Extending the plugin**
+
+You can add your own methods to the plugin like so:
+```
+Vue.use(VueToastify, {
+  customNotifications: {
+    clientError: {
+      body: "You did it!",
+      defaultTitle: false,
+      icon: '<svg width="50" height="50">\n' +
+              '<rect width="50" height="50" style="fill:rgb(0,0,255);" />\n' +
+            '</svg> ',
+      canTimeout: false
+    },
+    moreOfTheAbove: { ...
+  }
+});
+```
+
+If the above is defined in the `customNotifications` object, you can use this method like so:
+```
+this.$vToastify.clientError("this will overwrite the body");
+```
+or as usual pass in an object with the above outlined props which will overwrite the props you defined.
+
 ***
 To pass a notification from the server, assign your notification to `window.notification` before importing the other scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
 
@@ -161,6 +188,8 @@ To pass a notification from the server, assign your notification to `window.noti
 - Increase test coverage
 
 - Remove core-js dependency
+
+- Add max number of notifications on display setting
 
 - Add touch swipe gestures
 

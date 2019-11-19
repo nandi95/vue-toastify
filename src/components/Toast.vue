@@ -23,7 +23,7 @@
         <p class="vt-paragraph" v-html="body"></p>
       </div>
       <div class="vt-icon-container" v-if="status !== null && status.icon">
-        <div class="vt-icon" v-html="status.icon"></div>
+        <div v-html="status.icon"></div>
       </div>
       <div v-else-if="mode === 'loader'" class="vt-icon-container">
         <div class="vt-spinner"></div>
@@ -31,7 +31,7 @@
       <div
         v-else-if="mode === 'prompt'"
         class="vt-icon-container vt-circle"
-        :class="{ promptDark: !lightTheme, promptLight: lightTheme }"
+        :class="{ 'vt-promptDark': !lightTheme, 'vt-promptLight': lightTheme }"
       >
         <div class="vt-icon">
           <svg style="width:24px;height:24px" viewBox="0 0 24 24">
@@ -562,7 +562,7 @@ export default {
       }
     }
   }
-  & > .promptDark {
+  & > .vt-promptDark {
     & > .vt-icon > svg {
       fill: lighten($backgroundColor, 70%);
     }
@@ -604,7 +604,7 @@ export default {
       }
     }
   }
-  & > .promptLight {
+  & > .vt-promptLight {
     & > .vt-icon > svg {
       fill: darken($backgroundColor, 70%);
     }

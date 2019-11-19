@@ -116,6 +116,28 @@ const VueToastify = {
         ToastContainer.setSettings(settings);
       }
     };
+
+    if (
+      settings.hasOwnProperty("customNotifications") &&
+      Object.entries(settings.customNotifications).length > 0
+    ) {
+      Object.entries(settings.customNotifications).forEach(keyValArr => {
+        Object.defineProperty(Vue.prototype.$vToastify, keyValArr[0], {
+          get() {
+            return status => {
+              let toast = {};
+              toast = Object.assign(toast, keyValArr[1]);
+              if (status.constructor === String) {
+                toast.body = status;
+              } else {
+                toast = { ...keyValArr[1], status };
+              }
+              vtNotify(toast);
+            };
+          }
+        });
+      });
+    }
   }
 };
 

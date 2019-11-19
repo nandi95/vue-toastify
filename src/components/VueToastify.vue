@@ -29,7 +29,6 @@
 import Toast from "./Toast";
 
 export default {
-  //todo - max on screen
   name: "VueToastify",
   components: {
     Toast
