@@ -355,7 +355,7 @@ export default {
   data() {
     return {
       status: {
-        title: "toastified!",
+        title: "Toastified!",
         body: "This is the body.",
         type: null,
         canPause: false,
@@ -442,7 +442,6 @@ export default {
       this.showWarning = false;
     },
     checkIfLoading() {
-      console.log(this.$vToastify.getToast());
       if (this.$vToastify.getToast().length < 1) {
         this.withBackdrop = false;
       }

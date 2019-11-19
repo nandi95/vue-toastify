@@ -12,11 +12,10 @@
       <Toast
         v-for="status in toasts"
         :key="status.id"
-        :status="status"
+        :status.sync="status"
         :transition="getTransition"
         :class="{
-          'vt-cursor-loading':
-            status.hasOwnProperty('mode') && status.mode === 'loader'
+          'vt-cursor-loading': status.mode === 'loader'
         }"
         :container-adjustment="internalSettings.containerAdjustment"
         :light-theme="settings.lightTheme"
@@ -77,6 +76,7 @@ export default {
         backdrop: "rgba(0, 0, 0, 0.2)",
         position: "bottom-right",
         defaultTitle: true,
+        canTimeout: true,
         canPause: false,
         errorDuration: 8000,
         successDuration: 4000,
@@ -92,21 +92,6 @@ export default {
   mounted() {
     this.setSettings();
     // listen for notification event
-    this.$root.$on("vtNotify", status => {
-      if (status.body) {
-        this.$set(this.toasts, this.toasts.length, status);
-      } else if (
-        status.hasOwnProperty("status") &&
-        status.hasOwnProperty("statusText")
-      ) {
-        // http error expected to be passed in
-        this.$set(this.toasts, this.toasts.length, {
-          title: status.status.toString(),
-          body: status.statusText,
-          type: "error"
-        });
-      }
-    });
     this.$root.$on(
       ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
       payload => {
@@ -123,17 +108,7 @@ export default {
     }
   },
   methods: {
-    setSettings(settings = null) {
-      if (settings) {
-        Object.keys(this.settings).forEach(key => {
-          if (settings.hasOwnProperty(key)) {
-            this.$set(this.settings, key, settings[key]);
-          }
-        });
-      } else {
-        this.settings = Object.assign({}, this._props);
-      }
-    },
+    // Internal methods
     findToast(id) {
       return this.toasts.findIndex(toast => {
         return toast.id === id;
@@ -152,14 +127,66 @@ export default {
         ).toString(16)
       );
     },
+    getTitle(status) {
+      if (status.title) {
+        return status.title;
+      }
+      if (
+        status.hasOwnProperty("defaultTitle") &&
+        status.defaultTitle.constructor === Boolean
+      ) {
+        if (status.defaultTitle) {
+          if (status.mode === "prompt" || status.mode === "loader") {
+            return "";
+          }
+          if (status.hasOwnProperty("type")) {
+            return this.capitalise(status.type);
+          }
+        } else {
+          return "";
+        }
+      }
+      if (this.settings.defaultTitle) {
+        if (status.mode === "prompt" || status.mode === "loader") {
+          return "";
+        }
+        if (status.hasOwnProperty("type")) {
+          return this.capitalise(status.type);
+        }
+      }
+      return "Info";
+    },
+    capitalise(value) {
+      if (!value) return "";
+      value = value.toString();
+      return value.charAt(0).toUpperCase() + value.slice(1);
+    },
+    isBoolean(value) {
+      // if not set value will be "undefined"
+      return value === Boolean;
+    },
+
+    // API methods
+    setSettings(settings = null) {
+      if (settings) {
+        Object.keys(this.settings).forEach(key => {
+          if (settings.hasOwnProperty(key)) {
+            this.$set(this.settings, key, settings[key]);
+          }
+        });
+      } else {
+        this.settings = Object.assign({}, this._props);
+      }
+      return this.settings;
+    },
     stopLoader(id = null) {
-      let ids;
+      let ids = id;
       if (typeof id === "string") {
         ids = [id];
       } else {
         //get all loaders
         ids = this.toasts.map(toast => {
-          if (toast.hasOwnProperty("mode") && toast.mode === "loader") {
+          if (toast.mode === "loader") {
             return toast.id;
           }
         });
@@ -172,30 +199,33 @@ export default {
       // copy object
       let toast = Object.assign({}, status); //todo update to deep copy
       // if object doesn't have default values, set them
-      if (status.hasOwnProperty("canTimeout")) {
-        toast.canTimeout = status.canTimeout;
-      } else {
-        toast.canTimeout = this.canTimeout;
-      }
       //todo update these to object merger
-      toast.duration = this.warningInfoDuration;
+      toast.duration = this.settings.warningInfoDuration;
       if (status.hasOwnProperty("duration") && Number(status.duration) > 0) {
         toast.duration = Number(status.duration);
       } else if (status.hasOwnProperty("type")) {
         toast.duration =
           status.type === "error"
-            ? this.errorDuration
+            ? this.settings.errorDuration
             : status.type === "success"
-            ? this.successDuration
-            : this.warningInfoDuration;
+            ? this.settings.successDuration
+            : this.settings.warningInfoDuration;
       }
-      toast.defaultTitle = !status.hasOwnProperty("defaultTitle")
-        ? this.defaultTitle
-        : status.defaultTitle;
-      toast.canPause = !status.hasOwnProperty("canPause")
-        ? this.canPause
-        : status.canPause;
+      toast.answers =
+        status.answers && Object.keys(status.answers).length > 0
+          ? status.answers
+          : { Yes: true, No: false };
+      toast.canPause = this.isBoolean(status.canPause)
+        ? status.canPause
+        : this.settings.canPause;
       toast.id = this.uuidv4();
+      toast.title = this.getTitle(status);
+      toast.canTimeout =
+        status.mode === "prompt" || status.mode === "loader"
+          ? false
+          : this.isBoolean(status.canTimeout)
+          ? status.canTimeout
+          : this.settings.canTimeout;
       if (this.singular && this.toasts.length !== 0) {
         this.$set(this.queue, this.queue.length, toast);
         return this.currentlyShowing;
@@ -320,8 +350,7 @@ export default {
       "vtFinished",
       "vtDismissed",
       "vtPromptResponse",
-      "vtLoadStop",
-      "vtNotify"
+      "vtLoadStop"
     ]);
   }
 };

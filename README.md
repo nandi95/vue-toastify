@@ -42,6 +42,7 @@ or change any of the settings during run-time with the following
 ```
 this.vToastify.setSettings(settingsObject);
 ```
+This will return the current settings after the updates.
 
 **Available settings**
 
@@ -74,23 +75,26 @@ The following properties can be set on the object:
 ---|---|---
 | body | String | Required parameter, you may pass html to this. |
 | title | String | Enables pausing of the loader and the timeout on hover. |
-| type | String | Defines what notification type should be showing available types: `"success"`, `"warning"`, `"info"`, `"error"` defaults to `"success"`. Alternatively you may use the methods: `this.vToastify.warning("more readable")` |
+| type | String | Defines what notification type should be showing available types: `"success"`, `"warning"`, `"info"`, `"error"` defaults to `"success"`. This can only be set if you're using `this.$vtNotify()` Alternatively you may use the methods: `this.$vToastify.warning("more readable")` |
+| mode | String | If set the notification will be shown in the given mode: `loader`, `prompt`. Alternatively you may use the methods: `this.$vToastify.loader("more readable")`  |
 | url | String  | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
 
-You may additionally overwrite the plugin settings on a notification by notification basis.
+You may additionally overwrite the following plugin settings on a notification by notification basis by adding them on the status object.
 
  property | type  | details |
 ---|---|---
 | canTimeout | Boolean | Whether the notifications disappear after the set time. |
 | canPause | Boolean | Whether the notifications can be paused by hovering over them. |
-| duration | Number | The time the notification is displayed in milliseconds. |
-| defaultTitle | Boolean | Overwrites the globally set setting. |
+| defaultTitle | Boolean | Whether the default title should be shown if no title given. (this cannot be updated later) |
+| duration | Number | The time the notification is displayed in milliseconds. (this cannot be updated later) |
 
 You may alternatively pass in an http error response like:
 ```
-fetch().then().catch(error => this.vtNotify(error));
+fetch().then().catch(error => this.$vToastify.error(error));
 ```
 ***
+Only `this.$vToastify.error()` is capable to handle the error response.
+
 Every call notification method returns a unique id associated to your notification object.
  
 Additional methods
@@ -119,7 +123,7 @@ The prompt does not return an id instead it returns a Promise so may use it as:
     }
 })
 ```
-The answers object consist of a key value pairs in the object where the key is displayed to the user and the value returned by the promise.
+The answers object consist of a key value pairs in the object where the key is displayed to the user and the value returned by the promise. If not set it defaults to: `{ Yes: true, No: false }`.
 
 **Additional methods available:**
 
@@ -127,7 +131,7 @@ A loader cannot be dismissed, you'll have to stop the loader yourself like so:
 ```
 this.vToastify.stopLoader(id)
 ```
-This will stops the loader with the given id. If no id provided, all loaders will be closed.
+This will stops the loader with the given id or loaders if array of ids given. If no id provided, all loaders will be closed.
 
 
 For returning a notification object use:
@@ -140,7 +144,7 @@ For updating the notification object during run-time use:
 ```
 this.vToastify.changeToast(id, statusObject)
 ```
-This will merge the object you pass in and the existing notification. It will return true on success and false if the notification isn't found.
+This will merge the object you pass in and the existing notification. It will return true if successfully updated and false if the notification isn't found.
 
 For removing a notification use:
 ```
@@ -188,6 +192,12 @@ To pass a notification from the server, assign your notification to `window.noti
 - Increase test coverage
 
 - Remove core-js dependency
+
+- add SPA support for the url attribute
+
+- Fix backdrop leave animation
+
+- Expose the following events to the user: `vtFinished`, `vtDismissed`, `vtStarted`, `vtPaused`
 
 - Add max number of notifications on display setting
 

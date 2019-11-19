@@ -24,7 +24,7 @@ const VueToastify = {
       if (title) {
         status.title = title;
       }
-      if (!status.hasOwnProperty("type")) {
+      if (!status.hasOwnProperty("type") || !status.type) {
         status.type = "success";
       }
       return ToastContainer.add(status);
@@ -61,6 +61,15 @@ const VueToastify = {
         if (typeof status === "string") {
           status = {
             body: status
+          };
+        }
+        if (
+          status.hasOwnProperty("status") &&
+          status.hasOwnProperty("statusText")
+        ) {
+          status = {
+            title: status.status.toString(),
+            body: status.statusText
           };
         }
         if (title) {
@@ -107,13 +116,13 @@ const VueToastify = {
         return ToastContainer.get(id);
       },
       changeToast(id, status) {
-        ToastContainer.set(id, status);
+        return ToastContainer.set(id, status);
       },
       removeToast(id = null) {
         return ToastContainer.remove(id);
       },
       setSettings(settings) {
-        ToastContainer.setSettings(settings);
+        return ToastContainer.setSettings(settings);
       }
     };
 

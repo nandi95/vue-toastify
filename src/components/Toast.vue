@@ -9,27 +9,27 @@
       :class="{
         'vt-theme-light': lightTheme,
         'vt-theme-dark': !lightTheme,
-        'vt-cursor-loading': mode === 'loader'
+        'vt-cursor-loading': status.mode === 'loader'
       }"
       @click="dismiss()"
       @mouseenter="timerPause()"
       @mouseleave="timerStart()"
     >
-      <div v-if="timesOut" class="progress-bar">
+      <div v-if="status.canTimeout" class="progress-bar">
         <div class="progress" :style="{ width: this.progress + '%' }"></div>
       </div>
       <div class="vt-content" :style="{ maxWidth: bodyMaxWidth }">
-        <h2 class="vt-title">{{ title | capitalise }}</h2>
-        <p class="vt-paragraph" v-html="body"></p>
+        <h2 class="vt-title" v-if="status.title" v-text="status.title"></h2>
+        <p class="vt-paragraph" v-html="status.body"></p>
       </div>
       <div class="vt-icon-container" v-if="status !== null && status.icon">
         <div v-html="status.icon"></div>
       </div>
-      <div v-else-if="mode === 'loader'" class="vt-icon-container">
+      <div v-else-if="status.mode === 'loader'" class="vt-icon-container">
         <div class="vt-spinner"></div>
       </div>
       <div
-        v-else-if="mode === 'prompt'"
+        v-else-if="status.mode === 'prompt'"
         class="vt-icon-container vt-circle"
         :class="{ 'vt-promptDark': !lightTheme, 'vt-promptLight': lightTheme }"
       >
@@ -94,13 +94,13 @@
           </svg>
         </div>
       </div>
-      <div class="vt-buttons" v-if="mode === 'prompt'">
+      <div class="vt-buttons" v-if="status.mode === 'prompt'">
         <button
-          v-for="(value, answerProperty, index) in promptAnswers"
+          v-for="(value, answerProperty, index) in status.answers"
           :key="index"
           @click="respond(value)"
           v-text="answerProperty"
-        ></button>
+        />
       </div>
     </component>
   </transition>
@@ -117,13 +117,6 @@ const cancelAnimationFrame =
   window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 export default {
   name: "Toast",
-  filters: {
-    capitalise(value) {
-      if (!value) return "";
-      value = value.toString();
-      return value.charAt(0).toUpperCase() + value.slice(1);
-    }
-  },
   props: {
     status: { type: Object, default: null },
     lightTheme: { type: Boolean, default: false }, //todo expose to the user
@@ -141,18 +134,9 @@ export default {
   },
   data() {
     return {
-      colorClass: {},
       notificationStyle: {},
       transitionName: "",
-      title: "",
-      body: "",
-      mode: "",
-      promptAnswers: null,
       isVisible: false,
-      pausable: false,
-      timesOut: true,
-      titleToDefault: true,
-      duration: null,
       progress: 0,
       progressId: null,
       timerId: null,
@@ -163,26 +147,26 @@ export default {
   },
   mounted() {
     //if there is an initial notification
-    if (this.status !== null) {
-      this.startController();
-      if (this.status.mode === "loader") {
-        this.$root.$once("vtLoadStop", payload => {
-          //if all loaders should stop or only this
-          if (payload.hasOwnProperty("id") && payload.id !== null) {
-            if (payload.id === this.status.id) {
-              this.toggleVisibility();
-            }
-          } else {
+    this.startController();
+    if (this.status.mode === "loader") {
+      this.$root.$once("vtLoadStop", payload => {
+        //if all loaders should stop or only this
+        if (payload.hasOwnProperty("id") && payload.id !== null) {
+          if (payload.id === this.status.id) {
             this.toggleVisibility();
           }
-        });
-      }
+        } else {
+          this.toggleVisibility();
+        }
+      });
     }
   },
   beforeMount() {
-    if (this.status !== null) {
-      this.setData(this.status);
+    this.timerFinishesAt = new Date(this.status.duration + Date.now());
+    if (this.status.hasOwnProperty("url") && this.status.url.length > 0) {
+      this.notificationStyle["cursor"] = "pointer";
     }
+
     //dynamic positioning
     this.notificationStyle["minWidth"] =
       "calc(100% + " + this.containerAdjustment + "px)";
@@ -206,23 +190,28 @@ export default {
       // }
       return { href: this.status.url };
     },
-    hasRouter() {
-      return !!this.$root.$options._base._installedPlugins.find(entry => {
-        return entry.hasOwnProperty("name") && entry.name === "VueRouter";
-      });
+    // hasRouter() {
+    //   return !!this.$root.$options._base._installedPlugins.find(entry => {
+    //     return entry.hasOwnProperty("name") && entry.name === "VueRouter";
+    //   });
+    // }
+    colorClass() {
+      let obj = {};
+      obj["vt-" + (this.status.type ? this.status.type : "info")] = true;
+      return obj;
     }
   },
   methods: {
     startController() {
       this.toggleVisibility();
-      if (this.timesOut) {
+      if (this.status.canTimeout) {
         this.$root.$emit("vtStarted", { id: this.status.id });
         // start of the timer (a constant)
         this.timerStartedAt = new Date();
         // initial time to calculate with on the first start
         this.timerPausedAt = new Date();
 
-        if (!this.pausable) {
+        if (!this.status.canPause) {
           // set new timeout
           this.timerId = window.setTimeout(
             this.toggleVisibility,
@@ -238,16 +227,16 @@ export default {
       // if notification manually dismissed AND is visible AND isn't prompt or loader
       if (
         ((Math.ceil(this.progress) < 100 && this.progress !== 0) ||
-          this.timesOut === false) &&
+          this.status.canTimeout === false) &&
         this.isVisible &&
-        ["prompt", "loader"].indexOf(this.mode) === -1
+        ["prompt", "loader"].indexOf(this.status.mode) === -1
       ) {
         this.$root.$emit("vtDismissed", { id: this.status.id });
       }
-      // if the loader has finished
+      // if the notification has finished displaying
       if (
         Math.ceil(this.progress) === 100 &&
-        ["prompt", "loader"].indexOf(this.mode) === -1
+        ["prompt", "loader"].indexOf(this.status.mode) === -1
       ) {
         this.$root.$emit("vtFinished", { id: this.status.id });
       }
@@ -261,69 +250,9 @@ export default {
         cancelAnimationFrame(this.progressId);
         this.progressId = null;
       }
-      // set to null in case it will ever be re-used
-      if (!this.isVisible) {
-        this.duration = null;
-      }
-    },
-    decideTitle(status) {
-      let title = "";
-      if (status.title) {
-        title = status.title;
-      } else {
-        if (status.type) {
-          if (typeof status.defaultTitle === "undefined") {
-            title = this.titleToDefault ? status.type : "";
-          } else {
-            title = status.defaultTitle ? status.type : "";
-          }
-        } else {
-          if (status.defaultTitle === true) {
-            title =
-              this.titleToDefault &&
-              (status.mode !== "prompt" && status.mode !== "loader")
-                ? "info"
-                : "";
-          } else {
-            title =
-              status.defaultTitle &&
-              (status.mode !== "prompt" && status.mode !== "loader")
-                ? "info"
-                : "";
-          }
-        }
-      }
-      return title;
-    },
-    setData(status) {
-      this.body = status.body;
-      this.pausable = status.canPause === true ? status.canPause : false;
-      this.mode = status.mode;
-      this.promptAnswers =
-        status.answers && Object.keys(status.answers).length > 0
-          ? status.answers
-          : { Yes: true, No: false };
-      this.timesOut =
-        status.mode === "prompt" || status.mode === "loader"
-          ? false
-          : status.canTimeout !== false;
-      this.notificationStyle["cursor"] =
-        status.mode === "loader" ? "wait" : "default";
-      this.titleToDefault =
-        status.defaultTitle === true &&
-        (status.mode !== "prompt" || status.mode !== "loader");
-      this.title = this.decideTitle(status);
-      // clear any pre-existing classes
-      this.colorClass = {};
-      this.colorClass["vt-" + (status.type ? status.type : "info")] = true;
-      this.duration = status.duration;
-      this.timerFinishesAt = new Date(status.duration + Date.now());
-      if (this.status.hasOwnProperty("url") && this.status.url.length > 0) {
-        this.notificationStyle["cursor"] = "pointer";
-      }
     },
     timerStart() {
-      if (this.pausable) {
+      if (this.status.canPause && this.status.canTimeout) {
         this.timerStartedAt = new Date(
           this.timerStartedAt.getTime() +
             (Date.now() - this.timerPausedAt.getTime())
@@ -349,7 +278,7 @@ export default {
       }
     },
     timerPause() {
-      if (this.pausable) {
+      if (this.status.canPause && this.status.canTimeout) {
         // stop notification from closing
         window.clearTimeout(this.timerId);
         // set to null so animation won't stay in a loop
@@ -378,7 +307,7 @@ export default {
       }
     },
     dismiss() {
-      if (this.mode !== "prompt" && this.mode !== "loader") {
+      if (this.status.mode !== "prompt" && this.status.mode !== "loader") {
         this.toggleVisibility();
       }
     },
