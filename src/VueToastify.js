@@ -133,13 +133,16 @@ const VueToastify = {
       Object.entries(settings.customNotifications).forEach(keyValArr => {
         Object.defineProperty(Vue.prototype.$vToastify, keyValArr[0], {
           get() {
-            return status => {
+            return (status, title = null) => {
               let toast = {};
               toast = Object.assign(toast, keyValArr[1]);
               if (status.constructor === String) {
                 toast.body = status;
               } else {
-                toast = { ...keyValArr[1], status };
+                toast = { ...keyValArr[1], ...status };
+              }
+              if (title) {
+                toast.title = title;
               }
               vtNotify(toast);
             };

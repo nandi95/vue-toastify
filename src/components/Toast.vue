@@ -20,7 +20,7 @@
         <h2 class="vt-title" v-if="status.title" v-text="status.title"></h2>
         <p class="vt-paragraph" v-html="status.body"></p>
       </div>
-      <div class="vt-icon-container" v-if="status !== null && status.icon">
+      <div class="vt-icon-container" v-if="status.icon">
         <div v-html="status.icon"></div>
       </div>
       <div v-else-if="status.mode === 'loader'" class="vt-icon-container">

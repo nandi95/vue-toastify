@@ -324,7 +324,7 @@
           height="30px"
         ></iframe>
         <button v-if="status.mode === 'loader'" @click="loadStop" class="btn">
-          Fire 'vtLoadStop'
+          Call .stopLoader()
         </button>
         <button @click="addToastify" class="btn">
           Toastify!
@@ -343,7 +343,7 @@
         <h4 class="text-sm mb-3">
           Make sure to also cancel the loading if your process has failed.
         </h4>
-        <button @click="loadStop" class="btn">Fire 'vtLoadStop'</button>
+        <button @click="loadStop" class="btn">Call .stopLoader()</button>
       </div>
     </transition>
   </div>

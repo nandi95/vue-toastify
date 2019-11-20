@@ -159,7 +159,7 @@ export default {
     },
     isBoolean(value) {
       // if not set value will be "undefined"
-      return value === Boolean;
+      return typeof value === "boolean";
     },
 
     // API methods
@@ -216,12 +216,13 @@ export default {
         : this.settings.canPause;
       toast.id = this.uuidv4();
       toast.title = this.getTitle(status);
-      toast.canTimeout =
-        status.mode === "prompt" || status.mode === "loader"
-          ? false
-          : this.isBoolean(status.canTimeout)
-          ? status.canTimeout
-          : this.settings.canTimeout;
+      toast.canTimeout = this.isBoolean(status.canTimeout)
+        ? status.canTimeout
+        : this.settings.canTimeout;
+      if (status.mode === "prompt" || status.mode === "loader") {
+        toast.canTimeout = false;
+      }
+
       toast.theme = status.theme ? status.theme : this.settings.theme;
       if (this.singular && this.toasts.length !== 0) {
         this.$set(this.queue, this.queue.length, toast);

@@ -76,7 +76,8 @@ The following properties can be set on the object:
 | title | String | Enables pausing of the loader and the timeout on hover. |
 | type | String | Defines what notification type should be showing available types: `"success"`, `"warning"`, `"info"`, `"error"` defaults to `"success"`. This can only be set if you're using `this.$vtNotify()` Alternatively you may use the methods: `this.$vToastify.warning("more readable")` |
 | mode | String | If set the notification will be shown in the given mode: `loader`, `prompt`. Alternatively you may use the methods: `this.$vToastify.loader("more readable")`  |
-| url | String  | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
+| url | String | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
+| icon | String | If set, this will be displayed instead of the default icons. Html binded as svg or element witch icon class is expected. |
 
 You may additionally overwrite the following plugin settings on a notification by notification basis by adding them on the status object.
 
@@ -174,7 +175,7 @@ Vue.use(VueToastify, {
 
 If the above is defined in the `customNotifications` object, you can use this method like so:
 ```
-this.$vToastify.clientError("this will overwrite the body");
+this.$vToastify.clientError("this will overwrite the body", "this will add a title");
 ```
 or as usual pass in an object with the above outlined props which will overwrite the props you defined.
 
