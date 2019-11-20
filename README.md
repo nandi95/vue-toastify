@@ -1,8 +1,6 @@
 # Vue Toastify
 
-**Fuss free notification component.**
-
-I wanted a notification plugin which I can use by passing props from the server and it can also take statuses at run time. With this component it's has just become super easy.
+I wanted a notification plugin which I can use by passing props from the server and it can also take statuses at run time. With this component it's has just become super easy. It's easily extendable and customizable and has no dependencies.
 
 Check it out at [Netlify](https://vue-toastify.netlify.com/)
 
@@ -25,7 +23,7 @@ Vue.use(VueToastify);
 ```
  Then anywhere just call:
 ```
-this.vToastify.success("easy-peasy");
+this.$vToastify.success("easy-peasy");
 ```
 
 **Settings**
@@ -58,16 +56,17 @@ This will return the current settings after the updates.
 | canTimeout | Boolean | true | Whether the notifications disappears after the set time. |
 | canPause | Boolean | true | Whether the notifications can be paused by hovering over them. |
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
+| lightTheme | Boolean | false | Whether the light theme should be used. |
 
 **Status**
 -
 You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
 ```
-this.vToastify.error("body", "title"); 
+this.$vToastify.error("body", "title"); 
 ```
 Or pass an object to the method:
 ```
-this.vToastify.info(stausObject);
+this.$vToastify.info(stausObject);
 ```
 The following properties can be set on the object:
 
@@ -97,16 +96,16 @@ Only `this.$vToastify.error()` is capable to handle the error response.
 
 Every call notification method returns a unique id associated to your notification object.
  
-Additional methods
-=
+**Additional methods**
+-
 **The notification supports multiple modes**
 
 You can either pass the `mode` property on the status object which is one of the following strings: `"prompt"`, `"loader"` or by calling:
 ```
-this.vToastify.loader("Please Wait...")
+this.$vToastify.loader("Please Wait...")
 ```
 ```
-this.vToastify.prompt({
+this.$vToastify.prompt({
     body: "Are there hot singles in your area?"
     answers: { Yes: true, No: false }
 })
@@ -115,7 +114,7 @@ The prompt does not return an id instead it returns a Promise so may use it as:
 ```
 ...}).then(value => {
     if (value) {
-        this.vToastify.prompt({
+        this.$vToastify.prompt({
             body: "Is it a scam?"
             answers: { Yes: true, No: false }
         })
@@ -129,26 +128,26 @@ The answers object consist of a key value pairs in the object where the key is d
 
 A loader cannot be dismissed, you'll have to stop the loader yourself like so:
 ```
-this.vToastify.stopLoader(id)
+this.$vToastify.stopLoader(id)
 ```
 This will stops the loader with the given id or loaders if array of ids given. If no id provided, all loaders will be closed.
 
 
 For returning a notification object use:
 ```
-this.vToastify.getToast(id)
+this.$vToastify.getToast(id)
 ```
 This if found returns the notification object otherwise all of the notification objects in an array.
 
 For updating the notification object during run-time use:
 ```
-this.vToastify.changeToast(id, statusObject)
+this.$vToastify.changeToast(id, statusObject)
 ```
 This will merge the object you pass in and the existing notification. It will return true if successfully updated and false if the notification isn't found.
 
 For removing a notification use:
 ```
-this.vToastify.removeToast(id)
+this.$vToastify.removeToast(id)
 ```
 This will remove the notification if the id is given otherwise it will remove all of the notifications. The function returns the ids of the currently visible notifications.
 
@@ -177,6 +176,8 @@ If the above is defined in the `customNotifications` object, you can use this me
 this.$vToastify.clientError("this will overwrite the body");
 ```
 or as usual pass in an object with the above outlined props which will overwrite the props you defined.
+
+To add custom styles you 
 
 ***
 To pass a notification from the server, assign your notification to `window.notification` before importing the other scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.

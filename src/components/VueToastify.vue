@@ -14,9 +14,6 @@
         :key="status.id"
         :status.sync="status"
         :transition="getTransition"
-        :class="{
-          'vt-cursor-loading': status.mode === 'loader'
-        }"
         :container-adjustment="internalSettings.containerAdjustment"
         :light-theme="settings.lightTheme"
       />
@@ -373,8 +370,5 @@ export default {
   right: 0;
   bottom: 0;
   position: fixed;
-}
-.vt-cursor-loading {
-  cursor: wait;
 }
 </style>

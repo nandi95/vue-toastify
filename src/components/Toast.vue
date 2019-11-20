@@ -17,8 +17,8 @@
       @touchstart="timerPause()"
       @touchend="timerStart()"
     >
-      <div v-if="status.canTimeout" class="progress-bar">
-        <div class="progress" :style="{ width: this.progress + '%' }"></div>
+      <div v-if="status.canTimeout" class="vt-progress-bar">
+        <div class="vt-progress" :style="{ width: this.progress + '%' }"></div>
       </div>
       <div class="vt-content" :style="{ maxWidth: bodyMaxWidth }">
         <h2 class="vt-title" v-if="status.title" v-text="status.title"></h2>
@@ -332,7 +332,7 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .vt-success {
   & > .vt-icon > svg {
     fill: #199919;
@@ -370,11 +370,11 @@ export default {
   align-items: center;
   flex-flow: wrap row;
   align-content: center;
-  & > .progress-bar {
+  & > .vt-progress-bar {
     height: 3px;
     width: 100%;
     margin-bottom: 5px;
-    & > .progress {
+    & > .vt-progress {
       max-width: 100%;
       height: 3px;
       overflow: hidden;
@@ -466,9 +466,9 @@ export default {
 .vt-theme-dark {
   $backgroundColor: #1d1d1d;
   background-color: $backgroundColor;
-  & > .progress-bar {
+  & > .vt-progress-bar {
     background-color: lighten($backgroundColor, 10%);
-    & > .progress {
+    & > .vt-progress {
       background-color: lighten($backgroundColor, 30%);
     }
   }
@@ -508,9 +508,9 @@ export default {
   $backgroundColor: #f0f0f0;
   $borderColor: darken($backgroundColor, 30%);
   background-color: $backgroundColor;
-  & > .progress-bar {
+  & > .vt-progress-bar {
     background-color: darken($backgroundColor, 15%);
-    & > .progress {
+    & > .vt-progress {
       background-color: darken($backgroundColor, 40%);
     }
   }

@@ -1,0 +1,265 @@
+// This is all the styles the toast component uses.
+// You may change any of them by appending
+// the value with !important.
+//
+// To get the plain CSS rules just plug
+// it into an online converter
+
+.vt-success {
+  & > .vt-icon > svg {
+    fill: #199919;
+  }
+  border-color: #199919;
+}
+.vt-info {
+  & > .vt-icon > svg {
+    fill: #003bc8;
+  }
+  border-color: #003bc8;
+}
+.vt-warning {
+  & > .vt-icon > svg {
+    fill: #ffb300;
+  }
+  border-color: #ffb300;
+}
+.vt-error {
+  & > .vt-icon > svg {
+    fill: #b11414;
+  }
+  border-color: #b11414;
+}
+.vt-notification {
+  box-shadow: 0 0 10px 0.5px rgba(0, 0, 0, 0.35);
+  padding: 5% 2%;
+  max-width: max-content;
+  width: auto;
+  border-radius: 5px;
+  margin: 2.5px auto;
+  z-index: 9999;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-flow: wrap row;
+  align-content: center;
+  & > .vt-progress-bar {
+    height: 3px;
+    width: 100%;
+    margin-bottom: 5px;
+    & > .vt-progress {
+      max-width: 100%;
+      height: 3px;
+      overflow: hidden;
+      transition: max-width 1ms ease-in-out;
+    }
+  }
+  & > .vt-content {
+    width: auto;
+    height: 100%;
+    margin-right: 5px;
+    word-break: break-word;
+    & > .vt-title {
+      font-size: 1.4rem;
+      margin: 0;
+    }
+    & > .vt-paragraph {
+      font-size: 1rem;
+      margin: 0.5rem 0;
+    }
+  }
+  & > .vt-circle {
+    border-style: solid;
+    border-width: 2px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    margin: 5px !important;
+  }
+  & > .vt-icon-container {
+    margin: 0 20px;
+    position: relative;
+    & > .vt-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+  & > .vt-buttons {
+    flex-basis: 100%;
+    display: flex;
+    flex-flow: row wrap;
+    align-content: center;
+    align-items: center;
+    justify-content: space-evenly;
+    margin: 5px -23px 0;
+    & > button {
+      flex-basis: 48%;
+      width: auto;
+      margin-bottom: 4px;
+      border-radius: 4px;
+    }
+  }
+}
+.vt-cursor-loading {
+  cursor: wait;
+}
+
+.vt-spinner {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: transparent;
+  animation: 1s spin linear infinite;
+}
+
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+.vt-theme-dark {
+  $backgroundColor: #1d1d1d;
+  background-color: $backgroundColor;
+  & > .vt-progress-bar {
+    background-color: lighten($backgroundColor, 10%);
+    & > .vt-progress {
+      background-color: lighten($backgroundColor, 30%);
+    }
+  }
+  & > .vt-content {
+    & > .vt-title {
+      color: lighten($backgroundColor, 75%);
+    }
+    & > .vt-paragraph {
+      color: lighten($backgroundColor, 75%);
+    }
+  }
+  & > .vt-buttons {
+    & > button {
+      border: solid 1px lighten($backgroundColor, 10%);
+      background-color: lighten($backgroundColor, 10%);
+      color: lighten($backgroundColor, 75%);
+      transition: all 0.2s ease-out;
+      &:hover {
+        background-color: lighten($backgroundColor, 65%);
+        color: lighten($backgroundColor, 5%);
+        transition: all 0.2s ease-out;
+      }
+    }
+  }
+  & > .vt-promptDark {
+    & > .vt-icon > svg {
+      fill: lighten($backgroundColor, 70%);
+    }
+    border-color: lighten($backgroundColor, 70%);
+  }
+  & > .vt-icon-container > .vt-spinner {
+    border: 2px solid lighten($backgroundColor, 30%);
+    border-top: 2px solid lighten($backgroundColor, 90%);
+  }
+}
+.vt-theme-light {
+  $backgroundColor: #f0f0f0;
+  $borderColor: darken($backgroundColor, 30%);
+  background-color: $backgroundColor;
+  & > .vt-progress-bar {
+    background-color: darken($backgroundColor, 15%);
+    & > .vt-progress {
+      background-color: darken($backgroundColor, 40%);
+    }
+  }
+  & > .vt-content {
+    & > .vt-title {
+      color: darken($backgroundColor, 70%);
+    }
+    & > .vt-paragraph {
+      color: darken($backgroundColor, 75%);
+    }
+  }
+  & > .vt-buttons {
+    & > button {
+      border: solid 1px darken($backgroundColor, 10%);
+      background-color: darken($backgroundColor, 20%);
+      color: darken($backgroundColor, 75%);
+      transition: all 0.2s ease-out;
+      &:hover {
+        background-color: darken($backgroundColor, 55%);
+        color: darken($backgroundColor, 5%);
+        transition: all 0.2s ease-out;
+      }
+    }
+  }
+  & > .vt-promptLight {
+    & > .vt-icon > svg {
+      fill: darken($backgroundColor, 70%);
+    }
+    border-color: darken($backgroundColor, 70%);
+  }
+  & > .vt-icon-container > .vt-spinner {
+    border: 2px solid darken($backgroundColor, 30%);
+    border-top: 2px solid darken($backgroundColor, 90%);
+  }
+}
+
+.right-enter-active,
+.left-enter-active,
+.bottom-enter-active,
+.top-enter-active,
+.center-enter-active {
+  transition: all 0.2s ease-out;
+}
+
+.right-leave-active,
+.left-leave-active,
+.bottom-leave-active,
+.top-leave-active,
+.center-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.right-enter,
+.right-leave-to {
+  transform: translateX(50px);
+  opacity: 0;
+}
+
+.left-enter,
+.left-leave-to {
+  transform: translateX(-50px);
+  opacity: 0;
+}
+
+.bottom-enter,
+.bottom-leave-to {
+  margin-bottom: -50px;
+  opacity: 0;
+}
+
+.top-enter,
+.top-leave-to {
+  margin-top: -50px;
+  opacity: 0;
+}
+
+.center-enter,
+.center-leave-to {
+  opacity: 0;
+}
