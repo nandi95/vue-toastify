@@ -1,6 +1,6 @@
 # Vue Toastify
 
-I wanted a notification plugin which I can use by passing props from the server and it can also take statuses at run time. With this component it's has just become super easy. It's easily extendable and customizable and has no dependencies.
+I wanted a notification plugin which I can use by passing props from the server and it can also take statuses at run time. With this component it's has just become super easy. It's easily extendable and customizable and it has no dependencies.
 
 Check it out at [Netlify](https://vue-toastify.netlify.com/)
 
@@ -56,7 +56,7 @@ This will return the current settings after the updates.
 | canTimeout | Boolean | true | Whether the notifications disappears after the set time. |
 | canPause | Boolean | true | Whether the notifications can be paused by hovering over them. |
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
-| lightTheme | Boolean | false | Whether the light theme should be used. |
+| theme | String | "dark" | What theme should be displaying. By default there's `light` and `dark`. |
 
 **Status**
 -
@@ -86,6 +86,7 @@ You may additionally overwrite the following plugin settings on a notification b
 | canPause | Boolean | Whether the notifications can be paused by hovering over them. |
 | defaultTitle | Boolean | Whether the default title should be shown if no title given. (this cannot be updated later) |
 | duration | Number | The time the notification is displayed in milliseconds. (this cannot be updated later) |
+| theme | String | The theme's name you want the status to use |
 
 You may alternatively pass in an http error response like:
 ```
@@ -152,7 +153,7 @@ this.$vToastify.removeToast(id)
 This will remove the notification if the id is given otherwise it will remove all of the notifications. The function returns the ids of the currently visible notifications.
 
 
-**Extending the plugin**
+**Extending the functionality**
 
 You can add your own methods to the plugin like so:
 ```
@@ -177,7 +178,9 @@ this.$vToastify.clientError("this will overwrite the body");
 ```
 or as usual pass in an object with the above outlined props which will overwrite the props you defined.
 
-To add custom styles you 
+**Extending the styles**
+
+To add custom styles you all you have to do is follow the example in `./src/assets/toast.scss` and add your custom styles. Once added rename `.vt-theme-dark` to `.vt-theme-my-custom-name` and in the settings or the status object pass the theme as `theme: "my-custom-name"`. Include this stylesheet in the project and you're good to go.
 
 ***
 To pass a notification from the server, assign your notification to `window.notification` before importing the other scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
@@ -204,9 +207,7 @@ To pass a notification from the server, assign your notification to `window.noti
 
 - Re-write in TypeScript and use the vue core's `validateProps()`, rewrite for vue 3
 
-- Get url props on the answers object for redirecting on click of button
-
-- Make styles customizable
+- Get url props on the answers object for redirecting on click of the button
 
 **Alternatives**
 -

@@ -1,6 +1,6 @@
 // This is all the styles the toast component uses.
-// You may change any of them by appending
-// the value with !important.
+// You may change any of the default values
+// by appending the value with !important.
 //
 // To get the plain CSS rules just plug
 // it into an online converter
@@ -35,7 +35,7 @@
   max-width: max-content;
   width: auto;
   border-radius: 5px;
-  margin: 2.5px auto;
+  margin: 5px auto;
   z-index: 9999;
   display: flex;
   justify-content: space-around;
@@ -165,7 +165,7 @@
       }
     }
   }
-  & > .vt-promptDark {
+  & > .vt-prompt {
     & > .vt-icon > svg {
       fill: lighten($backgroundColor, 70%);
     }
@@ -207,7 +207,7 @@
       }
     }
   }
-  & > .vt-promptLight {
+  & > .vt-prompt {
     & > .vt-icon > svg {
       fill: darken($backgroundColor, 70%);
     }

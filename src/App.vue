@@ -455,7 +455,7 @@ export default {
       this.$vToastify.setSettings({ withBackdrop: newValue });
     },
     lightTheme: function(newValue) {
-      this.$vToastify.setSettings({ lightTheme: newValue });
+      this.$vToastify.setSettings({ theme: newValue ? "light" : "dark" });
     },
     defaultTitle: function(newValue) {
       this.$vToastify.setSettings({ defaultTitle: newValue });

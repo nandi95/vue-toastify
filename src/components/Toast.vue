@@ -6,11 +6,7 @@
       v-if="isVisible"
       class="vt-notification"
       :style="notificationStyle"
-      :class="{
-        'vt-theme-light': lightTheme,
-        'vt-theme-dark': !lightTheme,
-        'vt-cursor-loading': status.mode === 'loader'
-      }"
+      :class="notificationClass"
       @click="dismiss()"
       @mouseenter="timerPause()"
       @mouseleave="timerStart()"
@@ -32,8 +28,7 @@
       </div>
       <div
         v-else-if="status.mode === 'prompt'"
-        class="vt-icon-container vt-circle"
-        :class="{ 'vt-promptDark': !lightTheme, 'vt-promptLight': lightTheme }"
+        class="vt-icon-container vt-circle vt-prompt"
       >
         <div class="vt-icon">
           <svg style="width:24px;height:24px" viewBox="0 0 24 24">
@@ -121,7 +116,6 @@ export default {
   name: "Toast",
   props: {
     status: { type: Object, default: null },
-    lightTheme: { type: Boolean, default: false }, //todo expose to the user
     bodyMaxWidth: { type: String, default: "250px" }, //todo expose to the user
     transition: {
       validator: function(value) {
@@ -200,6 +194,12 @@ export default {
     colorClass() {
       let obj = {};
       obj["vt-" + (this.status.type ? this.status.type : "info")] = true;
+      return obj;
+    },
+    notificationClass() {
+      let obj = {};
+      obj["vt-theme-" + this.status.theme] = true;
+      obj["vt-cursor-loading"] = this.status.mode === "loader";
       return obj;
     }
   },
@@ -363,7 +363,7 @@ export default {
   max-width: max-content;
   width: auto;
   border-radius: 5px;
-  margin: 2.5px auto;
+  margin: 5px auto;
   z-index: 9999;
   display: flex;
   justify-content: space-around;
@@ -493,7 +493,7 @@ export default {
       }
     }
   }
-  & > .vt-promptDark {
+  & > .vt-prompt {
     & > .vt-icon > svg {
       fill: lighten($backgroundColor, 70%);
     }
@@ -535,7 +535,7 @@ export default {
       }
     }
   }
-  & > .vt-promptLight {
+  & > .vt-prompt {
     & > .vt-icon > svg {
       fill: darken($backgroundColor, 70%);
     }

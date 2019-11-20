@@ -15,7 +15,6 @@
         :status.sync="status"
         :transition="getTransition"
         :container-adjustment="internalSettings.containerAdjustment"
-        :light-theme="settings.lightTheme"
       />
     </div>
   </div>
@@ -61,7 +60,7 @@ export default {
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
     warningInfoDuration: { type: Number, default: 6000 },
-    lightTheme: { type: Boolean, default: false }
+    theme: { type: String, default: "dark" }
   },
   data() {
     return {
@@ -78,7 +77,7 @@ export default {
         errorDuration: 8000,
         successDuration: 4000,
         warningInfoDuration: 6000,
-        lightTheme: false
+        theme: "dark"
       },
       internalSettings: {
         styles: {},
@@ -223,6 +222,7 @@ export default {
           : this.isBoolean(status.canTimeout)
           ? status.canTimeout
           : this.settings.canTimeout;
+      toast.theme = status.theme ? status.theme : this.settings.theme;
       if (this.singular && this.toasts.length !== 0) {
         this.$set(this.queue, this.queue.length, toast);
         return this.currentlyShowing;
