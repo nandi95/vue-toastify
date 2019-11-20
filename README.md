@@ -180,18 +180,12 @@ or as usual pass in an object with the above outlined props which will overwrite
 
 ***
 To pass a notification from the server, assign your notification to `window.notification` before importing the other scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
-
-**Miscellaneous info**
--
- - Pausing the notification is not supporting touch gestures but might work with long press on some devices.
  
 **Todos**
 -
 - Option for showing one type at a time.
 
 - Increase test coverage
-
-- Remove core-js dependency
 
 - add SPA support for the url attribute
 

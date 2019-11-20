@@ -13,7 +13,6 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
-    "core-js": "^2.6.10",
     "vue": "^2.6.10"
   },
   "devDependencies": {

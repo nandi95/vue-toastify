@@ -14,6 +14,8 @@
       @click="dismiss()"
       @mouseenter="timerPause()"
       @mouseleave="timerStart()"
+      @touchstart="timerPause()"
+      @touchend="timerStart()"
     >
       <div v-if="status.canTimeout" class="progress-bar">
         <div class="progress" :style="{ width: this.progress + '%' }"></div>
