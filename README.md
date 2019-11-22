@@ -194,8 +194,6 @@ To pass a notification from the server, assign your notification to `window.noti
 
 - add SPA support for the url attribute
 
-- Fix backdrop leave animation
-
 - Expose the following events to the user: `vtFinished`, `vtDismissed`, `vtStarted`, `vtPaused`
 
 - Add max number of notifications on display setting

@@ -1,13 +1,15 @@
 <template>
-  <div
-    v-cloak
-    :class="{
-      'vt-backdrop': toasts.length > 0 && settings.withBackdrop
-    }"
-    :style="{
-      backgroundColor: settings.backdrop
-    }"
-  >
+  <div>
+    <div
+      v-cloak
+      class="vt-backdrop-hidden"
+      :class="{
+        'vt-backdrop-visible': toasts.length > 0 && settings.withBackdrop
+      }"
+      :style="{
+        backgroundColor: settings.backdrop
+      }"
+    ></div>
     <div class="vt-notification-container" :style="internalSettings.styles">
       <Toast
         v-for="status in toasts"
@@ -354,7 +356,7 @@ export default {
 };
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .vt-notification-container {
   position: fixed;
   display: block;
@@ -363,13 +365,19 @@ export default {
   height: auto;
   z-index: 9999;
 }
-.vt-backdrop {
-  transition: background-color 0.2s ease-out;
+.vt-backdrop-hidden {
+  transition: all 150ms ease-out;
+  opacity: 0;
+  visibility: hidden;
   z-index: 50;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   position: fixed;
+}
+.vt-backdrop-visible {
+  opacity: 1;
+  visibility: visible;
 }
 </style>
