@@ -198,6 +198,9 @@ export default {
     },
     notificationClass() {
       let obj = {};
+      // added only to include the styles at build, todo - review webpack tree-shaking
+      obj["vt-theme-dark"] = false;
+      obj["vt-theme-light"] = false;
       obj["vt-theme-" + this.status.theme] = true;
       obj["vt-cursor-loading"] = this.status.mode === "loader";
       return obj;

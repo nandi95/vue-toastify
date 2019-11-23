@@ -12,6 +12,7 @@
     "compile": "vue-cli-service build --target lib --dest dist/ --name vue-toastify ./src/VueToastify.js",
     "test:unit": "vue-cli-service test:unit"
   },
+  "sideEffects": true,
   "dependencies": {
     "vue": "^2.6.10"
   },
