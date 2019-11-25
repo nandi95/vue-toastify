@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import Toast from "./Toast";
+import Toast from "./Toast.vue";
 
 export default {
   name: "VueToastify",

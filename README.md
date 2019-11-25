@@ -1,4 +1,7 @@
 # Vue Toastify
+[![last commit](https://badgen.net/github/last-commit/nandi95/vue-toastify)](https://github.com/nandi95/vue-toastify)
+[![npm](https://badgen.net/npm/v/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
+[![downloads](https://badgen.net/npm/dm/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
 
 I wanted a notification plugin which I can use by passing props from the server and it can also take statuses at run time. With this component it's has just become super easy. It's easily extendable and customizable and it has no dependencies.
 
@@ -7,22 +10,22 @@ Check it out at [Netlify](https://vue-toastify.netlify.com/)
 
 **To use:**
 
-```
+```shell script
 npm i vue-toastify
 ```
 or with CDNs:
  - [jsDeliver](https://cdn.jsdelivr.net/npm/vue-toastify@latest)
- - [unpkg](https://unpkg.com/vue-toastify@1.0.0/dist/vue-toastify.umd.min.js)
+ - [unpkg](https://unpkg.com/vue-toastify@1.0.3/dist/vue-toastify.umd.min.js)
  
  ***
 
 In your main js file:
 
-```
+```javascript
 Vue.use(VueToastify);
 ```
  Then anywhere just call:
-```
+```javascript
 this.$vToastify.success("easy-peasy");
 ```
 
@@ -30,14 +33,14 @@ this.$vToastify.success("easy-peasy");
 -
 You may pass a settings object to the use statement like so:
 
-```
+```javascript
 Vue.use(VueToastify, {
     my: "settings"
 });
 ```
 or change any of the settings during run-time with the following
  
-```
+```javascript
 this.vToastify.setSettings(settingsObject);
 ```
 This will return the current settings after the updates.
@@ -61,11 +64,11 @@ This will return the current settings after the updates.
 **Status**
 -
 You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
-```
+```javascript
 this.$vToastify.error("body", "title"); 
 ```
 Or pass an object to the method:
-```
+```javascript
 this.$vToastify.info(stausObject);
 ```
 The following properties can be set on the object:
@@ -90,7 +93,7 @@ You may additionally overwrite the following plugin settings on a notification b
 | theme | String | The theme's name you want the status to use |
 
 You may alternatively pass in an http error response like:
-```
+```javascript
 fetch().then().catch(error => this.$vToastify.error(error));
 ```
 ***
@@ -103,17 +106,17 @@ Every call notification method returns a unique id associated to your notificati
 **The notification supports multiple modes**
 
 You can either pass the `mode` property on the status object which is one of the following strings: `"prompt"`, `"loader"` or by calling:
-```
+```javascript
 this.$vToastify.loader("Please Wait...")
 ```
-```
+```javascript
 this.$vToastify.prompt({
     body: "Are there hot singles in your area?"
     answers: { Yes: true, No: false }
 })
 ```
 The prompt does not return an id instead it returns a Promise so may use it as:
-```
+```javascript
 ...}).then(value => {
     if (value) {
         this.$vToastify.prompt({
@@ -129,26 +132,26 @@ The answers object consist of a key value pairs in the object where the key is d
 **Additional methods available:**
 
 A loader cannot be dismissed, you'll have to stop the loader yourself like so:
-```
+```javascript
 this.$vToastify.stopLoader(id)
 ```
 This will stops the loader with the given id or loaders if array of ids given. If no id provided, all loaders will be closed.
 
 
 For returning a notification object use:
-```
+```javascript
 this.$vToastify.getToast(id)
 ```
 This if found returns the notification object otherwise all of the notification objects in an array.
 
 For updating the notification object during run-time use:
-```
+```javascript
 this.$vToastify.changeToast(id, statusObject)
 ```
 This will merge the object you pass in and the existing notification. It will return true if successfully updated and false if the notification isn't found.
 
 For removing a notification use:
-```
+```javascript
 this.$vToastify.removeToast(id)
 ```
 This will remove the notification if the id is given otherwise it will remove all of the notifications. The function returns the ids of the currently visible notifications.
@@ -157,7 +160,7 @@ This will remove the notification if the id is given otherwise it will remove al
 **Extending the functionality**
 
 You can add your own methods to the plugin like so:
-```
+```javascript
 Vue.use(VueToastify, {
   customNotifications: {
     clientError: {
@@ -174,7 +177,7 @@ Vue.use(VueToastify, {
 ```
 
 If the above is defined in the `customNotifications` object, you can use this method like so:
-```
+```javascript
 this.$vToastify.clientError("this will overwrite the body", "this will add a title");
 ```
 or as usual pass in an object with the above outlined props which will overwrite the props you defined.

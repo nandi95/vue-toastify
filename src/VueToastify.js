@@ -1,4 +1,4 @@
-import { default as vToastify } from "./components/VueToastify";
+import { default as vToastify } from "./components/VueToastify.vue";
 
 const VueToastify = {
   install(Vue, settings = {}) {
