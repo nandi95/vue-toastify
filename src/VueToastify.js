@@ -24,7 +24,7 @@ const VueToastify = {
       if (title) {
         status.title = title;
       }
-      if (!status.type || !status.type) {
+      if (!status.hasOwnProperty("type") || !status.type) {
         status.type = "success";
       }
       return ToastContainer.add(status);
@@ -63,7 +63,10 @@ const VueToastify = {
             body: status
           };
         }
-        if (status.status && status.statusText) {
+        if (
+          status.hasOwnProperty("status") &&
+          status.hasOwnProperty("statusText")
+        ) {
           status = {
             title: status.status.toString(),
             body: status.statusText
@@ -124,7 +127,7 @@ const VueToastify = {
     };
 
     if (
-      settings.customNotifications &&
+      settings.hasOwnProperty("customNotifications") &&
       Object.entries(settings.customNotifications).length > 0
     ) {
       Object.entries(settings.customNotifications).forEach(keyValArr => {

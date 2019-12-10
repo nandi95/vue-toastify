@@ -6,7 +6,9 @@ import VueToastify from "./VueToastify";
 Vue.config.productionTip = false;
 Vue.config.performance = true;
 
-Vue.use(VueToastify);
+Vue.use(VueToastify, {
+  singular: true
+});
 
 new Vue({
   render: h => h(App)
