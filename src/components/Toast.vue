@@ -147,7 +147,7 @@ export default {
     if (this.status.mode === "loader") {
       this.$root.$once("vtLoadStop", payload => {
         //if all loaders should stop or only this
-        if (payload.hasOwnProperty("id") && payload.id !== null) {
+        if (payload.id) {
           if (payload.id === this.status.id) {
             this.toggleVisibility();
           }
@@ -159,7 +159,7 @@ export default {
   },
   beforeMount() {
     this.timerFinishesAt = new Date(this.status.duration + Date.now());
-    if (this.status.hasOwnProperty("url") && this.status.url.length > 0) {
+    if (this.status.url && this.status.url.length > 0) {
       this.notificationStyle["cursor"] = "pointer";
     }
 
@@ -169,7 +169,7 @@ export default {
   },
   computed: {
     tag() {
-      if (!this.status.hasOwnProperty("url") || this.status.url.length === 0) {
+      if (!this.status.url || this.status.url.length === 0) {
         return "div";
       }
       // if (this.hasRouter && this.status.url.length > 0) { // todo = notification doesn't show if has router
@@ -178,7 +178,7 @@ export default {
       return "a";
     },
     urlTarget() {
-      if (!this.status.hasOwnProperty("url") || this.status.url.length === 0) {
+      if (!this.status.url || this.status.url.length === 0) {
         return {};
       }
       // if (this.hasRouter) {

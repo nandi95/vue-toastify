@@ -93,7 +93,7 @@ export default {
     this.$root.$on(
       ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
       payload => {
-        if (payload.hasOwnProperty("id") && typeof payload.id === "string") {
+        if (payload.id && typeof payload.id === "string") {
           this.remove(payload.id);
         }
       }
@@ -129,15 +129,12 @@ export default {
       if (status.title) {
         return status.title;
       }
-      if (
-        status.hasOwnProperty("defaultTitle") &&
-        status.defaultTitle.constructor === Boolean
-      ) {
+      if (status.defaultTitle && status.defaultTitle.constructor === Boolean) {
         if (status.defaultTitle) {
           if (status.mode === "prompt" || status.mode === "loader") {
             return "";
           }
-          if (status.hasOwnProperty("type")) {
+          if (status.type) {
             return this.capitalise(status.type);
           }
         } else {
@@ -148,7 +145,7 @@ export default {
         if (status.mode === "prompt" || status.mode === "loader") {
           return "";
         }
-        if (status.hasOwnProperty("type")) {
+        if (status.type) {
           return this.capitalise(status.type);
         }
       }
@@ -168,7 +165,7 @@ export default {
     setSettings(settings = null) {
       if (settings) {
         Object.keys(this.settings).forEach(key => {
-          if (settings.hasOwnProperty(key)) {
+          if (settings.key) {
             this.$set(this.settings, key, settings[key]);
           }
         });
@@ -199,9 +196,9 @@ export default {
       // if object doesn't have default values, set them
       //todo update these to object merger
       toast.duration = this.settings.warningInfoDuration;
-      if (status.hasOwnProperty("duration") && Number(status.duration) > 0) {
+      if (status.duration && Number(status.duration) > 0) {
         toast.duration = Number(status.duration);
-      } else if (status.hasOwnProperty("type")) {
+      } else if (status.type) {
         toast.duration =
           status.type === "error"
             ? this.settings.errorDuration
@@ -298,7 +295,7 @@ export default {
   watch: {
     settings: {
       handler: function(newSettings) {
-        if (newSettings.hasOwnProperty("position")) {
+        if (newSettings.position) {
           const position = newSettings.position.split("-");
           // remove values
           this.$delete(this.internalSettings.styles, "left");
