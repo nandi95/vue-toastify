@@ -226,7 +226,7 @@ export default {
       }
 
       toast.theme = status.theme ? status.theme : this.settings.theme;
-      if (this.singular && this.toasts.length !== 0) {
+      if (this.settings.singular && this.toasts.length > 0) {
         this.$set(this.queue, this.queue.length, toast);
         return this.currentlyShowing;
       }
@@ -261,7 +261,7 @@ export default {
     },
     remove(id = null) {
       if (id) {
-        if (this.singular) {
+        if (this.settings.singular) {
           const index = this.findQueuedToast(id);
           if (index !== -1) {
             this.$delete(this.queue, index);
@@ -282,7 +282,7 @@ export default {
   },
   computed: {
     getTransition: function() {
-      const position = this.position.split("-");
+      const position = this.settings.position.split("-");
       if (position[1] === "left") {
         return "left";
       }
@@ -331,12 +331,25 @@ export default {
           }
           this.internalSettings.styles = styles;
         }
+        if (this.isBoolean(newSettings.singular)) {
+          // if singular turned off release all queued toasts
+          if (!newSettings.singular) {
+            this.queue.forEach(status => {
+              this.$set(this.toasts, this.toasts.length, status);
+            });
+            this.queue = [];
+          }
+        }
       },
       deep: true
     },
     toasts: {
       handler: function(newValue) {
-        if (this.singular && newValue.length === 0 && this.queue.length !== 0) {
+        if (
+          this.settings.singular &&
+          newValue.length === 0 &&
+          this.queue.length !== 0
+        ) {
           this.$nextTick(() => {
             this.$set(this.toasts, this.toasts.length, this.queue.shift());
           });

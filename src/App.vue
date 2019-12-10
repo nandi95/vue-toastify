@@ -283,6 +283,20 @@
                 <label for="with-backdrop" class="toggle"><span></span></label>
               </div>
             </div>
+            <div class="flex justify-between align-middle items-center my-1">
+              <p>One notification at a time:</p>
+              <div>
+                <input
+                  type="checkbox"
+                  class="cbx"
+                  style="display: none"
+                  id="singular"
+                  @change="checkIfLoading"
+                  v-model="singular"
+                />
+                <label for="singular" class="toggle"><span></span></label>
+              </div>
+            </div>
           </div>
           <div class="flex flex-col justify-around w-full">
             <div
@@ -370,6 +384,7 @@ export default {
       lightTheme: false,
       defaultTitle: true,
       withBackdrop: false,
+      singular: false,
       body: null,
       showWarning: false,
       loading: false
@@ -459,6 +474,9 @@ export default {
     },
     defaultTitle: function(newValue) {
       this.$vToastify.setSettings({ defaultTitle: newValue });
+    },
+    singular: function(newValue) {
+      this.$vToastify.setSettings({ singular: newValue });
     }
   }
 };
