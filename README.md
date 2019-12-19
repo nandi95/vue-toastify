@@ -213,4 +213,9 @@ To pass a notification from the server, assign your notification to `window.noti
 
 **Alternatives**
 -
-[Vue Snotify](https://artemsky.github.io/vue-snotify/)
+Packages with similar capabilities:
+
+- [Vue Snotify](https://artemsky.github.io/vue-snotify/)
+
+- [vue-toastification
+](https://github.com/Maronato/vue-toastification)
