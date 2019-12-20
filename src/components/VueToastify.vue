@@ -60,6 +60,7 @@ export default {
     defaultTitle: { type: Boolean, default: true },
     canPause: { type: Boolean, default: true },
     canTimeout: { type: Boolean, default: true },
+    hideProgressbar: { type: Boolean, default: false },
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
     warningInfoDuration: { type: Number, default: 6000 },
@@ -77,6 +78,7 @@ export default {
         defaultTitle: true,
         canTimeout: true,
         canPause: false,
+        hideProgressbar: false,
         errorDuration: 8000,
         successDuration: 4000,
         warningInfoDuration: 6000,
@@ -196,9 +198,9 @@ export default {
       // if object doesn't have default values, set them
       //todo update these to object merger
       toast.duration = this.settings.warningInfoDuration;
-      if (status.hasOwnProperty("duration") && Number(status.duration) > 0) {
+      if (Number(status.duration) > 0) {
         toast.duration = Number(status.duration);
-      } else if (status.hasOwnProperty("type")) {
+      } else if (status.type) {
         toast.duration =
           status.type === "error"
             ? this.settings.errorDuration
@@ -213,6 +215,9 @@ export default {
       toast.canPause = isBoolean(status.canPause)
         ? status.canPause
         : this.settings.canPause;
+      toast.hideProgressbar = isBoolean(status.hideProgressbar)
+        ? status.hideProgressbar
+        : this.settings.hideProgressbar;
       toast.id = this.uuidv4();
       toast.title = this.getTitle(status);
       toast.canTimeout = isBoolean(status.canTimeout)

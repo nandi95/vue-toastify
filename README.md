@@ -58,6 +58,7 @@ This will return the current settings after the updates.
 | warningInfoDuration | Number | 6000 | The duration in milliseconds the warning and info notification should be visible for. |
 | canTimeout | Boolean | true | Whether the notifications disappears after the set time. |
 | canPause | Boolean | true | Whether the notifications can be paused by hovering over them. |
+| hideProgressbar | Boolean | false | Whether the progressbar should be shown on the notification or not. |
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
 | theme | String | "dark" | What theme should be displaying. By default there's `light` and `dark`. |
 
@@ -85,13 +86,12 @@ The following properties can be set on the object:
 
 You may additionally overwrite the following plugin settings on a notification by notification basis by adding them on the status object.
 
- property | type  | details |
----|---|---
-| canTimeout | Boolean | Whether the notifications disappear after the set time. |
-| canPause | Boolean | Whether the notifications can be paused by hovering over them. |
-| defaultTitle | Boolean | Whether the default title should be shown if no title given. (this cannot be updated later) |
-| duration | Number | The time the notification is displayed in milliseconds. (this cannot be updated later) |
-| theme | String | The theme's name you want the status to use |
+- `canTimeout`
+- `canPause`
+- `defaultTitle`
+- `duration`  - The time the notification is displayed in milliseconds. (this cannot be updated later)
+- `theme`
+- `hideProgressbar`
 
 You may alternatively pass in an http error response like:
 ```javascript
@@ -188,7 +188,7 @@ or as usual pass in an object with the above outlined props which will overwrite
 To add custom styles you all you have to do is follow the example in `./src/assets/toast.scss` and add your custom styles. Once added rename `.vt-theme-dark` to `.vt-theme-my-custom-name` and in the settings or the status object pass the theme as `theme: "my-custom-name"`. Include this stylesheet in the project and you're good to go.
 
 ***
-To pass a notification from the server, assign your notification to `window.notification` before importing the other scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
+To pass a notification from the server, assign your notification object to `window.notification` before importing your scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
  
 **Todos**
 -

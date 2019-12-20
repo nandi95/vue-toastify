@@ -8,14 +8,21 @@
       :style="notificationStyle"
       :class="notificationClass"
       @click="dismiss()"
-      @mouseenter="timerPause()"
-      @mouseleave="timerStart()"
-      @touchstart="timerPause()"
-      @touchend="timerStart()"
+      @mouseenter="isHovered = true"
+      @mouseleave="isHovered = false"
+      @touchstart="isHovered = true"
+      @touchend="isHovered = false"
     >
-      <div v-if="status.canTimeout" class="vt-progress-bar">
-        <div class="vt-progress" :style="{ width: this.progress + '%' }"></div>
-      </div>
+      <ProgressBar
+        v-if="isNotification && status.canTimeout"
+        :can-pause="status.canPause"
+        :duration="status.duration"
+        :is-hovered="isHovered"
+        :hide-progressbar="status.hideProgressbar"
+        :id="status.id"
+        :ref="'progress-' + status.id"
+        @vtFinished="toggleVisibility"
+      />
       <div class="vt-content" :style="{ maxWidth: bodyMaxWidth }">
         <h2 class="vt-title" v-if="status.title" v-text="status.title" />
         <p class="vt-paragraph" v-html="status.body" />
@@ -104,16 +111,11 @@
 </template>
 
 <script>
-const requestAnimationFrame =
-  window.requestAnimationFrame ||
-  window.webkitRequestAnimationFrame ||
-  window.mozRequestAnimationFrame ||
-  window.oRequestAnimationFrame ||
-  window.msRequestAnimationFrame;
-const cancelAnimationFrame =
-  window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+import ProgressBar from "./ProgressBar";
+
 export default {
   name: "Toast",
+  components: { ProgressBar },
   props: {
     status: { type: Object, default: null },
     bodyMaxWidth: { type: String, default: "250px" }, //todo expose to the user
@@ -133,17 +135,12 @@ export default {
       notificationStyle: {},
       transitionName: "",
       isVisible: false,
-      progress: 0,
-      progressId: null,
-      timerId: null,
-      timerStartedAt: null,
-      timerPausedAt: null,
-      timerFinishesAt: null
+      isHovered: false
     };
   },
   mounted() {
     //if there is an initial notification
-    this.startController();
+    this.toggleVisibility();
     if (this.status.mode === "loader") {
       this.$root.$once("vtLoadStop", payload => {
         //if all loaders should stop or only this
@@ -158,7 +155,6 @@ export default {
     }
   },
   beforeMount() {
-    this.timerFinishesAt = new Date(this.status.duration + Date.now());
     if (this.status.hasOwnProperty("url") && this.status.url.length > 0) {
       this.notificationStyle["cursor"] = "pointer";
     }
@@ -204,117 +200,39 @@ export default {
       obj["vt-theme-" + this.status.theme] = true;
       obj["vt-cursor-loading"] = this.status.mode === "loader";
       return obj;
+    },
+    isNotification() {
+      return (
+        ["prompt", "loader"].indexOf(this.status.mode) === -1
+      );
     }
   },
   methods: {
-    startController() {
-      this.toggleVisibility();
-      if (this.status.canTimeout) {
-        this.$root.$emit("vtStarted", { id: this.status.id });
-        // start of the timer (a constant)
-        this.timerStartedAt = new Date();
-        // initial time to calculate with on the first start
-        this.timerPausedAt = new Date();
-
-        if (!this.status.canPause) {
-          // set new timeout
-          this.timerId = window.setTimeout(
-            this.toggleVisibility,
-            this.timerFinishesAt.getTime() - Date.now()
-          );
-          // animation start
-          this.progressId = requestAnimationFrame(this.progressBar);
-        }
-        this.timerStart();
-      }
-    },
     toggleVisibility() {
+      const progress = Math.ceil(
+        this.$refs["progress-" + this.status.id]
+          ? this.$refs["progress-" + this.status.id].progress
+          : undefined
+      );
+
       // if notification manually dismissed AND is visible AND isn't prompt or loader
       if (
-        ((Math.ceil(this.progress) < 100 && this.progress !== 0) ||
-          this.status.canTimeout === false) &&
+        (progress < 100 || this.status.canTimeout === false) &&
         this.isVisible &&
-        ["prompt", "loader"].indexOf(this.status.mode) === -1
+        this.isNotification
       ) {
         this.$root.$emit("vtDismissed", { id: this.status.id });
         this.status.callback ? this.status.callback() : null;
       }
       // if the notification has finished displaying
-      if (
-        Math.ceil(this.progress) === 100 &&
-        ["prompt", "loader"].indexOf(this.status.mode) === -1
-      ) {
+      if (progress < 100 && this.isNotification) {
         this.$root.$emit("vtFinished", { id: this.status.id });
         this.status.callback ? this.status.callback() : null;
       }
       this.isVisible = !this.isVisible;
-      this.progress = 0;
-
-      // if there's one, clear it
-      window.clearTimeout(this.timerId);
-      this.timerId = null;
-      if (this.progressId) {
-        cancelAnimationFrame(this.progressId);
-        this.progressId = null;
-      }
-    },
-    timerStart() {
-      if (this.status.canPause && this.status.canTimeout) {
-        this.timerStartedAt = new Date(
-          this.timerStartedAt.getTime() +
-            (Date.now() - this.timerPausedAt.getTime())
-        );
-
-        // new future date = future date + elapsed time since pausing
-        this.timerFinishesAt = new Date(
-          this.timerFinishesAt.getTime() +
-            (Date.now() - this.timerPausedAt.getTime())
-        );
-
-        if (!this.timerId && this.progress > 0) {
-          this.$root.$emit("vtResumed", { id: this.status.id });
-        }
-
-        // set new timeout
-        this.timerId = window.setTimeout(
-          this.toggleVisibility,
-          this.timerFinishesAt.getTime() - Date.now()
-        );
-        // animation start
-        this.progressId = requestAnimationFrame(this.progressBar);
-      }
-    },
-    timerPause() {
-      if (this.status.canPause && this.status.canTimeout) {
-        // stop notification from closing
-        window.clearTimeout(this.timerId);
-        // set to null so animation won't stay in a loop
-        this.timerId = null;
-        // stop loader animation from progressing
-        cancelAnimationFrame(this.progressId);
-        this.progressId = null;
-        this.$root.$emit("vtPaused", { id: this.status.id });
-        this.timerPausedAt = new Date();
-      }
-    },
-    progressBar() {
-      if (this.progress < 100) {
-        const wholeTime =
-          this.timerFinishesAt.getTime() - this.timerStartedAt.getTime();
-        const elapsed = Date.now() - this.timerStartedAt.getTime();
-
-        this.progress = (elapsed / wholeTime) * 100;
-
-        // if timer is running
-        if (this.timerId) {
-          this.progressId = requestAnimationFrame(this.progressBar);
-        }
-      } else {
-        this.progressId = cancelAnimationFrame(this.progressId);
-      }
     },
     dismiss() {
-      if (this.status.mode !== "prompt" && this.status.mode !== "loader") {
+      if (this.isNotification) {
         this.toggleVisibility();
       }
     },
@@ -325,276 +243,10 @@ export default {
         response: response
       });
     }
-  },
-  beforeDestroy() {
-    this.progress = 0;
-    window.clearTimeout(this.timerId);
-    if (this.progressId) {
-      cancelAnimationFrame(this.progressId);
-      this.progressId = null;
-    }
   }
 };
 </script>
 
 <style lang="scss">
-.vt-success {
-  & > .vt-icon > svg {
-    fill: #199919;
-  }
-  border-color: #199919;
-}
-.vt-info {
-  & > .vt-icon > svg {
-    fill: #003bc8;
-  }
-  border-color: #003bc8;
-}
-.vt-warning {
-  & > .vt-icon > svg {
-    fill: #ffb300;
-  }
-  border-color: #ffb300;
-}
-.vt-error {
-  & > .vt-icon > svg {
-    fill: #b11414;
-  }
-  border-color: #b11414;
-}
-.vt-notification {
-  box-shadow: 0 0 10px 0.5px rgba(0, 0, 0, 0.35);
-  padding: 5% 2%;
-  max-width: max-content;
-  width: auto;
-  border-radius: 5px;
-  margin: 5px auto;
-  z-index: 9999;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  flex-flow: wrap row;
-  align-content: center;
-  & > .vt-progress-bar {
-    height: 3px;
-    width: 100%;
-    margin-bottom: 5px;
-    & > .vt-progress {
-      max-width: 100%;
-      height: 3px;
-      overflow: hidden;
-      transition: max-width 1ms ease-in-out;
-    }
-  }
-  & > .vt-content {
-    width: auto;
-    height: 100%;
-    margin-right: 5px;
-    word-break: break-word;
-    & > .vt-title {
-      font-size: 1.4rem;
-      margin: 0;
-      user-select: none;
-    }
-    & > .vt-paragraph {
-      font-size: 1rem;
-      margin: 0.5rem 0;
-    }
-  }
-  & > .vt-circle {
-    border-style: solid;
-    border-width: 2px;
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
-    margin: 5px !important;
-  }
-  & > .vt-icon-container {
-    margin: 0 20px;
-    position: relative;
-    & > .vt-icon {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-  }
-  & > .vt-buttons {
-    flex-basis: 100%;
-    display: flex;
-    flex-flow: row wrap;
-    align-content: center;
-    align-items: center;
-    justify-content: space-evenly;
-    margin: 5px -23px 0;
-    & > button {
-      flex-basis: 48%;
-      width: auto;
-      margin-bottom: 4px;
-      border-radius: 4px;
-    }
-  }
-}
-.vt-cursor-loading {
-  cursor: wait;
-}
-
-.vt-spinner {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: transparent;
-  animation: 1s spin linear infinite;
-}
-
-@-webkit-keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
-.vt-theme-dark {
-  $backgroundColor: #1d1d1d;
-  background-color: $backgroundColor;
-  & > .vt-progress-bar {
-    background-color: lighten($backgroundColor, 10%);
-    & > .vt-progress {
-      background-color: lighten($backgroundColor, 30%);
-    }
-  }
-  & > .vt-content {
-    & > .vt-title {
-      color: lighten($backgroundColor, 75%);
-    }
-    & > .vt-paragraph {
-      color: lighten($backgroundColor, 75%);
-    }
-  }
-  & > .vt-buttons {
-    & > button {
-      border: solid 1px lighten($backgroundColor, 10%);
-      background-color: lighten($backgroundColor, 10%);
-      color: lighten($backgroundColor, 75%);
-      transition: all 0.2s ease-out;
-      &:hover {
-        background-color: lighten($backgroundColor, 65%);
-        color: lighten($backgroundColor, 5%);
-        transition: all 0.2s ease-out;
-      }
-    }
-  }
-  & > .vt-prompt {
-    & > .vt-icon > svg {
-      fill: lighten($backgroundColor, 70%);
-    }
-    border-color: lighten($backgroundColor, 70%);
-  }
-  & > .vt-icon-container > .vt-spinner {
-    border: 2px solid lighten($backgroundColor, 30%);
-    border-top: 2px solid lighten($backgroundColor, 90%);
-  }
-}
-.vt-theme-light {
-  $backgroundColor: #f0f0f0;
-  $borderColor: darken($backgroundColor, 30%);
-  background-color: $backgroundColor;
-  & > .vt-progress-bar {
-    background-color: darken($backgroundColor, 15%);
-    & > .vt-progress {
-      background-color: darken($backgroundColor, 40%);
-    }
-  }
-  & > .vt-content {
-    & > .vt-title {
-      color: darken($backgroundColor, 70%);
-    }
-    & > .vt-paragraph {
-      color: darken($backgroundColor, 75%);
-    }
-  }
-  & > .vt-buttons {
-    & > button {
-      border: solid 1px darken($backgroundColor, 10%);
-      background-color: darken($backgroundColor, 20%);
-      color: darken($backgroundColor, 75%);
-      transition: all 0.2s ease-out;
-      &:hover {
-        background-color: darken($backgroundColor, 55%);
-        color: darken($backgroundColor, 5%);
-        transition: all 0.2s ease-out;
-      }
-    }
-  }
-  & > .vt-prompt {
-    & > .vt-icon > svg {
-      fill: darken($backgroundColor, 70%);
-    }
-    border-color: darken($backgroundColor, 70%);
-  }
-  & > .vt-icon-container > .vt-spinner {
-    border: 2px solid darken($backgroundColor, 30%);
-    border-top: 2px solid darken($backgroundColor, 90%);
-  }
-}
-
-.right-enter-active,
-.left-enter-active,
-.bottom-enter-active,
-.top-enter-active,
-.center-enter-active {
-  transition: all 0.2s ease-out;
-}
-
-.right-leave-active,
-.left-leave-active,
-.bottom-leave-active,
-.top-leave-active,
-.center-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.right-enter,
-.right-leave-to {
-  transform: translateX(50px);
-  opacity: 0;
-}
-
-.left-enter,
-.left-leave-to {
-  transform: translateX(-50px);
-  opacity: 0;
-}
-
-.bottom-enter,
-.bottom-leave-to {
-  margin-bottom: -50px;
-  opacity: 0;
-}
-
-.top-enter,
-.top-leave-to {
-  margin-top: -50px;
-  opacity: 0;
-}
-
-.center-enter,
-.center-leave-to {
-  opacity: 0;
-}
+@import "../assets/toast";
 </style>
