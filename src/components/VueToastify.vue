@@ -24,6 +24,7 @@
 
 <script>
 import Toast from "./Toast.vue";
+import { isBoolean } from "../js/utils";
 
 export default {
   name: "VueToastify",
@@ -159,10 +160,6 @@ export default {
       value = value.toString();
       return value.charAt(0).toUpperCase() + value.slice(1);
     },
-    isBoolean(value) {
-      // if not set value will be "undefined"
-      return typeof value === "boolean";
-    },
 
     // API methods
     setSettings(settings = null) {
@@ -213,12 +210,12 @@ export default {
         status.answers && Object.keys(status.answers).length > 0
           ? status.answers
           : { Yes: true, No: false };
-      toast.canPause = this.isBoolean(status.canPause)
+      toast.canPause = isBoolean(status.canPause)
         ? status.canPause
         : this.settings.canPause;
       toast.id = this.uuidv4();
       toast.title = this.getTitle(status);
-      toast.canTimeout = this.isBoolean(status.canTimeout)
+      toast.canTimeout = isBoolean(status.canTimeout)
         ? status.canTimeout
         : this.settings.canTimeout;
       if (status.mode === "prompt" || status.mode === "loader") {
@@ -253,10 +250,18 @@ export default {
         return false;
       }
       if (this.findToast(id) !== -1) {
-        this.$set(this.toasts, this.findToast(id), { ...toast, ...status });
+        this.$set(
+          this.toasts,
+          this.findToast(id),
+          Object.assign(toast, status)
+        );
         return true;
       }
-      this.$set(this.toasts, this.findQueuedToast(id), { ...toast, ...status });
+      this.$set(
+        this.toasts,
+        this.findQueuedToast(id),
+        Object.assign(toast, status)
+      );
       return true;
     },
     remove(id = null) {
@@ -331,7 +336,7 @@ export default {
           }
           this.internalSettings.styles = styles;
         }
-        if (this.isBoolean(newSettings.singular)) {
+        if (isBoolean(newSettings.singular)) {
           // if singular turned off release all queued toasts
           if (!newSettings.singular) {
             this.queue.forEach(status => {

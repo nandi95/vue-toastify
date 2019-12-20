@@ -81,6 +81,7 @@ The following properties can be set on the object:
 | mode | String | If set the notification will be shown in the given mode: `loader`, `prompt`. Alternatively you may use the methods: `this.$vToastify.loader("more readable")`  |
 | url | String | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
 | icon | String | If set, this will be displayed instead of the default icons. Html binded as svg or element witch icon class is expected. |
+| callback | Function | This function will be called when the notification has been dismissed or the timeout has finished. |
 
 You may additionally overwrite the following plugin settings on a notification by notification basis by adding them on the status object.
 
@@ -99,9 +100,9 @@ fetch().then().catch(error => this.$vToastify.error(error));
 ***
 Only `this.$vToastify.error()` is capable to handle the error response.
 
-Every call notification method returns a unique id associated to your notification object.
+**Every notification method returns a unique id associated to your notification object.**
  
-**Additional methods**
+Additional methods
 -
 **The notification supports multiple modes**
 

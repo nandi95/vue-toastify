@@ -17,8 +17,8 @@
         <div class="vt-progress" :style="{ width: this.progress + '%' }"></div>
       </div>
       <div class="vt-content" :style="{ maxWidth: bodyMaxWidth }">
-        <h2 class="vt-title" v-if="status.title" v-text="status.title"></h2>
-        <p class="vt-paragraph" v-html="status.body"></p>
+        <h2 class="vt-title" v-if="status.title" v-text="status.title" />
+        <p class="vt-paragraph" v-html="status.body" />
       </div>
       <div class="vt-icon-container" v-if="status.icon">
         <div v-html="status.icon"></div>
@@ -237,6 +237,7 @@ export default {
         ["prompt", "loader"].indexOf(this.status.mode) === -1
       ) {
         this.$root.$emit("vtDismissed", { id: this.status.id });
+        this.status.callback ? this.status.callback() : null;
       }
       // if the notification has finished displaying
       if (
@@ -244,6 +245,7 @@ export default {
         ["prompt", "loader"].indexOf(this.status.mode) === -1
       ) {
         this.$root.$emit("vtFinished", { id: this.status.id });
+        this.status.callback ? this.status.callback() : null;
       }
       this.isVisible = !this.isVisible;
       this.progress = 0;
