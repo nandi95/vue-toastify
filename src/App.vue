@@ -413,7 +413,7 @@ export default {
             this.$vToastify.error(
               "Invalid answers object. More info can be found in the console."
             );
-            console.error("%c%s", "color: red; font-size: 18px;", error);
+            console.error(error);
           }
         } else {
           this.$vtNotify(this.status);

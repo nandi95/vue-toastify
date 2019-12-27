@@ -10,26 +10,29 @@
         backgroundColor: settings.backdrop
       }"
     ></div>
-    <div class="vt-notification-container" :style="internalSettings.styles">
-      <Toast
-        v-for="status in toasts"
-        :key="status.id"
-        :status.sync="status"
-        :transition="getTransition"
-        :container-adjustment="internalSettings.containerAdjustment"
-      />
-    </div>
+    <vt-transition
+      class="vt-notification-container"
+      :class="positionClasses"
+      :style="flexDirection"
+      :transition="getTransition"
+    >
+      <Toast v-for="status in toasts" v-bind:key="status.id" :status="status" />
+    </vt-transition>
   </div>
 </template>
 
 <script>
+// todo: create 3 containers and create a manager that manages the queue tp push to the correct container ( position will be held on the status ) this will allow separated transitions
+//todo: transition move delay
 import Toast from "./Toast.vue";
 import { isBoolean } from "../js/utils";
+import Transition from "./Transition";
 
 export default {
   name: "VueToastify",
   components: {
-    Toast
+    Toast,
+    "vt-transition": Transition
   },
   props: {
     singular: { type: Boolean, default: false },
@@ -64,7 +67,9 @@ export default {
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
     warningInfoDuration: { type: Number, default: 6000 },
-    theme: { type: String, default: "dark" }
+    theme: { type: String, default: "dark" },
+    orderLatest: { type: Boolean, default: true },
+    transition: { type: [String, Object], default: null }
   },
   data() {
     return {
@@ -82,11 +87,9 @@ export default {
         errorDuration: 8000,
         successDuration: 4000,
         warningInfoDuration: 6000,
-        theme: "dark"
-      },
-      internalSettings: {
-        styles: {},
-        containerAdjustment: 50 // don't judge, it works, for now...
+        theme: "dark",
+        orderLatest: true,
+        transition: null
       }
     };
   },
@@ -96,7 +99,7 @@ export default {
     this.$root.$on(
       ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
       payload => {
-        if (payload.hasOwnProperty("id") && typeof payload.id === "string") {
+        if (typeof payload.id === "string") {
           this.remove(payload.id);
         }
       }
@@ -132,16 +135,13 @@ export default {
       if (status.title) {
         return status.title;
       }
-      if (
-        status.hasOwnProperty("defaultTitle") &&
-        status.defaultTitle.constructor === Boolean
-      ) {
+      if (isBoolean(status.defaultTitle)) {
         if (status.defaultTitle) {
           if (status.mode === "prompt" || status.mode === "loader") {
             return "";
           }
-          if (status.hasOwnProperty("type")) {
-            return this.capitalise(status.type);
+          if (status.type) {
+            return status.type.charAt(0).toUpperCase() + status.type.slice(1);
           }
         } else {
           return "";
@@ -151,16 +151,11 @@ export default {
         if (status.mode === "prompt" || status.mode === "loader") {
           return "";
         }
-        if (status.hasOwnProperty("type")) {
-          return this.capitalise(status.type);
+        if (status.type) {
+          return status.type.charAt(0).toUpperCase() + status.type.slice(1);
         }
       }
       return "Info";
-    },
-    capitalise(value) {
-      if (!value) return "";
-      value = value.toString();
-      return value.charAt(0).toUpperCase() + value.slice(1);
     },
 
     // API methods
@@ -271,20 +266,17 @@ export default {
     },
     remove(id = null) {
       if (id) {
-        if (this.settings.singular) {
-          const index = this.findQueuedToast(id);
-          if (index !== -1) {
-            this.$delete(this.queue, index);
-            return this.currentlyShowing;
-          }
+        let index = this.findQueuedToast(id);
+        if (this.settings.singular && index !== -1) {
+          this.$delete(this.queue, index);
+          return this.currentlyShowing;
         }
-        setTimeout(() => {
-          const index = this.findToast(id);
-          if (index !== -1) {
-            this.$delete(this.toasts, index);
-          }
-        }, 200); // 200ms for the animation
-        return this.currentlyShowing;
+        index = this.findToast(id);
+        if (index !== -1) {
+          this.$delete(this.toasts, index);
+          return this.currentlyShowing;
+        }
+        return false;
       }
       this.toasts = [];
       return this.currentlyShowing;
@@ -292,6 +284,9 @@ export default {
   },
   computed: {
     getTransition: function() {
+      if (this.settings.transition) {
+        return this.settings.transition;
+      }
       const position = this.settings.position.split("-");
       if (position[1] === "left") {
         return "left";
@@ -301,6 +296,26 @@ export default {
       }
       return "right";
     },
+    flexDirection: function() {
+      return {
+        "flex-direction":
+          this.settings.orderLatest &&
+          this.settings.position.split("-")[0] === "bottom"
+            ? "column"
+            : "column-reverse"
+      };
+    },
+    positionClasses: function() {
+      const position = this.settings.position.split("-");
+      let classes = {};
+      if (position[0] === position[1]) {
+        classes["center-center"] = true;
+        return classes;
+      }
+      classes[position[0] === "center" ? "centerY" : position[0]] = true;
+      classes[position[1] === "center" ? "centerX" : position[1]] = true;
+      return classes;
+    },
     currentlyShowing: function() {
       return this.toasts.map(toast => toast.id);
     }
@@ -308,39 +323,6 @@ export default {
   watch: {
     settings: {
       handler: function(newSettings) {
-        if (newSettings.hasOwnProperty("position")) {
-          const position = newSettings.position.split("-");
-          // remove values
-          this.$delete(this.internalSettings.styles, "left");
-          this.$delete(this.internalSettings.styles, "right");
-          this.$delete(this.internalSettings.styles, "top");
-          this.$delete(this.internalSettings.styles, "bottom");
-
-          let styles = {};
-          if (position[0] === "center") {
-            styles.top = "50%";
-            styles.transform = "translateY(-50%)";
-          } else if (position[0] === "bottom") {
-            styles.bottom = "0";
-          } else {
-            styles.top = "0";
-          }
-
-          if (position[1] === "center") {
-            styles.left = "50%";
-            styles.transform = styles.transform
-              ? "translate(-50%, -50%)"
-              : "translateX(-50%)";
-            styles.marginLeft =
-              -this.internalSettings.containerAdjustment / 2 + "px";
-          } else if (position[1] === "right") {
-            styles.right =
-              this.internalSettings.containerAdjustment.toString() + "px";
-          } else {
-            styles.left = "0";
-          }
-          this.internalSettings.styles = styles;
-        }
         if (isBoolean(newSettings.singular)) {
           // if singular turned off release all queued toasts
           if (!newSettings.singular) {
@@ -381,8 +363,11 @@ export default {
 
 <style lang="scss">
 .vt-notification-container {
+  pointer-events: none;
+  box-sizing: border-box;
   position: fixed;
-  display: block;
+  display: flex;
+  flex-direction: column;
   margin: 10px;
   width: auto;
   height: auto;
@@ -403,4 +388,32 @@ export default {
   opacity: 1;
   visibility: visible;
 }
+.top {
+  top: 0;
+}
+.centerY {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.bottom {
+  bottom: 0;
+}
+
+.left {
+  left: 0;
+}
+.centerX {
+  left: 50%;
+  transform: translateX(-50%);
+}
+.right {
+  right: 0;
+}
+
+.center-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+@import "../assets/toast";
 </style>

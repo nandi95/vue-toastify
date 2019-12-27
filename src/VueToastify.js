@@ -136,7 +136,7 @@ const VueToastify = {
             return (status, title = null) => {
               let toast = {};
               toast = Object.assign(toast, keyValArr[1]);
-              if (status.constructor === String) {
+              if (typeof status === "string") {
                 toast.body = status;
               } else {
                 toast = { ...keyValArr[1], ...status };

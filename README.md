@@ -3,19 +3,33 @@
 [![npm](https://badgen.net/npm/v/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
 [![downloads](https://badgen.net/npm/dm/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
 
-I wanted a notification plugin which I can use by passing props from the server and it can also take statuses at run time. With this component it's has just become super easy. It's easily extendable and customizable and it has no dependencies.
+I wanted a notification plugin which I can use by passing props from the server and can also be called at run time. With this component it's has just become super easy. It's easily extendable and customizable and it has no dependencies.
 
 Check it out at [Netlify](https://vue-toastify.netlify.com/)
 
+Requires vue version 2.2.0+
+- [Vue Toastify](#vue-toastify)
+  - [Quick start](#to-use)
+  - [Settings](#settings)
+    - [Available settings](#available-settings)
+  - [Status object](#status)
+  - [Available methods](#available-methods)
+    - [Miscellaous methods](#miscellaous-methods)
+  - [Customisation](#customisation)
+    - [Extending functionality](#extending-the-functionality)
+    - [Extending styles](#extending-the-styles)
+  - [Todos](#todos)
+  - [Alternatives](#alternatives)
 
-**To use:**
+
+##To use:
 
 ```shell script
 npm i vue-toastify
 ```
 or with CDNs:
  - [jsDeliver](https://cdn.jsdelivr.net/npm/vue-toastify@latest)
- - [unpkg](https://unpkg.com/vue-toastify@1.0.3/dist/vue-toastify.umd.min.js)
+ - [unpkg](https://unpkg.com/vue-toastify)
  
  ***
 
@@ -29,8 +43,8 @@ Vue.use(VueToastify);
 this.$vToastify.success("easy-peasy");
 ```
 
-**Settings**
--
+## Settings
+
 You may pass a settings object to the use statement like so:
 
 ```javascript
@@ -45,7 +59,7 @@ this.vToastify.setSettings(settingsObject);
 ```
 This will return the current settings after the updates.
 
-**Available settings**
+### Available settings
 
  setting | type | default | details |
 ---|---|---|---
@@ -61,9 +75,10 @@ This will return the current settings after the updates.
 | hideProgressbar | Boolean | false | Whether the progressbar should be shown on the notification or not. |
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
 | theme | String | "dark" | What theme should be displaying. By default there's `light` and `dark`. |
+| orderLatest | Boolean | true | Whether new notifications should display on top of the stack or not. |
+| transition | String/Object | null | If string supplied this will apply the usual transition classes (eg.: .name-enter-active), if object supplied it expect a `name` and optionally a `moveClass` attribute. The name will be applied as above. |
 
-**Status**
--
+## Status
 You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
 ```javascript
 this.$vToastify.error("body", "title"); 
@@ -82,6 +97,7 @@ The following properties can be set on the object:
 | mode | String | If set the notification will be shown in the given mode: `loader`, `prompt`. Alternatively you may use the methods: `this.$vToastify.loader("more readable")`  |
 | url | String | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
 | icon | String | If set, this will be displayed instead of the default icons. Html binded as svg or element witch icon class is expected. |
+| answers | Object| If the type is prompt the object keys will display to the user and the value will be returned in the promise. It defaults to `{ Yes: true, No: false }` (Note: to include special characters like space, `-`, `_`, etc use quotation marks: `"my key":` |
 | callback | Function | This function will be called when the notification has been dismissed or the timeout has finished. |
 
 You may additionally overwrite the following plugin settings on a notification by notification basis by adding them on the status object.
@@ -92,6 +108,8 @@ You may additionally overwrite the following plugin settings on a notification b
 - `duration`  - The time the notification is displayed in milliseconds. (this cannot be updated later)
 - `theme`
 - `hideProgressbar`
+- `transition`
+- `orderLatest`
 
 You may alternatively pass in an http error response like:
 ```javascript
@@ -102,8 +120,7 @@ Only `this.$vToastify.error()` is capable to handle the error response.
 
 **Every notification method returns a unique id associated to your notification object.**
  
-Additional methods
--
+## Additional methods
 **The notification supports multiple modes**
 
 You can either pass the `mode` property on the status object which is one of the following strings: `"prompt"`, `"loader"` or by calling:
@@ -112,7 +129,7 @@ this.$vToastify.loader("Please Wait...")
 ```
 ```javascript
 this.$vToastify.prompt({
-    body: "Are there hot singles in your area?"
+    body: "Are there hot singles in your area?",
     answers: { Yes: true, No: false }
 })
 ```
@@ -120,17 +137,14 @@ The prompt does not return an id instead it returns a Promise so may use it as:
 ```javascript
 ...}).then(value => {
     if (value) {
-        this.$vToastify.prompt({
-            body: "Is it a scam?"
-            answers: { Yes: true, No: false }
-        })
-        .then(value => console.log(value ? "Yay!" : "Nay"))
+        this.$vToastify.prompt("Is it a scam?")
+            .then(value => console.log(value ? "Yay!" : "Nay"))
     }
 })
 ```
 The answers object consist of a key value pairs in the object where the key is displayed to the user and the value returned by the promise. If not set it defaults to: `{ Yes: true, No: false }`.
 
-**Additional methods available:**
+### Miscellaous methods:
 
 A loader cannot be dismissed, you'll have to stop the loader yourself like so:
 ```javascript
@@ -155,11 +169,14 @@ For removing a notification use:
 ```javascript
 this.$vToastify.removeToast(id)
 ```
-This will remove the notification if the id is given otherwise it will remove all of the notifications. The function returns the ids of the currently visible notifications.
+This will remove the notification if the id is given otherwise it will remove all of the notifications. If id supplied and not found between the queued or currently displaying notifications, it will return false, otherwise it returns the ids of the currently visible notifications.
 
+***
+To pass a notification from the server, assign your notification object to `window.notification` before importing your scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
 
-**Extending the functionality**
+## Customisation
 
+### Extending the functionality
 You can add your own methods to the plugin like so:
 ```javascript
 Vue.use(VueToastify, {
@@ -181,18 +198,23 @@ If the above is defined in the `customNotifications` object, you can use this me
 ```javascript
 this.$vToastify.clientError("this will overwrite the body", "this will add a title");
 ```
-or as usual pass in an object with the above outlined props which will overwrite the props you defined.
+or as usual pass in an object which will merge with the predefined props.
 
-**Extending the styles**
+### Extending the styles
 
 To add custom styles you all you have to do is follow the example in `./src/assets/toast.scss` and add your custom styles. Once added rename `.vt-theme-dark` to `.vt-theme-my-custom-name` and in the settings or the status object pass the theme as `theme: "my-custom-name"`. Include this stylesheet in the project and you're good to go.
-
-***
-To pass a notification from the server, assign your notification object to `window.notification` before importing your scripts. On mount this will gets displayed to the user. If this notification object has a property called `delay`, the notification display will be delayed by the given number of milliseconds.
  
-**Todos**
--
+## Todos
+
 - Option for showing one type at a time.
+
+- Add more icon features: disable icon, accept string for class or object like `{ class: "mdi", tag: "i", content: "ligature" }`
+
+- Add rollup for treeshaking and set up documentation form `docs` folder
+
+- Add ability to display notifications simultaneously at different locations
+
+- Add ability to accept component in the notification 
 
 - Increase test coverage
 
@@ -212,8 +234,8 @@ To pass a notification from the server, assign your notification object to `wind
 
 - Get url props on the answers object for redirecting on click of the button
 
-**Alternatives**
--
+## Alternatives
+
 Packages with similar capabilities:
 
 - [Vue Snotify](https://artemsky.github.io/vue-snotify/)

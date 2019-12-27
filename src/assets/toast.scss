@@ -31,12 +31,16 @@
 }
 // You may reorganise the items with the order attribute
 .vt-notification {
+  box-sizing: border-box;
+  pointer-events: auto;
   box-shadow: 0 0 10px 0.5px rgba(0, 0, 0, 0.35);
-  padding: 5% 2%;
-  max-width: max-content;
-  width: auto;
+  padding: 10px 20px;
+  min-height: 100px;
+  min-width: 250px;
   border-radius: 5px;
-  margin: 5px auto;
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
   z-index: 9999;
   display: flex;
   justify-content: space-around;
@@ -105,7 +109,20 @@
 .vt-cursor-loading {
   cursor: wait;
 }
-
+@media (max-width: 268px) {
+  .vt-notification {
+    min-height: auto;
+    min-width: 100%;
+    border-radius: 0;
+    & > .vt-content {
+      text-align: center;
+    }
+  }
+  .vt-notification-container {
+    width: 100%;
+    margin: 0;
+  }
+}
 .vt-spinner {
   width: 60px;
   height: 60px;
