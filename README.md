@@ -2,14 +2,16 @@
 [![last commit](https://badgen.net/github/last-commit/nandi95/vue-toastify)](https://github.com/nandi95/vue-toastify)
 [![npm](https://badgen.net/npm/v/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
 [![downloads](https://badgen.net/npm/dm/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
+![minified](https://badgen.net/bundlephobia/min/vue-toastify)
 
 I wanted a notification plugin which I can use by passing props from the server and can also be called at run time. With this component it's has just become super easy. It's easily extendable and customizable and it has no dependencies.
 
 Check it out at [Netlify](https://vue-toastify.netlify.com/)
 
-Requires vue version 2.2.0+
+Requires Vue 2.2.0+
+
 - [Vue Toastify](#vue-toastify)
-  - [Quick start](#to-use)
+  - [Quick start](#quick-start)
   - [Settings](#settings)
     - [Available settings](#available-settings)
   - [Status object](#status)
@@ -22,7 +24,7 @@ Requires vue version 2.2.0+
   - [Alternatives](#alternatives)
 
 
-##To use:
+## Quick start:
 
 ```shell script
 npm i vue-toastify
