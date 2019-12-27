@@ -1,4 +1,12 @@
-**v1.3.0** *25/12/2019*
+
+*v1.3.1* *27/12/2019*
+ 
+ Fix:
+ - Removed polyfills from bundle
+ 
+***
+
+**v1.3.0** *27/12/2019*
  
  Fix:
  - Container now ignores clicks thanks to `pointer-events: none;`
