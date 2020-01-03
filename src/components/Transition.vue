@@ -35,7 +35,7 @@ export default {
 };
 </script>
 
-<style>
+<style lang="css">
 .vt-move {
   transition-timing-function: ease-out;
   transition-property: all;

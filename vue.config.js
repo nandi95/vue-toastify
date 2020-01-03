@@ -1,4 +1,5 @@
 var WebpackBuildNotifierPlugin = require("webpack-build-notifier");
+const path = require("path");
 module.exports = {
   outputDir: "build",
   productionSourceMap: false,
@@ -8,6 +9,11 @@ module.exports = {
         title: "Vue Toastify"
       })
     ],
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "src")
+      }
+    },
     watchOptions: {
       ignored: "/node_modules/"
     }

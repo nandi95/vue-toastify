@@ -2,7 +2,7 @@
 [![last commit](https://badgen.net/github/last-commit/nandi95/vue-toastify)](https://github.com/nandi95/vue-toastify)
 [![npm](https://badgen.net/npm/v/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
 [![downloads](https://badgen.net/npm/dm/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
-![minified](https://badgen.net/bundlephobia/min/vue-toastify)
+![minzipped size](https://badgen.net/bundlephobia/minzip/vue-toastify)
 
 I wanted a notification plugin which I can use by passing props from the server and can also be called at run time. With this component it's has just become super easy. It's easily extendable and customizable and it has no dependencies.
 
@@ -79,6 +79,8 @@ This will return the current settings after the updates.
 | theme | String | "dark" | What theme should be displaying. By default there's `light` and `dark`. |
 | orderLatest | Boolean | true | Whether new notifications should display on top of the stack or not. |
 | transition | String/Object | null | If string supplied this will apply the usual transition classes (eg.: .name-enter-active), if object supplied it expect a `name` and optionally a `moveClass` attribute. The name will be applied as above. |
+| iconEnabled | Boolean | true | If set to false, no icon will be shown on the notification. |
+| baseIconClass | String | null | If string is set, this will be appended to every user supplied icon's class. |
 
 ## Status
 You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
@@ -111,6 +113,7 @@ You may additionally overwrite the following plugin settings on a notification b
 - `theme`
 - `hideProgressbar`
 - `transition`
+- `iconEnabled`
 - `orderLatest`
 
 You may alternatively pass in an http error response like:
@@ -204,15 +207,11 @@ or as usual pass in an object which will merge with the predefined props.
 
 ### Extending the styles
 
-To add custom styles you all you have to do is follow the example in `./src/assets/toast.scss` and add your custom styles. Once added rename `.vt-theme-dark` to `.vt-theme-my-custom-name` and in the settings or the status object pass the theme as `theme: "my-custom-name"`. Include this stylesheet in the project and you're good to go.
+Default styles maybe overridden with `!important`. To add custom styles you all you have to do is follow the example in `./src/assets/toast.scss` and add your custom styles. Once added rename `.vt-theme-dark` to `.vt-theme-my-custom-name` and in the settings or the status object pass the theme as `theme: "my-custom-name"`. Include this stylesheet in the project and you're good to go.
  
 ## Todos
 
 - Option for showing one type at a time.
-
-- Add more icon features: disable icon, accept string for class or object like `{ class: "mdi", tag: "i", content: "ligature" }`
-
-- Add rollup for treeshaking and set up documentation form `docs` folder
 
 - Add ability to display notifications simultaneously at different locations
 
@@ -228,13 +227,19 @@ To add custom styles you all you have to do is follow the example in `./src/asse
 
 - Add touch swipe gestures
 
-- Create php library for fluently setting the initial notification
+- Accept components as content or as icon
 
 - Move animation to purely css with animation-play-state
 
 - Re-write in TypeScript and use the vue core's `validateProps()`, rewrite for vue 3
 
 - Get url props on the answers object for redirecting on click of the button
+
+**V2**
+
+- Clean up icons
+
+- Set styles as an external stylesheet
 
 ## Alternatives
 

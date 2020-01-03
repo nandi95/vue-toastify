@@ -1,3 +1,17 @@
+**v1.4.0** */01/2020*
+ 
+ Fix:
+ - Removed bodyMaxWidth from props and added to the styles
+ - Updated adding feature to return id instead of currently showing toasts if it is in singular mode.
+ - Removed prototype builtins.
+ - Added missing checks for notification coming from server.
+ - Added packages for testing.
+ - Styling adjustment for the notification content
+ 
+ Feature:
+ - Added sass functions for easier theme creation
+ - Added option for accepting icons in object format
+***
 
 *v1.3.1* *27/12/2019*
  

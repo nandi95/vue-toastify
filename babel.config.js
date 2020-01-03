@@ -11,5 +11,10 @@ if (process.env.IS_COMPILE) {
 }
 
 module.exports = {
-  presets: preset
+  presets: preset,
+  env: {
+    test: {
+      presets: [["env", { targets: { node: "current" } }]]
+    }
+  }
 };

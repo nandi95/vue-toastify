@@ -16,7 +16,12 @@
       :style="flexDirection"
       :transition="getTransition"
     >
-      <Toast v-for="status in toasts" v-bind:key="status.id" :status="status" />
+      <Toast
+        v-for="status in toasts"
+        v-bind:key="status.id"
+        :status="status"
+        :base-icon-class="settings.baseIconClass"
+      />
     </vt-transition>
   </div>
 </template>
@@ -26,7 +31,7 @@
 //todo: transition move delay
 import Toast from "./Toast.vue";
 import { isBoolean } from "../js/utils";
-import Transition from "./Transition";
+import Transition from "./Transition.vue";
 
 export default {
   name: "VueToastify",
@@ -63,11 +68,13 @@ export default {
     defaultTitle: { type: Boolean, default: true },
     canPause: { type: Boolean, default: true },
     canTimeout: { type: Boolean, default: true },
+    iconEnabled: { type: Boolean, default: true },
     hideProgressbar: { type: Boolean, default: false },
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
     warningInfoDuration: { type: Number, default: 6000 },
     theme: { type: String, default: "dark" },
+    baseIconClass: { type: String, default: "" },
     orderLatest: { type: Boolean, default: true },
     transition: { type: [String, Object], default: null }
   },
@@ -83,11 +90,13 @@ export default {
         defaultTitle: true,
         canTimeout: true,
         canPause: false,
+        iconEnabled: true,
         hideProgressbar: false,
         errorDuration: 8000,
         successDuration: 4000,
         warningInfoDuration: 6000,
         theme: "dark",
+        baseIconClass: "",
         orderLatest: true,
         transition: null
       }
@@ -104,7 +113,11 @@ export default {
         }
       }
     );
-    if (window.notification) {
+    if (
+      window.notification &&
+      window.notification.type &&
+      window.notification.body
+    ) {
       const delay = window.notification.delay ? window.notification.delay : 0;
       setTimeout(() => {
         this.add(window.notification);
@@ -162,7 +175,7 @@ export default {
     setSettings(settings = null) {
       if (settings) {
         Object.keys(this.settings).forEach(key => {
-          if (settings.hasOwnProperty(key)) {
+          if (settings[key]) {
             this.$set(this.settings, key, settings[key]);
           }
         });
@@ -218,6 +231,9 @@ export default {
       toast.canTimeout = isBoolean(status.canTimeout)
         ? status.canTimeout
         : this.settings.canTimeout;
+      toast.iconEnabled = isBoolean(status.iconEnabled)
+        ? status.iconEnabled
+        : this.settings.iconEnabled;
       if (status.mode === "prompt" || status.mode === "loader") {
         toast.canTimeout = false;
       }
@@ -225,7 +241,7 @@ export default {
       toast.theme = status.theme ? status.theme : this.settings.theme;
       if (this.settings.singular && this.toasts.length > 0) {
         this.$set(this.queue, this.queue.length, toast);
-        return this.currentlyShowing;
+        return toast.id;
       }
       this.$set(this.toasts, this.toasts.length, toast);
       return toast.id;

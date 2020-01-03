@@ -29,7 +29,7 @@
   }
   border-color: #b11414;
 }
-// You may reorganise the items with the order attribute
+// You may reorganise the items with the order rule
 .vt-notification {
   box-sizing: border-box;
   pointer-events: auto;
@@ -61,7 +61,7 @@
   & > .vt-content {
     width: auto;
     height: 100%;
-    margin-right: 5px;
+    max-width: 250px;
     word-break: break-word;
     & > .vt-title {
       font-size: 1.4rem;
@@ -106,9 +106,6 @@
     }
   }
 }
-.vt-cursor-loading {
-  cursor: wait;
-}
 @media (max-width: 268px) {
   .vt-notification {
     min-height: auto;
@@ -131,17 +128,6 @@
   animation: 1s spin linear infinite;
 }
 
-@-webkit-keyframes spin {
-  from {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
-}
-
 @keyframes spin {
   from {
     -webkit-transform: rotate(0deg);
@@ -153,87 +139,93 @@
   }
 }
 
-.vt-theme-dark {
-  $backgroundColor: #1d1d1d;
-  background-color: $backgroundColor;
-  & > .vt-progress-bar {
-    background-color: lighten($backgroundColor, 10%);
-    & > .vt-progress {
-      background-color: lighten($backgroundColor, 30%);
+@function pow($number, $exponent) {
+  $value: 1;
+
+  @if $exponent > 0 {
+    @for $i from 1 through $exponent {
+      $value: $value * $number;
     }
   }
-  & > .vt-content {
-    & > .vt-title {
-      color: lighten($backgroundColor, 75%);
-    }
-    & > .vt-paragraph {
-      color: lighten($backgroundColor, 75%);
-    }
-  }
-  & > .vt-buttons {
-    & > button {
-      border: solid 1px lighten($backgroundColor, 10%);
-      background-color: lighten($backgroundColor, 10%);
-      color: lighten($backgroundColor, 75%);
-      transition: all 0.2s ease-out;
-      &:hover {
-        background-color: lighten($backgroundColor, 65%);
-        color: lighten($backgroundColor, 5%);
-        transition: all 0.2s ease-out;
-      }
-    }
-  }
-  & > .vt-prompt {
-    & > .vt-icon > svg {
-      fill: lighten($backgroundColor, 70%);
-    }
-    border-color: lighten($backgroundColor, 70%);
-  }
-  & > .vt-icon-container > .vt-spinner {
-    border: 2px solid lighten($backgroundColor, 30%);
-    border-top: 2px solid lighten($backgroundColor, 90%);
-  }
+
+  @return $value;
 }
-.vt-theme-light {
-  $backgroundColor: #f0f0f0;
-  $borderColor: darken($backgroundColor, 30%);
-  background-color: $backgroundColor;
-  & > .vt-progress-bar {
-    background-color: darken($backgroundColor, 15%);
-    & > .vt-progress {
-      background-color: darken($backgroundColor, 40%);
+@function luminance($color) {
+  $colors: (
+          'red': red($color),
+          'green': green($color),
+          'blue': blue($color)
+  );
+
+  @each $name, $value in $colors {
+    $adjusted: 0;
+    $value: $value / 255;
+
+    @if $value < 0.03928 {
+      $value: $value / 12.92;
+    } @else {
+      $value: ($value + .055) / 1.055;
+      $value: pow($value, 2.4);
     }
+
+    $colors: map-merge($colors, ($name: $value));
   }
-  & > .vt-content {
-    & > .vt-title {
-      color: darken($backgroundColor, 70%);
-    }
-    & > .vt-paragraph {
-      color: darken($backgroundColor, 75%);
-    }
+
+  @return (map-get($colors, 'red') * .2126) + (map-get($colors, 'green') * .7152) + (map-get($colors, 'blue') * .0722);
+}
+@function color-change($color, $percentage) {
+  @if (luminance($color) > 0.4) {
+    $color: darken($color, $percentage);
+  } @else {
+    $color: lighten($color, $percentage);
   }
-  & > .vt-buttons {
-    & > button {
-      border: solid 1px darken($backgroundColor, 10%);
-      background-color: darken($backgroundColor, 20%);
-      color: darken($backgroundColor, 75%);
-      transition: all 0.2s ease-out;
-      &:hover {
-        background-color: darken($backgroundColor, 55%);
-        color: darken($backgroundColor, 5%);
-        transition: all 0.2s ease-out;
+  @return $color;
+}
+$themes: (
+  "dark": #1d1d1d,
+  "light": #f0f0f0
+);
+
+@each $name, $color in $themes {
+  .vt-theme-#{$name} {
+    background-color: $color;
+    & > .vt-progress-bar {
+      background-color: color-change($color, 10%);
+      & > .vt-progress {
+        background-color: color-change($color, 30%);
       }
     }
-  }
-  & > .vt-prompt {
-    & > .vt-icon > svg {
-      fill: darken($backgroundColor, 70%);
+    & > .vt-content {
+      & > .vt-title {
+        color: color-change($color, 75%);
+      }
+      & > .vt-paragraph {
+        color: color-change($color, 75%);
+      }
     }
-    border-color: darken($backgroundColor, 70%);
-  }
-  & > .vt-icon-container > .vt-spinner {
-    border: 2px solid darken($backgroundColor, 30%);
-    border-top: 2px solid darken($backgroundColor, 90%);
+    & > .vt-buttons {
+      & > button {
+        border: solid 1px color-change($color, 10%);
+        background-color: color-change($color, 10%);
+        color: color-change($color, 75%);
+        transition: all 0.2s ease-out;
+        &:hover {
+          background-color: color-change($color, 65%);
+          color: color-change($color, 5%);
+          transition: all 0.2s ease-out;
+        }
+      }
+    }
+    & > .vt-prompt {
+      & > .vt-icon > svg {
+        fill: color-change($color, 70%);
+      }
+      border-color: color-change($color, 70%);
+    }
+    & > .vt-icon-container > .vt-spinner {
+      border: 2px solid color-change($color, 30%);
+      border-top: 2px solid color-change($color, 90%);
+    }
   }
 }
 
