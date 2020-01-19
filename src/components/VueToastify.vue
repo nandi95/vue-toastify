@@ -15,6 +15,7 @@
       :class="positionClasses"
       :style="flexDirection"
       :transition="getTransition"
+      :position="settings.position"
     >
       <Toast
         v-for="status in toasts"
@@ -28,9 +29,8 @@
 
 <script>
 // todo: create 3 containers and create a manager that manages the queue tp push to the correct container ( position will be held on the status ) this will allow separated transitions
-//todo: transition move delay
 import Toast from "./Toast.vue";
-import { isBoolean } from "../js/utils";
+import { between, isBoolean } from "../js/utils";
 import Transition from "./Transition.vue";
 
 export default {
@@ -69,6 +69,12 @@ export default {
     canPause: { type: Boolean, default: true },
     canTimeout: { type: Boolean, default: true },
     iconEnabled: { type: Boolean, default: true },
+    draggable: { type: Boolean, default: true },
+    dragThreshold: {
+      type: Number,
+      default: 0.75,
+      validator: value => between(0, 5, value)
+    },
     hideProgressbar: { type: Boolean, default: false },
     errorDuration: { type: Number, default: 8000 },
     successDuration: { type: Number, default: 4000 },
@@ -91,6 +97,8 @@ export default {
         canTimeout: true,
         canPause: false,
         iconEnabled: true,
+        draggable: true,
+        dragThreshold: 0.75,
         hideProgressbar: false,
         errorDuration: 8000,
         successDuration: 4000,
@@ -175,7 +183,7 @@ export default {
     setSettings(settings = null) {
       if (settings) {
         Object.keys(this.settings).forEach(key => {
-          if (settings[key]) {
+          if (settings[key] !== undefined) {
             this.$set(this.settings, key, settings[key]);
           }
         });
@@ -234,6 +242,16 @@ export default {
       toast.iconEnabled = isBoolean(status.iconEnabled)
         ? status.iconEnabled
         : this.settings.iconEnabled;
+      if (["prompt", "loader"].indexOf(status.mode) === -1) {
+        toast.draggable = isBoolean(status.draggable)
+          ? status.draggable
+          : this.settings.draggable;
+      } else {
+        toast.draggable = false;
+      }
+      toast.dragThreshold = between(0, 5, status.dragThreshold)
+        ? status.dragThreshold
+        : this.settings.dragThreshold;
       if (status.mode === "prompt" || status.mode === "loader") {
         toast.canTimeout = false;
       }
@@ -305,12 +323,12 @@ export default {
       }
       const position = this.settings.position.split("-");
       if (position[1] === "left") {
-        return "left";
+        return "vt-left";
       }
       if (position[1] === "center") {
-        return position[0];
+        return "vt-" + position[0];
       }
-      return "right";
+      return "vt-right";
     },
     flexDirection: function() {
       return {
@@ -325,11 +343,15 @@ export default {
       const position = this.settings.position.split("-");
       let classes = {};
       if (position[0] === position[1]) {
-        classes["center-center"] = true;
+        classes["vt-center-center"] = true;
         return classes;
       }
-      classes[position[0] === "center" ? "centerY" : position[0]] = true;
-      classes[position[1] === "center" ? "centerX" : position[1]] = true;
+      classes[
+        position[0] === "center" ? "vt-centerY" : "vt-" + position[0]
+      ] = true;
+      classes[
+        position[1] === "center" ? "vt-centerX" : "vt-" + position[1]
+      ] = true;
       return classes;
     },
     currentlyShowing: function() {
@@ -404,29 +426,29 @@ export default {
   opacity: 1;
   visibility: visible;
 }
-.top {
+.vt-top {
   top: 0;
 }
-.centerY {
+.vt-centerY {
   top: 50%;
   transform: translateY(-50%);
 }
-.bottom {
+.vt-bottom {
   bottom: 0;
 }
 
-.left {
+.vt-left {
   left: 0;
 }
-.centerX {
+.vt-centerX {
   left: 50%;
   transform: translateX(-50%);
 }
-.right {
+.vt-right {
   right: 0;
 }
 
-.center-center {
+.vt-center-center {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

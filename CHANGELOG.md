@@ -1,4 +1,19 @@
-**v1.4.0** */01/2020*
+**v1.5.0** *19/01/2020*
+ 
+ Fix:
+ - Added the return statement to the custom notification methods
+ - Fixed the setSettings when using with falsy value.
+ - Added logic to delay the notification move on removal
+ - Fixed transition positions
+ - Added more style namespaces and a whitelist pattern
+ 
+ Feature:
+ - Added draggable option to dismiss toast by dragging.
+ - Added function to listen for events emitted by the notifications.
+ 
+***
+
+**v1.4.0** *03/01/2020*
  
  Fix:
  - Removed bodyMaxWidth from props and added to the styles
@@ -11,6 +26,7 @@
  Feature:
  - Added sass functions for easier theme creation
  - Added option for accepting icons in object format
+ 
 ***
 
 *v1.3.1* *27/12/2019*

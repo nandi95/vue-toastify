@@ -78,8 +78,10 @@ This will return the current settings after the updates.
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
 | theme | String | "dark" | What theme should be displaying. By default there's `light` and `dark`. |
 | orderLatest | Boolean | true | Whether new notifications should display on top of the stack or not. |
-| transition | String/Object | null | If string supplied this will apply the usual transition classes (eg.: .name-enter-active), if object supplied it expect a `name` and optionally a `moveClass` attribute. The name will be applied as above. |
+| transition | String/Object | null | If string supplied this will apply the usual transition classes (eg.: .name-enter-active), if object supplied it expect a `name` and optionally a `moveClass` (this class has to use `!important` for its rules) attribute. The name will be applied as above. The move class applied when the notifications adjust their position. |
 | iconEnabled | Boolean | true | If set to false, no icon will be shown on the notification. |
+| draggable | Boolean | true | Whether to enable dismissing the notification by dragging or not. |
+| dragThreshold | Number | 0.75 | A number between 0 - 5 representing how far the notification should be dragged to dismiss. |
 | baseIconClass | String | null | If string is set, this will be appended to every user supplied icon's class. |
 
 ## Status
@@ -114,6 +116,8 @@ You may additionally overwrite the following plugin settings on a notification b
 - `hideProgressbar`
 - `transition`
 - `iconEnabled`
+- `draggable`
+- `dragThreshold`
 - `orderLatest`
 
 You may alternatively pass in an http error response like:
@@ -148,6 +152,20 @@ The prompt does not return an id instead it returns a Promise so may use it as:
 })
 ```
 The answers object consist of a key value pairs in the object where the key is displayed to the user and the value returned by the promise. If not set it defaults to: `{ Yes: true, No: false }`.
+
+There are various events are emitted by the notification:
+ - `vtFinished`
+ - `vtDismissed`
+ - `vtStarted`
+ - `vtPaused`
+ - `vtResumed`
+ - `vtDragStarted`
+ - `vtDragFinished`
+ 
+ to which you can listen by either the `listen` or the `listenOnce` methods. The event's payload is an object containing the notification's id:
+```javascript
+this.$vToastify.listen("vtDismissed", payload => console.log(payload.id))
+```
 
 ### Miscellaous methods:
 
@@ -221,11 +239,7 @@ Default styles maybe overridden with `!important`. To add custom styles you all 
 
 - add SPA support for the url attribute
 
-- Expose the following events to the user: `vtFinished`, `vtDismissed`, `vtStarted`, `vtPaused`
-
 - Add max number of notifications on display setting
-
-- Add touch swipe gestures
 
 - Accept components as content or as icon
 

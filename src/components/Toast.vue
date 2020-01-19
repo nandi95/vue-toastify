@@ -3,7 +3,7 @@
     :is="tag"
     v-bind="urlTarget"
     class="vt-notification"
-    :style="notificationStyle"
+    :style="draggableStyles"
     :class="notificationClass"
     @click="dismiss()"
     @mouseenter="isHovered = true"
@@ -46,6 +46,7 @@
 <script>
 import ProgressBar from "./ProgressBar.vue";
 import Icon from "./Icon.vue";
+import draggable from "./draggable.js";
 export default {
   name: "Toast",
   components: { ProgressBar, Icon },
@@ -53,9 +54,9 @@ export default {
     status: { type: Object },
     baseIconClass: { type: String, default: "" }
   },
+  mixins: [draggable],
   data() {
     return {
-      notificationStyle: {},
       isHovered: false
     };
   },
@@ -72,13 +73,6 @@ export default {
           this.closeNotification();
         }
       });
-    }
-  },
-  beforeMount() {
-    if (this.status.url && this.status.url.length > 0) {
-      this.notificationStyle["cursor"] = "pointer";
-    } else if (this.status.mode === "loader") {
-      this.notificationStyle["cursor"] = "wait";
     }
   },
   computed: {
@@ -107,6 +101,11 @@ export default {
     // }
     notificationClass() {
       let obj = {};
+      if (this.status.url && this.status.url.length > 0) {
+        obj["vt-cursor-pointer"] = true;
+      } else if (this.status.mode === "loader") {
+        obj["vt-cursor-wait"] = true;
+      }
       obj["vt-theme-" + this.status.theme] = true;
       return obj;
     },
@@ -134,7 +133,7 @@ export default {
       }
     },
     dismiss() {
-      if (this.isNotification) {
+      if (this.isNotification && !this.hasMoved) {
         this.closeNotification();
       }
     },

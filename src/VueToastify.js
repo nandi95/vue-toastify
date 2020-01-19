@@ -120,6 +120,12 @@ const VueToastify = {
       },
       setSettings(settings) {
         return ToastContainer.setSettings(settings);
+      },
+      listen(event, callback) {
+        return ToastContainer.$on(event, payload => callback(payload));
+      },
+      listenOnce(event, callback) {
+        return ToastContainer.$once(event, payload => callback(payload));
       }
     };
 
@@ -141,7 +147,7 @@ const VueToastify = {
               if (title) {
                 toast.title = title;
               }
-              vtNotify(toast);
+              return vtNotify(toast);
             };
           }
         });

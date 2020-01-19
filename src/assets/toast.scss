@@ -120,12 +120,32 @@
     margin: 0;
   }
 }
+// This controls how the notification should move when others are added/removed
+.vt-move {
+  transition-timing-function: ease-in-out;
+  transition-property: all;
+  transition-duration: 200ms !important; // important to overwrite the .vt-default-position
+  &[data-delayed="true"] {
+    transition-delay: 200ms; // this should be set to the same as the transition leave duration
+  }
+}
+// This ensures that on drag the notification slides back to its original position
+.vt-default-position {
+  transform: translateX(0);
+  transition: all 100ms ease;
+}
 .vt-spinner {
   width: 60px;
   height: 60px;
   border-radius: 50%;
   background-color: transparent;
   animation: 1s spin linear infinite;
+}
+.vt-cursor-wait {
+  cursor: wait;
+}
+.vt-cursor-pointer {
+  cursor: pointer;
 }
 
 @keyframes spin {
@@ -185,7 +205,6 @@ $themes: (
   "dark": #1d1d1d,
   "light": #f0f0f0
 );
-
 @each $name, $color in $themes {
   .vt-theme-#{$name} {
     background-color: $color;
@@ -229,47 +248,47 @@ $themes: (
   }
 }
 
-.right-enter-active,
-.left-enter-active,
-.bottom-enter-active,
-.top-enter-active,
-.center-enter-active {
+.vt-right-enter-active,
+.vt-left-enter-active,
+.vt-bottom-enter-active,
+.vt-top-enter-active,
+.vt-center-enter-active {
   transition: all 0.2s ease-out;
 }
 
-.right-leave-active,
-.left-leave-active,
-.bottom-leave-active,
-.top-leave-active,
-.center-leave-active {
+.vt-right-leave-active,
+.vt-left-leave-active,
+.vt-bottom-leave-active,
+.vt-top-leave-active,
+.vt-center-leave-active {
   transition: all 0.2s ease-in;
 }
 
-.right-enter,
-.right-leave-to {
+.vt-right-enter,
+.vt-right-leave-to {
   transform: translateX(50px);
   opacity: 0;
 }
 
-.left-enter,
-.left-leave-to {
+.vt-left-enter,
+.vt-left-leave-to {
   transform: translateX(-50px);
   opacity: 0;
 }
 
-.bottom-enter,
-.bottom-leave-to {
-  margin-bottom: -50px;
+.vt-bottom-enter,
+.vt-bottom-leave-to {
+  transform: translateY(50px);
   opacity: 0;
 }
 
-.top-enter,
-.top-leave-to {
-  margin-top: -50px;
+.vt-top-enter,
+.vt-top-leave-to {
+  transform: translateY(-50px);
   opacity: 0;
 }
 
-.center-enter,
-.center-leave-to {
+.vt-center-enter,
+.vt-center-leave-to {
   opacity: 0;
 }
