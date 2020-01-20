@@ -70,7 +70,6 @@
 </template>
 
 <script>
-// eslint-disable-next-line no-unused-vars
 import { isString, isObject } from "../js/utils";
 export default {
   name: "Icon",
@@ -109,7 +108,7 @@ export default {
         obj["vt-circle"] = !this.icon;
       }
       obj["vt-prompt"] = this.mode === "prompt";
-      if (this.mode.length === 0) {
+      if (this.mode === undefined || this.mode.length === 0) {
         obj["vt-" + (this.type ? this.type : "info")] = true;
       }
 

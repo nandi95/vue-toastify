@@ -1,3 +1,11 @@
+
+*v1.3.1* *20/01/2020*
+ 
+ Fix:
+ - Added extra check for icon selection.
+ 
+***
+
 **v1.5.0** *19/01/2020*
  
  Fix:
