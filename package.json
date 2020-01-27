@@ -7,7 +7,7 @@
   "scripts": {
     "serve": "serve -s build",
     "watch": "vue-cli-service serve",
-    "build": "vue-cli-service build && npm run serve",
+    "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "compile": "cross-env IS_COMPILE=true vue-cli-service build --target lib --dest dist/ --name vue-toastify ./src/VueToastify.js",
     "test": "jest --config=./jest.config.js --watch"
