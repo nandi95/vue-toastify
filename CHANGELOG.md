@@ -1,5 +1,12 @@
 
-*v1.3.1* *20/01/2020*
+*v1.5.2* *20/01/2020*
+ 
+ Fix:
+ - Fixed width issue on long content on leave transition.
+ 
+***
+
+*v1.5.1* *20/01/2020*
  
  Fix:
  - Added extra check for icon selection.

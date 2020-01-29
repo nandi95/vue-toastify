@@ -47,7 +47,8 @@ export default {
           parseInt(marginBottom) +
           "px";
       }
-
+      // absolute position may messes with the width so lets set to initial
+      el.style.width = width;
       el.style.position = "absolute";
     },
     beforeEnter() {
