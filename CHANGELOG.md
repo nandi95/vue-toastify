@@ -1,8 +1,22 @@
 
+**v1.6.0** *06/02/2020*
+
+ Feature:
+ - Added one type at a time option.
+ - Added max number of notifications on screen option.
+ - Added `getSettings()` function. (This is more verbose than `setSettings({})`)
+ 
+ Fix:
+ - Removed redundant return statement.
+ - Added fallback to the queue on the `getToast`
+ - Fixed positioning of the toast on singular dismiss
+ 
+***
+
 *v1.5.2* *20/01/2020*
  
  Fix:
- - Fixed width issue on long content on leave transition.
+ - Fixed width issue with long content on leave transition.
  
 ***
 

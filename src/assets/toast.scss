@@ -126,7 +126,7 @@
   transition-property: all;
   transition-duration: 200ms !important; // important to overwrite the .vt-default-position
   &[data-delayed="true"] {
-    transition-delay: 200ms; // this should be set to the same as the transition leave duration
+    transition-delay: 200ms !important; // this should be set to the same as the transition leave duration
   }
 }
 // This ensures that on drag the notification slides back to its original position

@@ -83,6 +83,8 @@ This will return the current settings after the updates.
 | draggable | Boolean | true | Whether to enable dismissing the notification by dragging or not. |
 | dragThreshold | Number | 0.75 | A number between 0 - 5 representing how far the notification should be dragged to dismiss. |
 | baseIconClass | String | null | If string is set, this will be appended to every user supplied icon's class. |
+| maxToasts | Number | 6 | Defines how many toasts should be visible at a time. Others are queued. |
+| oneType | Boolean | false | If turned on, only toasts with unique mode/type will be show. Others are queued.  |
 
 ## Status
 You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
@@ -102,7 +104,7 @@ The following properties can be set on the object:
 | type | String | Defines what notification type should be showing available types: `"success"`, `"warning"`, `"info"`, `"error"` defaults to `"success"`. This can only be set if you're using `this.$vtNotify()` Alternatively you may use the methods: `this.$vToastify.warning("more readable")` |
 | mode | String | If set the notification will be shown in the given mode: `loader`, `prompt`. Alternatively you may use the methods: `this.$vToastify.loader("more readable")`  |
 | url | String | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
-| icon | String | If set, this will be displayed instead of the default icons. Html binded as svg or element witch icon class is expected. |
+| icon | String / Object | If set, this will be displayed instead of the default icons. If is a string the string will be assigned to the class unless it is an svg. If it is an object it may take the following attributes `{ tag: "i", ligature: "", icon: "" }` |
 | answers | Object| If the type is prompt the object keys will display to the user and the value will be returned in the promise. It defaults to `{ Yes: true, No: false }` (Note: to include special characters like space, `-`, `_`, etc use quotation marks: `"my key":` |
 | callback | Function | This function will be called when the notification has been dismissed or the timeout has finished. |
 
@@ -125,7 +127,7 @@ You may alternatively pass in an http error response like:
 fetch().then().catch(error => this.$vToastify.error(error));
 ```
 ***
-Only `this.$vToastify.error()` is capable to handle the error response.
+Only `this.$vToastify.error()` will look for `status` and `statusText` on the error object.
 
 **Every notification method returns a unique id associated to your notification object.**
  
@@ -180,7 +182,7 @@ For returning a notification object use:
 ```javascript
 this.$vToastify.getToast(id)
 ```
-This if found returns the notification object otherwise all of the notification objects in an array.
+This if found returns the notification object from the visible ones or queued toasts otherwise all of the notification objects in an array from both the visible and queued toasts.
 
 For updating the notification object during run-time use:
 ```javascript
@@ -229,21 +231,13 @@ Default styles maybe overridden with `!important`. To add custom styles you all 
  
 ## Todos
 
-- Option for showing one type at a time.
-
 - Add ability to display notifications simultaneously at different locations
-
-- Add ability to accept component in the notification 
 
 - Increase test coverage
 
 - add SPA support for the url attribute
 
-- Add max number of notifications on display setting
-
 - Accept components as content or as icon
-
-- Move animation to purely css with animation-play-state
 
 - Re-write in TypeScript and use the vue core's `validateProps()`, rewrite for vue 3
 
@@ -254,6 +248,8 @@ Default styles maybe overridden with `!important`. To add custom styles you all 
 - Clean up icons
 
 - Set styles as an external stylesheet
+
+- `setSettings` to return boolean.
 
 ## Alternatives
 
