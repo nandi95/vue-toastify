@@ -40,7 +40,7 @@ export default {
     "vt-transition": Transition
   },
   props: {
-    singular: { type: Boolean, default: false },
+    singular: { type: Boolean, default: true },
     withBackdrop: { type: Boolean, default: false },
     backdrop: {
       type: String,
@@ -400,11 +400,13 @@ export default {
         if (this.queue.length !== 0) {
           this.$nextTick(() => {
             // if singular than oneType and maxToasts isn't a concern
-            if (this.settings.singular && newValue.length <= 0) {
-              this.$set(this.toasts, this.toasts.length, {
-                ...this.queue.shift(),
-                delayed: true
-              });
+            if (this.settings.singular) {
+              if (newValue.length === 0) {
+                this.$set(this.toasts, this.toasts.length, {
+                  ...this.queue.shift(),
+                  delayed: true
+                });
+              }
               return;
             }
             if (this.settings.oneType) {

@@ -24,8 +24,14 @@ export default {
     // eslint-disable-next-line no-unused-vars
     leave(el) {
       if (this.$parent.settings.singular) {
+        // this.$nextTick(() => {
+          console.log(this.$parent.toasts.length);
+          console.log(this.$el.childNodes.length);
+        // });
+
+        // console.log(this.$parent.queue.length);
         // if (this.$parent.queue.length > 0) {
-          this.positionNotification(el);
+        //   this.positionNotification(el);
         // }
         //first jumps and every last in the bottom left
         return;
