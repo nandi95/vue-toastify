@@ -120,14 +120,12 @@
     margin: 0;
   }
 }
-// todo - consider will-change
 // This controls how the notification should move when others are added/removed
 .vt-move {
   transition-timing-function: ease-in-out;
   transition-property: all;
   transition-duration: 200ms !important; // important to overwrite the .vt-default-position
   &[data-delayed="true"] {
-    //todo visibility!!!
     transition-delay: 200ms !important; // this should be set to the same as the transition leave duration
   }
 }

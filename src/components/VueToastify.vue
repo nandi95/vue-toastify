@@ -33,6 +33,8 @@ import Toast from "./Toast.vue";
 import { between, isBoolean } from "../js/utils";
 import Transition from "./Transition.vue";
 
+let temp = {};
+
 export default {
   name: "VueToastify",
   components: {
@@ -210,6 +212,8 @@ export default {
       let ids = id;
       if (typeof id === "string") {
         ids = [id];
+      } else if (Array.isArray(id)) {
+        ids = id;
       } else {
         //get all loaders
         ids = this.toasts.map(toast => {
@@ -381,15 +385,25 @@ export default {
   },
   watch: {
     settings: {
-      handler: function(newSettings) {
+      handler: function(newSettings, oldSettings) {
         if (isBoolean(newSettings.singular)) {
           // if singular turned off release all queued toasts
           if (!newSettings.singular) {
-            this.queue.forEach(status => {
-              this.$set(this.toasts, this.toasts.length, status);
-            });
-            this.queue = [];
+            for (let i = 0; i < this.settings.maxToasts - 1; i++) {
+              if (!this.arrayHasType(this.queue[i])) {
+                this.queue.splice()
+                this.$set(this.toasts, this.toasts.length, this.queue.shift());
+              }
+              // todo - if onetype then only appropriate ones
+            }
+            if (isBoolean(temp.orderLatest)) {
+              newSettings.orderLatest = temp.orderLatest;
+              delete temp.orderLatest;
+            }
+            return;
           }
+          temp.orderLatest = oldSettings.orderLatest;
+          newSettings.orderLatest = false;
         }
       },
       deep: true

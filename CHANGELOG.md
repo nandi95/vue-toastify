@@ -1,5 +1,5 @@
 
-**v1.6.0** *06/02/2020*
+**v1.6.0** *06/03/2020*
 
  Feature:
  - Added one type at a time option.
@@ -10,7 +10,7 @@
  - Removed redundant return statement.
  - Added fallback to the queue on the `getToast`
  - Fixed positioning of the toast on singular dismiss
- 
+ - Fixed `stopLoader` when passed an array of ids/
 ***
 
 *v1.5.2* *20/01/2020*

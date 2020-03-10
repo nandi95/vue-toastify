@@ -21,33 +21,14 @@ export default {
     position: { type: String, required: true }
   },
   methods: {
-    // eslint-disable-next-line no-unused-vars
+    // todo - consider will-change
     leave(el) {
-      if (this.$parent.settings.singular) {
-        // this.$nextTick(() => {
-          console.log(this.$parent.toasts.length);
-          console.log(this.$el.childNodes.length);
-        // });
-
-        // console.log(this.$parent.queue.length);
-        // if (this.$parent.queue.length > 0) {
-        //   this.positionNotification(el);
-        // }
-        //first jumps and every last in the bottom left
+      if (
+        this.$parent.singular ||
+        (this.$parent.oneType && this.$parent.$el.childNodes.length === 1)
+      ) {
         return;
       }
-      // console.log([
-      //   this.$parent.settings.singular,
-      //   this.$parent.arrayHasType(el.__vue__.status),
-      //   this.$parent.$el.childNodes > 1
-      // ]);
-      // if (
-      //   !this.$parent.settings.singular ||
-      //   (!this.$parent.arrayHasType && this.$parent.toasts.length > 1)
-      // ) {
-      this.positionNotification(el);
-    },
-    positionNotification(el) {
       const position = this.position.split("-");
       // https://forum.vuejs.org/t/transition-group-move-class-not-occuring-in-the-array/6381/5
       // these rules ensure the toast stays where it is
@@ -85,9 +66,16 @@ export default {
         el.classList.add("vt-move");
         delete el.__vue__.status.delayed;
       }
+
+      // if (el.__vue__.status.delayed) {
+      //   el.dataset.delayed = true;
+      //   el.classList.add("vt-move");
+      //   delete el.__vue__.status.delayed;
+      // }
     },
     afterEnter(el) {
       el.classList.add("vt-default-position");
+      el.removeAttribute("data-delayed");
     },
     beforeLeave(el) {
       // this ensures that notifications won't move until the other has been removed
