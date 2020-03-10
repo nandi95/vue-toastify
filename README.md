@@ -84,7 +84,7 @@ This will return the current settings after the updates.
 | dragThreshold | Number | 0.75 | A number between 0 - 5 representing how far the notification should be dragged to dismiss. |
 | baseIconClass | String | null | If string is set, this will be appended to every user supplied icon's class. |
 | maxToasts | Number | 6 | Defines how many toasts should be visible at a time. Others are queued. |
-| oneType | Boolean | false | If turned on, only toasts with unique mode/type will be show. Others are queued.  |
+| oneType | Boolean | false | If turned on, only toasts with unique mode/type will be show. Others are queued. |
 
 ## Status
 You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
@@ -182,7 +182,7 @@ For returning a notification object use:
 ```javascript
 this.$vToastify.getToast(id)
 ```
-This if found returns the notification object from the visible ones or queued toasts otherwise all of the notification objects in an array from both the visible and queued toasts.
+This if found returns the notification object from the visible ones or queued toasts otherwise all of the notification objects in an array from both the visible and queued toasts. If not found returns false.
 
 For updating the notification object during run-time use:
 ```javascript

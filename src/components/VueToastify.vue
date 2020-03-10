@@ -42,7 +42,7 @@ export default {
     "vt-transition": Transition
   },
   props: {
-    singular: { type: Boolean, default: true },
+    singular: { type: Boolean, default: false },
     withBackdrop: { type: Boolean, default: false },
     backdrop: {
       type: String,
@@ -294,12 +294,15 @@ export default {
         let toast = this.toasts.find(toast => {
           return toast.id === id;
         });
-        if (toast) {
-          return toast;
+        if (!toast) {
+          toast = this.queue.find(toast => {
+            return toast.id === id;
+          });
         }
-        toast = this.queue.find(toast => {
-          return toast.id === id;
-        });
+        if (!toast) {
+          return false;
+        }
+        return toast;
       }
       return this.toasts.concat(this.queue);
     },
@@ -390,11 +393,16 @@ export default {
           // if singular turned off release all queued toasts
           if (!newSettings.singular) {
             for (let i = 0; i < this.settings.maxToasts - 1; i++) {
-              if (!this.arrayHasType(this.queue[i])) {
-                this.queue.splice()
-                this.$set(this.toasts, this.toasts.length, this.queue.shift());
+              if (!this.queue[i]) {
+                continue;
               }
-              // todo - if onetype then only appropriate ones
+              if (!this.arrayHasType(this.queue[i])) {
+                this.$set(
+                  this.toasts,
+                  this.toasts.length,
+                  this.queue.splice(i, 1)[0]
+                );
+              }
             }
             if (isBoolean(temp.orderLatest)) {
               newSettings.orderLatest = temp.orderLatest;
