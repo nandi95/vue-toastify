@@ -28,10 +28,12 @@
 </template>
 
 <script>
-// todo: create 3 containers and create a manager that manages the queue tp push to the correct container ( position will be held on the status ) this will allow separated transitions
+// todo: create 3 containers and create a manager that manages the queue to push to the correct container (each container having 3 positions) ( position will be held on the status ) this will allow for separated transitions
 import Toast from "./Toast.vue";
 import { between, isBoolean } from "../js/utils";
 import Transition from "./Transition.vue";
+
+let temp = {};
 
 export default {
   name: "VueToastify",
@@ -82,7 +84,9 @@ export default {
     theme: { type: String, default: "dark" },
     baseIconClass: { type: String, default: "" },
     orderLatest: { type: Boolean, default: true },
-    transition: { type: [String, Object], default: null }
+    transition: { type: [String, Object], default: null },
+    oneType: { type: Boolean, default: false },
+    maxToasts: { type: Number, default: 6 }
   },
   data() {
     return {
@@ -106,7 +110,9 @@ export default {
         theme: "dark",
         baseIconClass: "",
         orderLatest: true,
-        transition: null
+        transition: null,
+        oneType: false,
+        maxToasts: 6
       }
     };
   },
@@ -178,6 +184,13 @@ export default {
       }
       return "Info";
     },
+    arrayHasType(status) {
+      return !!this.toasts.find(
+        toast =>
+          (toast.mode && toast.mode === status.mode) ||
+          (toast.type && toast.type === status.type)
+      );
+    },
 
     // API methods
     setSettings(settings = null) {
@@ -192,10 +205,15 @@ export default {
       }
       return this.settings;
     },
+    getSettings() {
+      return this.settings;
+    },
     stopLoader(id = null) {
       let ids = id;
       if (typeof id === "string") {
         ids = [id];
+      } else if (Array.isArray(id)) {
+        ids = id;
       } else {
         //get all loaders
         ids = this.toasts.map(toast => {
@@ -257,7 +275,14 @@ export default {
       }
 
       toast.theme = status.theme ? status.theme : this.settings.theme;
-      if (this.settings.singular && this.toasts.length > 0) {
+      if (
+        // if singular and there's 1 already showing
+        (this.settings.singular && this.toasts.length > 0) ||
+        // if oneType turned on that type already showing
+        (this.settings.oneType && this.arrayHasType(toast)) ||
+        // if it would exceed the max number of displayed toasts
+        this.toasts.length >= this.settings.maxToasts
+      ) {
         this.$set(this.queue, this.queue.length, toast);
         return toast.id;
       }
@@ -269,14 +294,17 @@ export default {
         let toast = this.toasts.find(toast => {
           return toast.id === id;
         });
-        if (toast) {
-          return toast;
+        if (!toast) {
+          toast = this.queue.find(toast => {
+            return toast.id === id;
+          });
         }
-        return this.queue.find(toast => {
-          return toast.id === id;
-        });
+        if (!toast) {
+          return false;
+        }
+        return toast;
       }
-      return this.toasts;
+      return this.toasts.concat(this.queue);
     },
     set(id, status) {
       let toast = this.get(id);
@@ -360,28 +388,68 @@ export default {
   },
   watch: {
     settings: {
-      handler: function(newSettings) {
+      handler: function(newSettings, oldSettings) {
         if (isBoolean(newSettings.singular)) {
           // if singular turned off release all queued toasts
           if (!newSettings.singular) {
-            this.queue.forEach(status => {
-              this.$set(this.toasts, this.toasts.length, status);
-            });
-            this.queue = [];
+            for (let i = 0; i < this.settings.maxToasts - 1; i++) {
+              if (!this.queue[i]) {
+                continue;
+              }
+              if (!this.arrayHasType(this.queue[i])) {
+                this.$set(
+                  this.toasts,
+                  this.toasts.length,
+                  this.queue.splice(i, 1)[0]
+                );
+              }
+            }
+            if (isBoolean(temp.orderLatest)) {
+              newSettings.orderLatest = temp.orderLatest;
+              delete temp.orderLatest;
+            }
+            return;
           }
+          temp.orderLatest = oldSettings.orderLatest;
+          newSettings.orderLatest = false;
         }
       },
       deep: true
     },
     toasts: {
       handler: function(newValue) {
-        if (
-          this.settings.singular &&
-          newValue.length === 0 &&
-          this.queue.length !== 0
-        ) {
+        // if there's anything at all in the queue
+        if (this.queue.length !== 0) {
           this.$nextTick(() => {
-            this.$set(this.toasts, this.toasts.length, this.queue.shift());
+            // if singular than oneType and maxToasts isn't a concern
+            if (this.settings.singular) {
+              if (newValue.length === 0) {
+                this.$set(this.toasts, this.toasts.length, {
+                  ...this.queue.shift(),
+                  delayed: true
+                });
+              }
+              return;
+            }
+            if (this.settings.oneType) {
+              return this.queue.forEach((status, index) => {
+                if (
+                  !this.arrayHasType(status) &&
+                  this.toasts.length < this.settings.maxToasts
+                ) {
+                  this.$set(this.toasts, this.toasts.length, {
+                    ...this.queue.splice(index, 1)[0],
+                    delayed: true
+                  });
+                }
+              });
+            }
+            if (this.toasts.length < this.settings.maxToasts) {
+              this.$set(this.toasts, this.toasts.length, {
+                ...this.queue.shift(),
+                delayed: true
+              });
+            }
           });
         }
       },

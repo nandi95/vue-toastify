@@ -90,7 +90,7 @@ export default {
         class: this.baseIconClass
       };
       if (isString(this.icon)) {
-        if (this.icon.includes("<svg")) {
+        if (this.icon.toLowerCase().includes("<svg")) {
           icon.tag = "div";
           icon.ligature = this.icon;
         } else {

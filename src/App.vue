@@ -330,13 +330,13 @@
         </div>
       </div>
       <div class="flex justify-around items-center align-middle flex-wrap my-4">
-        <iframe
-          src="https://ghbtns.com/github-btn.html?user=nandi95&repo=vue-toastify&type=star&count=true&size=large"
-          frameborder="0"
-          scrolling="0"
-          width="180px"
-          height="30px"
-        ></iframe>
+        <!--        <iframe-->
+        <!--          src="https://ghbtns.com/github-btn.html?user=nandi95&repo=vue-toastify&type=star&count=true&size=large"-->
+        <!--          frameborder="0"-->
+        <!--          scrolling="0"-->
+        <!--          width="180px"-->
+        <!--          height="30px"-->
+        <!--        ></iframe>-->
         <button v-if="status.mode === 'loader'" @click="loadStop" class="btn">
           Call .stopLoader()
         </button>
