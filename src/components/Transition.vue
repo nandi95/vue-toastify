@@ -53,11 +53,10 @@ export default {
           parseInt(marginBottom) +
           "px";
       }
-      // absolute position may messes with the width so lets set to initial
+      // absolute position may mess with the width so lets set to initial
       el.style.width = width;
       el.style.position = "absolute";
     },
-    // eslint-disable-next-line no-unused-vars
     beforeEnter(el) {
       // no delay on making space for notification
       this.$el.childNodes.forEach(node => delete node.dataset.delayed);
@@ -66,15 +65,8 @@ export default {
         el.classList.add("vt-move");
         delete el.__vue__.status.delayed;
       }
-
-      // if (el.__vue__.status.delayed) {
-      //   el.dataset.delayed = true;
-      //   el.classList.add("vt-move");
-      //   delete el.__vue__.status.delayed;
-      // }
     },
     afterEnter(el) {
-      el.classList.add("vt-default-position");
       el.removeAttribute("data-delayed");
     },
     beforeLeave(el) {

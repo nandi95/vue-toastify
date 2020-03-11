@@ -230,7 +230,6 @@ export default {
       // copy object
       let toast = Object.assign({}, status); //todo update to deep copy
       // if object doesn't have default values, set them
-      //todo update these to object merger
       toast.duration = this.settings.warningInfoDuration;
       if (Number(status.duration) > 0) {
         toast.duration = Number(status.duration);

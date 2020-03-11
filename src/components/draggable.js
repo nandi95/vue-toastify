@@ -11,20 +11,20 @@ export default {
     if (this.status.draggable) {
       this.$el.addEventListener("touchstart", this.dragStarted);
       this.$el.addEventListener("mousedown", this.dragStarted);
-      this.$el.addEventListener("touchmove", this.beingDragged);
-      this.$el.addEventListener("mousemove", this.beingDragged);
-      this.$el.addEventListener("touchend", this.dragFinished);
-      this.$el.addEventListener("mouseup", this.dragFinished);
+      addEventListener("touchmove", this.beingDragged);
+      addEventListener("mousemove", this.beingDragged);
+      addEventListener("touchend", this.dragFinished);
+      addEventListener("mouseup", this.dragFinished);
     }
   },
   beforeDestroy() {
     if (this.status.draggable) {
       this.$el.removeEventListener("touchstart", this.dragStarted);
       this.$el.removeEventListener("mousedown", this.dragStarted);
-      this.$el.removeEventListener("touchmove", this.beingDragged);
-      this.$el.removeEventListener("mousemove", this.beingDragged);
-      this.$el.removeEventListener("touchend", this.dragFinished);
-      this.$el.removeEventListener("mouseup", this.dragFinished);
+      removeEventListener("touchmove", this.beingDragged);
+      removeEventListener("mousemove", this.beingDragged);
+      removeEventListener("touchend", this.dragFinished);
+      removeEventListener("mouseup", this.dragFinished);
     }
   },
   computed: {
@@ -56,6 +56,7 @@ export default {
   },
   methods: {
     dragStarted(event) {
+      this.$el.classList.toggle("vt-will-change");
       this.isDragged = true;
       this.dragStartPos = { x: this.xPos(event), y: this.yPos(event) };
       this.boundingClientRect = this.$el.getBoundingClientRect();
@@ -96,6 +97,7 @@ export default {
         setTimeout(() => {
           this.dragPos = {};
           this.dragStartPos = {};
+          this.$el.classList.toggle("vt-will-change");
         });
       }
     },

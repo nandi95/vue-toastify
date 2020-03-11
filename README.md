@@ -38,6 +38,7 @@ or with CDNs:
 In your main js file:
 
 ```javascript
+import VueToastify from "vue-toastify";
 Vue.use(VueToastify);
 ```
  Then anywhere just call:
@@ -113,7 +114,7 @@ You may additionally overwrite the following plugin settings on a notification b
 - `canTimeout`
 - `canPause`
 - `defaultTitle`
-- `duration`  - The time the notification is displayed in milliseconds. (this cannot be updated later)
+- `duration` - The time the notification is displayed in milliseconds regardless of its type. (this cannot be updated later)
 - `theme`
 - `hideProgressbar`
 - `transition`

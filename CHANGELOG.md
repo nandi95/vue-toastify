@@ -1,3 +1,10 @@
+*v1.6.1* *11/03/2020*
+ 
+ Fix:
+ - Drag behavior fixed to the toast not only the parent element.
+ - Added will change optimisation to dragging.
+ 
+***
 
 **v1.6.0** *10/03/2020*
 

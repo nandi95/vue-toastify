@@ -1,11 +1,14 @@
-import { mount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import VueToastify from "@/components/VueToastify.vue";
 
 describe("VueToastify.vue", () => {
-  const wrapper = mount(VueToastify);
   it("updates settings", () => {
     // Arrange
-    expect(wrapper.attributes().singular).toBe(false);
+    const wrapper = shallowMount(VueToastify, {
+      propsData: {
+        singular: false
+      }
+    });
 
     // Act
     wrapper.vm.setSettings({ singular: true });

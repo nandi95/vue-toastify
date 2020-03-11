@@ -31,6 +31,7 @@
 }
 // You may reorganise the items with the order rule
 .vt-notification {
+  transition: transform 100ms ease; // This ensures that on drag the notification slides back to its original position
   box-sizing: border-box;
   pointer-events: auto;
   box-shadow: 0 0 10px 0.5px rgba(0, 0, 0, 0.35);
@@ -120,19 +121,18 @@
     margin: 0;
   }
 }
+.vt-will-change {
+  will-change: transform, opacity;
+}
+
 // This controls how the notification should move when others are added/removed
 .vt-move {
   transition-timing-function: ease-in-out;
   transition-property: all;
-  transition-duration: 200ms !important; // important to overwrite the .vt-default-position
+  transition-duration: 200ms;
   &[data-delayed="true"] {
     transition-delay: 200ms !important; // this should be set to the same as the transition leave duration
   }
-}
-// This ensures that on drag the notification slides back to its original position
-.vt-default-position {
-  transform: translateX(0);
-  transition: all 100ms ease;
 }
 .vt-spinner {
   width: 60px;
