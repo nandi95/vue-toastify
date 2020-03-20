@@ -1,3 +1,7 @@
+upcoming - *added a return to the stopLoader (count of loaders stopped)
+fix set() if get returns false
+getSettings now can return a single setting*
+
 *v1.6.1* *11/03/2020*
  
  Fix:

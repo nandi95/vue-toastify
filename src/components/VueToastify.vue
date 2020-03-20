@@ -84,7 +84,7 @@ export default {
     theme: { type: String, default: "dark" },
     baseIconClass: { type: String, default: "" },
     orderLatest: { type: Boolean, default: true },
-    transition: { type: [String, Object], default: null },
+    transition: { type: [String, Object], default: () => {} },
     oneType: { type: Boolean, default: false },
     maxToasts: { type: Number, default: 6 }
   },
@@ -118,7 +118,7 @@ export default {
   },
   mounted() {
     this.setSettings();
-    // listen for notification event
+    // listen for notification events
     this.$root.$on(
       ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
       payload => {
@@ -127,6 +127,7 @@ export default {
         }
       }
     );
+    // if there is a notification assigned to the window
     if (
       window.notification &&
       window.notification.type &&
@@ -139,17 +140,36 @@ export default {
     }
   },
   methods: {
-    // Internal methods
+    //---Internal methods---//
+    /**
+     * Find the toast with the given id in the toasts
+     * and return its index from the array
+     *
+     * @return {Number}
+     */
     findToast(id) {
       return this.toasts.findIndex(toast => {
         return toast.id === id;
       });
     },
+
+    /**
+     * Find the toast with the given id in the queue
+     * and return its index from the array
+     *
+     * @return {Number}
+     */
     findQueuedToast(id) {
       return this.queue.findIndex(toast => {
         return toast.id === id;
       });
     },
+
+    /**
+     * Returns a UUID.
+     *
+     * @returns {String}
+     */
     uuidv4() {
       return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
         (
@@ -158,6 +178,14 @@ export default {
         ).toString(16)
       );
     },
+
+    /**
+     * Figure out the title from the status object.
+     *
+     * @param {Object} status
+     *
+     * @return {String}
+     */
     getTitle(status) {
       if (status.title) {
         return status.title;
@@ -184,6 +212,14 @@ export default {
       }
       return "Info";
     },
+
+    /**
+     * Check if the toast already is being displayed.
+     *
+     * @param {Object} status
+     *
+     * @return {Boolean}
+     */
     arrayHasType(status) {
       return !!this.toasts.find(
         toast =>
@@ -192,7 +228,16 @@ export default {
       );
     },
 
-    // API methods
+    //---API methods---//
+    /**
+     * Merges the passed in settings where the key exists
+     * in the original. If no argument merge refresh
+     * from the original settings.
+     *
+     * @param {Object} settings
+     *
+     * @return {Object}
+     */
     setSettings(settings = null) {
       if (settings) {
         Object.keys(this.settings).forEach(key => {
@@ -205,9 +250,29 @@ export default {
       }
       return this.settings;
     },
-    getSettings() {
-      return this.settings;
+
+    /**
+     * If argument set return the given setting,
+     * else return the settings object.
+     *
+     * @param {String} setting
+     *
+     * @return {Object|*}
+     */
+    getSettings(setting = null) {
+      return this.settings[setting] ? this.settings[setting] : this.settings;
     },
+
+    /**
+     * Dismiss the loader for the given ids
+     * or all of the loaders. Return
+     * the count of the dismissed
+     * loaders.
+     *
+     * @param {String|String[]} id
+     *
+     * @return {Number}
+     */
     stopLoader(id = null) {
       let ids = id;
       if (typeof id === "string") {
@@ -225,7 +290,19 @@ export default {
       ids.forEach(id => {
         this.$root.$emit("vtLoadStop", { id: id });
       });
+      return ids.length;
     },
+
+    /**
+     * Add a new toast object to the toasts
+     * or queue respectively with all
+     * the parameters assigned.
+     * Return the uuid.
+     *
+     * @param {Object} status
+     *
+     * @return {String}
+     */
     add(status) {
       // copy object
       let toast = Object.assign({}, status); //todo update to deep copy
@@ -288,6 +365,17 @@ export default {
       this.$set(this.toasts, this.toasts.length, toast);
       return toast.id;
     },
+
+    /**
+     * Find the toast from the toast
+     * or the queue, if not found
+     * return false, otherwise
+     * return all.
+     *
+     * @param {String} id
+     *
+     * @return {Boolean|Object|Object[]}
+     */
     get(id = null) {
       if (id) {
         let toast = this.toasts.find(toast => {
@@ -305,9 +393,21 @@ export default {
       }
       return this.toasts.concat(this.queue);
     },
+
+    /**
+     * Update a toast by merging the
+     * argument and the existing status.
+     * Returns whether the update was
+     * successful or not.
+     *
+     * @param {String} id
+     * @param {Object} status
+     *
+     * @return {Boolean}
+     */
     set(id, status) {
       let toast = this.get(id);
-      if (toast instanceof Array) {
+      if (!toast || toast instanceof Array) {
         return false;
       }
       if (this.findToast(id) !== -1) {
@@ -325,6 +425,17 @@ export default {
       );
       return true;
     },
+
+    /**
+     * If id giver, removes the corresponding
+     * toast else remove all. If id not
+     * found returns false, otherwise
+     * an array of ids currently
+     * visible to the user.
+     *
+     * @param {String} id
+     * @return {Boolean|Array}
+     */
     remove(id = null) {
       if (id) {
         let index = this.findQueuedToast(id);
@@ -344,6 +455,12 @@ export default {
     }
   },
   computed: {
+    /**
+     * Return the appropriate transition
+     * based on the position.
+     *
+     * @return {String}
+     */
     getTransition: function() {
       if (this.settings.transition) {
         return this.settings.transition;
@@ -357,6 +474,13 @@ export default {
       }
       return "vt-right";
     },
+
+    /**
+     * Return a style object for determining
+     * the toasts order.
+     *
+     * @return {Object}
+     */
     flexDirection: function() {
       return {
         "flex-direction":
@@ -366,6 +490,13 @@ export default {
             : "column-reverse"
       };
     },
+
+    /**
+     * Return the appropriate classes
+     * based on the position.
+     *
+     * @return {Object}
+     */
     positionClasses: function() {
       const position = this.settings.position.split("-");
       let classes = {};
@@ -381,6 +512,12 @@ export default {
       ] = true;
       return classes;
     },
+
+    /**
+     * Returns the ids of all the toasts
+     * currently visible to the user.
+     * @return {String[]}
+     */
     currentlyShowing: function() {
       return this.toasts.map(toast => toast.id);
     }

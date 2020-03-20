@@ -121,8 +121,8 @@ const VueToastify = {
       setSettings(settings) {
         return ToastContainer.setSettings(settings);
       },
-      getSettings() {
-        return ToastContainer.getSettings();
+      getSettings(setting = null) {
+        return ToastContainer.getSettings(setting);
       },
       listen(event, callback) {
         return ToastContainer.$on(event, payload => callback(payload));

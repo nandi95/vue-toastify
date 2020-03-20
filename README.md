@@ -58,7 +58,7 @@ Vue.use(VueToastify, {
 or change any of the settings during run-time with the following
  
 ```javascript
-this.vToastify.setSettings(settingsObject);
+this.$vToastify.setSettings(settingsObject);
 ```
 This will return the current settings after the updates.
 

@@ -1,19 +1,24 @@
-import { shallowMount } from "@vue/test-utils";
-import VueToastify from "@/components/VueToastify.vue";
+import Vue from "vue";
+import ToastContainer from "@/components/VueToastify.vue";
+import VueToastify from "../../src/VueToastify";
+import { mount, createLocalVue } from "@vue/test-utils";
 
-describe("VueToastify.vue", () => {
+Vue.use(VueToastify);
+const vm = new Vue({
+  template: "<body></body>"
+});
+
+describe("VueToastify.js", () => {
   it("updates settings", () => {
     // Arrange
-    const wrapper = shallowMount(VueToastify, {
-      propsData: {
-        singular: false
-      }
-    });
+    const wrapper = mount(ToastContainer, { vm });
 
     // Act
-    wrapper.vm.setSettings({ singular: true });
+    vm.$vToastify.setSettings({ singular: true });
+    console.log(wrapper.vm.singular);
 
     // Assert
-    expect(wrapper.attributes("singular")).toBe(true);
+    // expect(wrapper.singular).toBe(true);
+    expect(vm.$vToastify.getSettings().singular).toBe(true);
   });
 });
