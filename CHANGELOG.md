@@ -1,6 +1,13 @@
-upcoming - *added a return to the stopLoader (count of loaders stopped)
-fix set() if get returns false
-getSettings now can return a single setting*
+**v1.7.0** *28/03/2020*
+
+ Feature:
+ - Added vue router support to the `url` setting.
+ - `getSettings()` can now return a single setting's value, given the key.
+ 
+ Fix:
+ - `changeToast` now returns `false` as expected when the toast isn't found. 
+ 
+***
 
 *v1.6.1* *11/03/2020*
  

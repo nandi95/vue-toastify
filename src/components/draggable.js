@@ -73,8 +73,7 @@ export default {
                 this.dragPos = { x: this.xPos(event), y: this.yPos(event) };
             }
         },
-        // eslint-disable-next-line no-unused-vars
-        dragFinished(event) {
+        dragFinished() {
             if (this.hasMoved) {
                 this.$root.$emit("vtDragFinished", { id: this.status.id });
                 // todo if at least 75% of the notification is out of the window (in case of mobile)

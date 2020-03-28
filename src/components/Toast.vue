@@ -5,7 +5,7 @@
         class="vt-notification"
         :style="draggableStyles"
         :class="notificationClass"
-        @click="dismiss()"
+        draggable="false"
         @mouseenter="isHovered = true"
         @mouseleave="isHovered = false"
         @touchstart="isHovered = true"
@@ -47,6 +47,8 @@
 import ProgressBar from "./ProgressBar.vue";
 import Icon from "./Icon.vue";
 import draggable from "./draggable.js";
+import linkable from "./linkable";
+
 export default {
     name: "Toast",
     components: { ProgressBar, Icon },
@@ -54,14 +56,14 @@ export default {
         status: { type: Object },
         baseIconClass: { type: String, default: "" }
     },
-    mixins: [draggable],
+    mixins: [draggable, linkable],
     data() {
         return {
             isHovered: false
         };
     },
     mounted() {
-        //if there is an initial notification
+        this.$el.addEventListener("click", this.dismiss);
         if (this.status.mode === "loader") {
             this.$root.$once("vtLoadStop", payload => {
                 //if all loaders should stop or only this
@@ -76,32 +78,9 @@ export default {
         }
     },
     computed: {
-        tag() {
-            if (!this.status.url || this.status.url.length === 0) {
-                return "div";
-            }
-            // if (this.hasRouter && this.status.url.length > 0) { // todo = notification doesn't show if has router
-            //   return "router-link";
-            // }
-            return "a";
-        },
-        urlTarget() {
-            if (!this.status.url || this.status.url.length === 0) {
-                return {};
-            }
-            // if (this.hasRouter) {
-            //   return { to: this.status.url };
-            // }
-            return { href: this.status.url };
-        },
-        // hasRouter() {
-        //   return !!this.$root.$options._base._installedPlugins.find(entry => {
-        //     return entry.hasOwnProperty("name") && entry.name === "VueRouter";
-        //   });
-        // }
         notificationClass() {
             let obj = {};
-            if (this.status.url && this.status.url.length > 0) {
+            if (this.hasUrl) {
                 obj["vt-cursor-pointer"] = true;
             } else if (this.status.mode === "loader") {
                 obj["vt-cursor-wait"] = true;
@@ -132,10 +111,11 @@ export default {
                 this.status.callback ? this.status.callback() : null;
             }
         },
-        dismiss() {
+        dismiss(event) {
             if (this.isNotification && !this.hasMoved) {
                 this.closeNotification();
             }
+            this.handleRedirect(event);
         },
         respond(response) {
             this.closeNotification();
@@ -144,6 +124,9 @@ export default {
                 response: response
             });
         }
+    },
+    beforeDestroy() {
+        this.$el.removeEventListener("click", this.dismiss);
     }
 };
 </script>

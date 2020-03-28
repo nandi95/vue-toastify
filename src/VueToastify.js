@@ -1,9 +1,13 @@
 import { default as vToastify } from "./components/VueToastify.vue";
 
 const VueToastify = {
-    install(Vue, settings = {}) {
+    install(Vue, settings = {}, router = null) {
         let Constructor = Vue.extend(vToastify);
         let ToastContainer = new Constructor();
+
+        if (router) {
+            Vue.prototype.$vtRouter = router;
+        }
 
         ToastContainer._props = Object.assign(ToastContainer._props, settings);
 

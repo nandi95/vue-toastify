@@ -62,6 +62,14 @@ this.$vToastify.setSettings(settingsObject);
 ```
 This will return the current settings after the updates.
 
+
+To use the vue router supported features pass in the router to the use statement as the 3rd argument like so:
+```javascript
+import routerLoadedWithRoutes from "./router";
+
+Vue.use(VueToastify, {}, routerLoadedWithRoutes);
+```
+
 ### Available settings
 
  setting | type | default | details |
@@ -79,13 +87,20 @@ This will return the current settings after the updates.
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
 | theme | String | "dark" | What theme should be displaying. By default there's `light` and `dark`. |
 | orderLatest | Boolean | true | Whether new notifications should display on top of the stack or not. |
-| transition | String/Object | null | If string supplied this will apply the usual transition classes (eg.: .name-enter-active), if object supplied it expect a `name` and optionally a `moveClass` (this class has to use `!important` for its rules) attribute. The name will be applied as above. The move class applied when the notifications adjust their position. |
+| transition | String / Object | null | If string supplied this will apply the usual transition classes (eg.: .name-enter-active), if object supplied it expect a `name` and optionally a `moveClass` (this class has to use `!important` for its rules) attribute. The name will be applied as above. The move class applied when the notifications adjust their position. |
 | iconEnabled | Boolean | true | If set to false, no icon will be shown on the notification. |
 | draggable | Boolean | true | Whether to enable dismissing the notification by dragging or not. |
 | dragThreshold | Number | 0.75 | A number between 0 - 5 representing how far the notification should be dragged to dismiss. |
 | baseIconClass | String | null | If string is set, this will be appended to every user supplied icon's class. |
 | maxToasts | Number | 6 | Defines how many toasts should be visible at a time. Others are queued. |
 | oneType | Boolean | false | If turned on, only toasts with unique mode/type will be show. Others are queued. |
+
+To fetch the current setting you may run the following which will return all the settings.
+
+```javascript
+this.$vToastify.getSettings();
+```
+You may optionally pass an argument to the above to only get the value for that key.
 
 ## Status
 You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
@@ -104,7 +119,7 @@ The following properties can be set on the object:
 | title | String | Enables pausing of the loader and the timeout on hover. |
 | type | String | Defines what notification type should be showing available types: `"success"`, `"warning"`, `"info"`, `"error"` defaults to `"success"`. This can only be set if you're using `this.$vtNotify()` Alternatively you may use the methods: `this.$vToastify.warning("more readable")` |
 | mode | String | If set the notification will be shown in the given mode: `loader`, `prompt`. Alternatively you may use the methods: `this.$vToastify.loader("more readable")`  |
-| url | String | If set, clicking on the notification will take the user to the given location (does not support vue router yet) |
+| url | String / Object | If set, clicking on the notification will take the user to the given location. If its a string and used with router and route not found this will be ignored. If giving an object then you can either define attributes of the anchor tag like: `{ href: "https//google.com", target="_blank" }` or pass the object you would pass to the `router.push()` function. |
 | icon | String / Object | If set, this will be displayed instead of the default icons. If is a string the string will be assigned to the class unless it is an svg. If it is an object it may take the following attributes `{ tag: "i", ligature: "", icon: "" }` |
 | answers | Object| If the type is prompt the object keys will display to the user and the value will be returned in the promise. It defaults to `{ Yes: true, No: false }` (Note: to include special characters like space, `-`, `_`, etc use quotation marks: `"my key":` |
 | callback | Function | This function will be called when the notification has been dismissed or the timeout has finished. |
@@ -176,7 +191,7 @@ A loader cannot be dismissed, you'll have to stop the loader yourself like so:
 ```javascript
 this.$vToastify.stopLoader(id)
 ```
-This will stops the loader with the given id or loaders if array of ids given. If no id provided, all loaders will be closed.
+This will stops the loader with the given id or loaders if array of ids given. If no id provided, all loaders will be closed. It will return the count of the loaders stopped.
 
 
 For returning a notification object use:
@@ -234,13 +249,9 @@ Default styles maybe overridden with `!important`. To add custom styles you all 
 
 - Add ability to display notifications simultaneously at different locations
 
-- Increase test coverage
-
-- add SPA support for the url attribute
+- Create docs site
 
 - Accept components as content or as icon
-
-- Re-write in TypeScript and use the vue core's `validateProps()`, rewrite for vue 3
 
 - Get url props on the answers object for redirecting on click of the button
 
@@ -251,6 +262,12 @@ Default styles maybe overridden with `!important`. To add custom styles you all 
 - Set styles as an external stylesheet
 
 - `setSettings` to return boolean.
+
+- `url` to only accept an object
+
+- Rewrite in Typescript (+ status object to be a class)
+
+- Build as TDD
 
 ## Alternatives
 

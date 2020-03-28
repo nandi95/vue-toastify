@@ -29,9 +29,10 @@
 </template>
 
 <script>
+// todo backdrop to transition with dragging if that's the only one left in the toasts and next isn't queued?
 // todo: create 3 containers and create a manager that manages the queue to push to the correct container (each container having 3 positions) ( position will be held on the status ) this will allow for separated transitions
 import Toast from "./Toast.vue";
-import { between, isBoolean } from "../js/utils";
+import { isBetween, isBoolean } from "../js/utils";
 import Transition from "./Transition.vue";
 
 let temp = {};
@@ -76,7 +77,7 @@ export default {
         dragThreshold: {
             type: Number,
             default: 0.75,
-            validator: value => between(0, 5, value)
+            validator: value => isBetween(value, 0, 5)
         },
         hideProgressbar: { type: Boolean, default: false },
         errorDuration: { type: Number, default: 8000 },
@@ -355,7 +356,7 @@ export default {
             } else {
                 toast.draggable = false;
             }
-            toast.dragThreshold = between(0, 5, status.dragThreshold)
+            toast.dragThreshold = isBetween(status.dragThreshold, 0, 5)
                 ? status.dragThreshold
                 : this.settings.dragThreshold;
             if (status.mode === "prompt" || status.mode === "loader") {
@@ -366,7 +367,7 @@ export default {
             if (
                 // if singular and there's 1 already showing
                 (this.settings.singular && this.toasts.length > 0) ||
-                // if oneType turned on that type already showing
+                // if oneType turned on and that type already showing
                 (this.settings.oneType && this.arrayHasType(toast)) ||
                 // if it would exceed the max number of displayed toasts
                 this.toasts.length >= this.settings.maxToasts
