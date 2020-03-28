@@ -9,5 +9,5 @@ Vue.config.performance = true;
 Vue.use(VueToastify);
 
 new Vue({
-  render: h => h(App)
+    render: h => h(App)
 }).$mount("#app");
