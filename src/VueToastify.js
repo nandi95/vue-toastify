@@ -19,7 +19,7 @@ const VueToastify = {
             window.Vue.use(ToastContainer);
         }
 
-        const vtNotify = (Vue.prototype.$vtNotify = (status, title = null) => {
+        const vtNotify = (status, title = null) => {
             if (typeof status === "string") {
                 status = {
                     body: status
@@ -32,8 +32,8 @@ const VueToastify = {
                 status.type = "success";
             }
             return ToastContainer.add(status);
-        });
-        Vue.prototype.$vToastify = {
+        };
+        const toastify = {
             success(status, title = null) {
                 return vtNotify(status, title);
             },
@@ -143,7 +143,7 @@ const VueToastify = {
             Object.entries(settings.customNotifications).length > 0
         ) {
             Object.entries(settings.customNotifications).forEach(keyValArr => {
-                Object.defineProperty(Vue.prototype.$vToastify, keyValArr[0], {
+                Object.defineProperty(toastify, keyValArr[0], {
                     get() {
                         return (status, title = null) => {
                             let toast = {};
@@ -162,6 +162,11 @@ const VueToastify = {
                 });
             });
         }
+
+        Vue.prototype.$vtNotify = vtNotify;
+        Vue.$vtNotify = vtNotify;
+        Vue.prototype.$vToastify = toastify;
+        Vue.$vToastify = toastify;
     }
 };
 

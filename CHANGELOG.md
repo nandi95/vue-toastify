@@ -1,3 +1,12 @@
+**v1.8.0** *05/05/2020*
+
+ Feature:
+ - Added a new event for when the notification is being dragged.
+ - Drag event payloads now also include position of the notification.
+ - Added toastify to the vue as static method for easier handling in vuex.
+ 
+***
+
 **v1.7.0** *28/03/2020*
 
  Feature:

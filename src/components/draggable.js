@@ -67,15 +67,26 @@ export default {
             // prevent page scroll
             event.preventDefault();
             if (this.isDragged) {
-                if (!this.hasMoved) {
-                    this.$root.$emit("vtDragStarted", { id: this.status.id });
-                }
                 this.dragPos = { x: this.xPos(event), y: this.yPos(event) };
+                if (!this.hasMoved) {
+                    this.$root.$emit("vtDragStarted", {
+                        id: this.status.id,
+                        position: this.dragStartPos
+                    });
+                } else {
+                    this.$root.$emit("vtBeingDragged", {
+                        id: this.status.id,
+                        position: this.dragPos
+                    });
+                }
             }
         },
         dragFinished() {
             if (this.hasMoved) {
-                this.$root.$emit("vtDragFinished", { id: this.status.id });
+                this.$root.$emit("vtDragFinished", {
+                    id: this.status.id,
+                    position: this.dragPos
+                });
                 // todo if at least 75% of the notification is out of the window (in case of mobile)
                 // eslint-disable-next-line no-unused-vars
                 const isAlmostOffRight =

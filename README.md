@@ -20,6 +20,9 @@ Requires Vue 2.2.0+
   - [Customisation](#customisation)
     - [Extending functionality](#extending-the-functionality)
     - [Extending styles](#extending-the-styles)
+  - [Usage](#usage)
+    - [Basic](#basic-usage)
+    - [Vuex](#vuex-usage)
   - [Todos](#todos)
   - [Alternatives](#alternatives)
 
@@ -129,7 +132,7 @@ You may additionally overwrite the following plugin settings on a notification b
 - `canTimeout`
 - `canPause`
 - `defaultTitle`
-- `duration` - The time the notification is displayed in milliseconds regardless of its type. (this cannot be updated later)
+- `duration` - The time the notification is displayed for in milliseconds regardless of its type. (this cannot be updated later)
 - `theme`
 - `hideProgressbar`
 - `transition`
@@ -178,12 +181,14 @@ There are various events are emitted by the notification:
  - `vtPaused`
  - `vtResumed`
  - `vtDragStarted`
+ - `vtBeingDragged`
  - `vtDragFinished`
  
- to which you can listen by either the `listen` or the `listenOnce` methods. The event's payload is an object containing the notification's id:
+ to which you can listen by either the `listen` or the `listenOnce` method. The event's payload is an object containing the notification's id:
 ```javascript
 this.$vToastify.listen("vtDismissed", payload => console.log(payload.id))
 ```
+The drag events will also include a property called `position` which is an object of `{ x: Integer, y: Integer }` where x is left and y is top offset in pixels from the client view port.
 
 ### Miscellaous methods:
 
@@ -244,6 +249,34 @@ or as usual pass in an object which will merge with the predefined props.
 ### Extending the styles
 
 Default styles maybe overridden with `!important`. To add custom styles you all you have to do is follow the example in `./src/assets/toast.scss` and add your custom styles. Once added rename `.vt-theme-dark` to `.vt-theme-my-custom-name` and in the settings or the status object pass the theme as `theme: "my-custom-name"`. Include this stylesheet in the project and you're good to go.
+
+## Usage
+### Basic usage
+In your main js file:
+
+```javascript
+import VueToastify from "vue-toastify";
+
+Vue.use(VueToastify);
+```
+ Then anywhere just call:
+```javascript
+this.$vToastify.info("Easy as that");
+```
+
+### Vuex usage
+```javascript
+import Vue from "vue";
+
+const mutations = {
+  updateValue(state, value) {
+    state.value = value;
+    Vue.$vToastify("Successfully updated value!");
+    // OR
+    this._vm.$vToastify("Successfully updated value!")
+  }
+};
+```
  
 ## Todos
 
