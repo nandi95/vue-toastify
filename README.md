@@ -271,9 +271,9 @@ import Vue from "vue";
 const mutations = {
   updateValue(state, value) {
     state.value = value;
-    Vue.$vToastify("Successfully updated value!");
+    Vue.$vToastify.success("Successfully updated value!");
     // OR
-    this._vm.$vToastify("Successfully updated value!")
+    this._vm.$vToastify.success("Successfully updated value!")
   }
 };
 ```
