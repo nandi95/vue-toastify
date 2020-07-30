@@ -4,6 +4,10 @@
 [![downloads](https://badgen.net/npm/dm/vue-toastify)](https://www.npmjs.com/package/vue-toastify)
 ![minzipped size](https://badgen.net/bundlephobia/minzip/vue-toastify)
 
+<p align="center">
+<img src="https://madewithnetwork.ams3.cdn.digitaloceanspaces.com/spatie-space-production/9895/vue-toastify.jpg">
+</p>
+
 I wanted a notification plugin which I can use by passing props from the server and can also be called at run time. With this component it's has just become super easy. It's easily extendable and customizable and it has no dependencies.
 
 Check it out at [Netlify](https://vue-toastify.netlify.com/)
