@@ -4,6 +4,7 @@
 //
 // To get the plain CSS rules just plug
 // it into an online converter
+@use "sass:math";
 
 .vt-success {
   & > .vt-icon > svg {
@@ -179,13 +180,13 @@
 
   @each $name, $value in $colors {
     $adjusted: 0;
-    $value: $value / 255;
+    $value: math.div($value, 255);
 
     @if $value < 0.03928 {
-      $value: $value / 12.92;
+      $value: math.div($value, 12.92);
     } @else {
-      $value: ($value + .055) / 1.055;
-      $value: pow($value, 2.4);
+      $value: math.div($value + .055, 1.055);
+      $value: math.pow($value, 2.4);
     }
 
     $colors: map-merge($colors, ($name: $value));
