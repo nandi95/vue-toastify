@@ -29,10 +29,7 @@ export default {
     },
     computed: {
         hasMoved() {
-            return (
-                this.dragPos.x !== undefined &&
-                this.dragStartPos.x !== this.dragPos.x
-            );
+            return this.dragPos.x !== undefined && this.dragStartPos.x !== this.dragPos.x;
         },
         dragXDistance() {
             return this.isDragged ? this.dragPos.x - this.dragStartPos.x : 0;
@@ -45,8 +42,7 @@ export default {
                 return {};
             }
 
-            let opacity =
-                1 - Math.abs(this.dragXDistance / this.removalDistance);
+            let opacity = 1 - Math.abs(this.dragXDistance / this.removalDistance);
             opacity = isNaN(opacity) ? 1 : opacity;
 
             return {
@@ -90,19 +86,15 @@ export default {
                 // todo if at least 75% of the notification is out of the window (in case of mobile)
                 // eslint-disable-next-line no-unused-vars
                 const isAlmostOffRight =
-                    this.$el.getBoundingClientRect().right >
-                        window.innerWidth &&
+                    this.$el.getBoundingClientRect().right > window.innerWidth &&
                     this.$el.getBoundingClientRect().right - window.innerWidth >
                         this.boundingClientRect.width * 0.75;
                 // eslint-disable-next-line no-unused-vars
                 const isAlmostOffLeft =
-                    this.$el.getBoundingClientRect().right <
-                    this.boundingClientRect.width * 0.25;
+                    this.$el.getBoundingClientRect().right < this.boundingClientRect.width * 0.25;
                 if (
-                    Math.abs(
-                        this.boundingClientRect.left -
-                            this.$el.getBoundingClientRect().left
-                    ) > this.removalDistance
+                    Math.abs(this.boundingClientRect.left - this.$el.getBoundingClientRect().left) >
+                    this.removalDistance
                 ) {
                     this.closeNotification();
                 }

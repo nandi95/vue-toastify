@@ -1,7 +1,7 @@
 <template>
     <transition-group
         :name="transition.name ? transition.name : transition"
-        v-bind:css="true"
+        :css="true"
         tag="div"
         :move-class="transition.moveClass ? transition.moveClass : 'vt-move'"
         @leave="leave"
@@ -25,8 +25,7 @@ export default {
         leave(el) {
             if (
                 this.$parent.singular ||
-                (this.$parent.oneType &&
-                    this.$parent.$el.childNodes.length === 1)
+                (this.$parent.oneType && this.$parent.$el.childNodes.length === 1)
             ) {
                 return;
             }
@@ -49,10 +48,7 @@ export default {
             }
             if (position[0] === "bottom") {
                 el.style.top =
-                    parseInt(el.style.top) -
-                    parseInt(height) -
-                    parseInt(marginBottom) +
-                    "px";
+                    parseInt(el.style.top) - parseInt(height) - parseInt(marginBottom) + "px";
             }
             // absolute position may mess with the width so lets set to initial
             el.style.width = width;

@@ -4,8 +4,7 @@
             v-cloak
             class="vt-backdrop-hidden"
             :class="{
-                'vt-backdrop-visible':
-                    toasts.length > 0 && settings.withBackdrop
+                'vt-backdrop-visible': toasts.length > 0 && settings.withBackdrop
             }"
             :style="{
                 backgroundColor: settings.backdrop
@@ -20,7 +19,7 @@
         >
             <Toast
                 v-for="status in toasts"
-                v-bind:key="status.id"
+                :key="status.id"
                 :status="status"
                 :base-icon-class="settings.baseIconClass"
             />
@@ -51,7 +50,7 @@ export default {
             default: "rgba(0, 0, 0, 0.2)"
         },
         position: {
-            validator: function(value) {
+            validator: function (value) {
                 // The value must match one of these strings
                 return (
                     [
@@ -118,30 +117,157 @@ export default {
             }
         };
     },
+    computed: {
+        /**
+         * Return the appropriate transition
+         * based on the position.
+         *
+         * @return {String}
+         */
+        getTransition: function () {
+            if (this.settings.transition) {
+                return this.settings.transition;
+            }
+            const position = this.settings.position.split("-");
+            if (position[1] === "left") {
+                return "vt-left";
+            }
+            if (position[1] === "center") {
+                return "vt-" + position[0];
+            }
+            return "vt-right";
+        },
+
+        /**
+         * Return a style object for determining
+         * the toasts order.
+         *
+         * @return {Object}
+         */
+        flexDirection: function () {
+            return {
+                "flex-direction":
+                    this.settings.orderLatest && this.settings.position.split("-")[0] === "bottom"
+                        ? "column"
+                        : "column-reverse"
+            };
+        },
+
+        /**
+         * Return the appropriate classes
+         * based on the position.
+         *
+         * @return {Object}
+         */
+        positionClasses: function () {
+            const position = this.settings.position.split("-");
+            let classes = {};
+            if (position[0] === position[1]) {
+                classes["vt-center-center"] = true;
+                return classes;
+            }
+            classes[position[0] === "center" ? "vt-centerY" : "vt-" + position[0]] = true;
+            classes[position[1] === "center" ? "vt-centerX" : "vt-" + position[1]] = true;
+            return classes;
+        },
+
+        /**
+         * Returns the ids of all the toasts
+         * currently visible to the user.
+         * @return {String[]}
+         */
+        currentlyShowing: function () {
+            return this.toasts.map(toast => toast.id);
+        }
+    },
+    watch: {
+        settings: {
+            handler: function (newSettings, oldSettings) {
+                if (isBoolean(newSettings.singular)) {
+                    // if singular turned off release all queued toasts
+                    if (!newSettings.singular) {
+                        for (let i = 0; i < this.settings.maxToasts - 1; i++) {
+                            if (!this.queue[i]) {
+                                continue;
+                            }
+                            if (!this.arrayHasType(this.queue[i])) {
+                                this.$set(
+                                    this.toasts,
+                                    this.toasts.length,
+                                    this.queue.splice(i, 1)[0]
+                                );
+                            }
+                        }
+                        if (isBoolean(temp.orderLatest)) {
+                            newSettings.orderLatest = temp.orderLatest;
+                            delete temp.orderLatest;
+                        }
+                        return;
+                    }
+                    temp.orderLatest = oldSettings.orderLatest;
+                    newSettings.orderLatest = false;
+                }
+            },
+            deep: true
+        },
+        toasts: {
+            handler: function (newValue) {
+                // if there's anything at all in the queue
+                if (this.queue.length !== 0) {
+                    this.$nextTick(() => {
+                        // if singular than oneType and maxToasts isn't a concern
+                        if (this.settings.singular) {
+                            if (newValue.length === 0) {
+                                this.$set(this.toasts, this.toasts.length, {
+                                    ...this.queue.shift(),
+                                    delayed: true
+                                });
+                            }
+                            return;
+                        }
+                        if (this.settings.oneType) {
+                            return this.queue.forEach((status, index) => {
+                                if (
+                                    !this.arrayHasType(status) &&
+                                    this.toasts.length < this.settings.maxToasts
+                                ) {
+                                    this.$set(this.toasts, this.toasts.length, {
+                                        ...this.queue.splice(index, 1)[0],
+                                        delayed: true
+                                    });
+                                }
+                            });
+                        }
+                        if (this.toasts.length < this.settings.maxToasts) {
+                            this.$set(this.toasts, this.toasts.length, {
+                                ...this.queue.shift(),
+                                delayed: true
+                            });
+                        }
+                    });
+                }
+            },
+            deep: true
+        }
+    },
     mounted() {
         this.setSettings();
         // listen for notification events
-        this.$root.$on(
-            ["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"],
-            payload => {
-                if (typeof payload.id === "string") {
-                    this.remove(payload.id);
-                }
+        this.$root.$on(["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"], payload => {
+            if (typeof payload.id === "string") {
+                this.remove(payload.id);
             }
-        );
+        });
         // if there is a notification assigned to the window
-        if (
-            window.notification &&
-            window.notification.type &&
-            window.notification.body
-        ) {
-            const delay = window.notification.delay
-                ? window.notification.delay
-                : 0;
+        if (window.notification && window.notification.type && window.notification.body) {
+            const delay = window.notification.delay ? window.notification.delay : 0;
             setTimeout(() => {
                 this.add(window.notification);
             }, delay);
         }
+    },
+    beforeDestroy() {
+        this.$root.$off(["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"]);
     },
     methods: {
         //---Internal methods---//
@@ -176,11 +302,7 @@ export default {
          */
         uuidv4() {
             return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                (
-                    c ^
-                    (crypto.getRandomValues(new Uint8Array(1))[0] &
-                        (15 >> (c / 4)))
-                ).toString(16)
+                (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
             );
         },
 
@@ -201,10 +323,7 @@ export default {
                         return "";
                     }
                     if (status.type) {
-                        return (
-                            status.type.charAt(0).toUpperCase() +
-                            status.type.slice(1)
-                        );
+                        return status.type.charAt(0).toUpperCase() + status.type.slice(1);
                     }
                 } else {
                     return "";
@@ -215,10 +334,7 @@ export default {
                     return "";
                 }
                 if (status.type) {
-                    return (
-                        status.type.charAt(0).toUpperCase() +
-                        status.type.slice(1)
-                    );
+                    return status.type.charAt(0).toUpperCase() + status.type.slice(1);
                 }
             }
             return "Info";
@@ -271,9 +387,7 @@ export default {
          * @return {Object|*}
          */
         getSettings(setting = null) {
-            return this.settings[setting]
-                ? this.settings[setting]
-                : this.settings;
+            return this.settings[setting] ? this.settings[setting] : this.settings;
         },
 
         /**
@@ -335,9 +449,7 @@ export default {
                 status.answers && Object.keys(status.answers).length > 0
                     ? status.answers
                     : { Yes: true, No: false };
-            toast.canPause = isBoolean(status.canPause)
-                ? status.canPause
-                : this.settings.canPause;
+            toast.canPause = isBoolean(status.canPause) ? status.canPause : this.settings.canPause;
             toast.hideProgressbar = isBoolean(status.hideProgressbar)
                 ? status.hideProgressbar
                 : this.settings.hideProgressbar;
@@ -424,18 +536,10 @@ export default {
                 return false;
             }
             if (this.findToast(id) !== -1) {
-                this.$set(
-                    this.toasts,
-                    this.findToast(id),
-                    Object.assign(toast, status)
-                );
+                this.$set(this.toasts, this.findToast(id), Object.assign(toast, status));
                 return true;
             }
-            this.$set(
-                this.toasts,
-                this.findQueuedToast(id),
-                Object.assign(toast, status)
-            );
+            this.$set(this.toasts, this.findQueuedToast(id), Object.assign(toast, status));
             return true;
         },
 
@@ -466,152 +570,6 @@ export default {
             this.toasts = [];
             return this.currentlyShowing;
         }
-    },
-    computed: {
-        /**
-         * Return the appropriate transition
-         * based on the position.
-         *
-         * @return {String}
-         */
-        getTransition: function() {
-            if (this.settings.transition) {
-                return this.settings.transition;
-            }
-            const position = this.settings.position.split("-");
-            if (position[1] === "left") {
-                return "vt-left";
-            }
-            if (position[1] === "center") {
-                return "vt-" + position[0];
-            }
-            return "vt-right";
-        },
-
-        /**
-         * Return a style object for determining
-         * the toasts order.
-         *
-         * @return {Object}
-         */
-        flexDirection: function() {
-            return {
-                "flex-direction":
-                    this.settings.orderLatest &&
-                    this.settings.position.split("-")[0] === "bottom"
-                        ? "column"
-                        : "column-reverse"
-            };
-        },
-
-        /**
-         * Return the appropriate classes
-         * based on the position.
-         *
-         * @return {Object}
-         */
-        positionClasses: function() {
-            const position = this.settings.position.split("-");
-            let classes = {};
-            if (position[0] === position[1]) {
-                classes["vt-center-center"] = true;
-                return classes;
-            }
-            classes[
-                position[0] === "center" ? "vt-centerY" : "vt-" + position[0]
-            ] = true;
-            classes[
-                position[1] === "center" ? "vt-centerX" : "vt-" + position[1]
-            ] = true;
-            return classes;
-        },
-
-        /**
-         * Returns the ids of all the toasts
-         * currently visible to the user.
-         * @return {String[]}
-         */
-        currentlyShowing: function() {
-            return this.toasts.map(toast => toast.id);
-        }
-    },
-    watch: {
-        settings: {
-            handler: function(newSettings, oldSettings) {
-                if (isBoolean(newSettings.singular)) {
-                    // if singular turned off release all queued toasts
-                    if (!newSettings.singular) {
-                        for (let i = 0; i < this.settings.maxToasts - 1; i++) {
-                            if (!this.queue[i]) {
-                                continue;
-                            }
-                            if (!this.arrayHasType(this.queue[i])) {
-                                this.$set(
-                                    this.toasts,
-                                    this.toasts.length,
-                                    this.queue.splice(i, 1)[0]
-                                );
-                            }
-                        }
-                        if (isBoolean(temp.orderLatest)) {
-                            newSettings.orderLatest = temp.orderLatest;
-                            delete temp.orderLatest;
-                        }
-                        return;
-                    }
-                    temp.orderLatest = oldSettings.orderLatest;
-                    newSettings.orderLatest = false;
-                }
-            },
-            deep: true
-        },
-        toasts: {
-            handler: function(newValue) {
-                // if there's anything at all in the queue
-                if (this.queue.length !== 0) {
-                    this.$nextTick(() => {
-                        // if singular than oneType and maxToasts isn't a concern
-                        if (this.settings.singular) {
-                            if (newValue.length === 0) {
-                                this.$set(this.toasts, this.toasts.length, {
-                                    ...this.queue.shift(),
-                                    delayed: true
-                                });
-                            }
-                            return;
-                        }
-                        if (this.settings.oneType) {
-                            return this.queue.forEach((status, index) => {
-                                if (
-                                    !this.arrayHasType(status) &&
-                                    this.toasts.length < this.settings.maxToasts
-                                ) {
-                                    this.$set(this.toasts, this.toasts.length, {
-                                        ...this.queue.splice(index, 1)[0],
-                                        delayed: true
-                                    });
-                                }
-                            });
-                        }
-                        if (this.toasts.length < this.settings.maxToasts) {
-                            this.$set(this.toasts, this.toasts.length, {
-                                ...this.queue.shift(),
-                                delayed: true
-                            });
-                        }
-                    });
-                }
-            },
-            deep: true
-        }
-    },
-    beforeDestroy() {
-        this.$root.$off([
-            "vtFinished",
-            "vtDismissed",
-            "vtPromptResponse",
-            "vtLoadStop"
-        ]);
     }
 };
 </script>

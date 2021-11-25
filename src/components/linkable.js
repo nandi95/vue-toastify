@@ -11,8 +11,7 @@ export default {
         hasUrl() {
             return (
                 (isString(this.status.url) && this.status.url.length > 0) ||
-                (isObject(this.status.url) &&
-                    (this.routerRouteExits || !!this.status.url.href))
+                (isObject(this.status.url) && (this.routerRouteExits || !!this.status.url.href))
             );
         },
         urlTarget() {
