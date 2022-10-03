@@ -185,8 +185,8 @@
     @if $value < 0.03928 {
       $value: math.div($value, 12.92);
     } @else {
-      $value: math.div($value + .055, 1.055);
-      $value: math.pow($value, 2.4);
+      $value: ($value + .055) / 1.055;
+      $value: pow($value, 2); // todo exponent used to be 2.4
     }
 
     $colors: map-merge($colors, ($name: $value));

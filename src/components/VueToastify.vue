@@ -8,66 +8,69 @@
             }"
             :style="{
                 backgroundColor: settings.backdrop
-            }"
-        ></div>
+            }" />
         <vt-transition
             class="vt-notification-container"
             :class="positionClasses"
             :style="flexDirection"
             :transition="getTransition"
-            :position="settings.position"
-        >
+            :position="settings.position">
             <Toast
                 v-for="status in toasts"
                 :key="status.id"
                 :status="status"
-                :base-icon-class="settings.baseIconClass"
-            />
+                :base-icon-class="settings.baseIconClass" />
         </vt-transition>
     </div>
 </template>
 
 <script>
 // todo backdrop to transition with dragging if that's the only one left in the toasts and next isn't queued?
-// todo: create 3 containers and create a manager that manages the queue to push to the correct container (each container having 3 positions) ( position will be held on the status ) this will allow for separated transitions
-import Toast from "./Toast.vue";
-import { isBetween, isBoolean } from "../js/utils";
-import Transition from "./Transition.vue";
+// todo: create 3 containers and create a manager that manages the queue to push to the correct container
+//  (each container having 3 positions)
+//  ( position will be held on the status ) this will allow for separated transitions
+import Toast from './Toast.vue';
+import { isBetween, isBoolean } from '../utils';
+import VTTransition from './VTTransition.vue';
 
 let temp = {};
 
 export default {
-    name: "VueToastify",
+    name: 'VueToastify',
     components: {
         Toast,
-        "vt-transition": Transition
+        VTTransition
     },
+
     props: {
         singular: { type: Boolean, default: false },
         withBackdrop: { type: Boolean, default: false },
         backdrop: {
             type: String,
-            default: "rgba(0, 0, 0, 0.2)"
+            default: 'rgba(0, 0, 0, 0.2)'
         },
+
         position: {
             validator: function (value) {
                 // The value must match one of these strings
                 return (
                     [
-                        "top-left",
-                        "top-center",
-                        "top-right",
-                        "center-left",
-                        "center-center",
-                        "center-right",
-                        "bottom-left",
-                        "bottom-center",
-                        "bottom-right"
+                        'top-left',
+                        'top-center',
+                        'top-right',
+                        'center-left',
+                        'center-center',
+                        'center-right',
+                        'bottom-left',
+                        'bottom-center',
+                        'bottom-right'
                     ].indexOf(value) !== -1
                 );
             },
-            default: "bottom-right"
+
+            default: 'bottom-right'
         },
+
         defaultTitle: { type: Boolean, default: true },
         canPause: { type: Boolean, default: true },
         canTimeout: { type: Boolean, default: true },
@@ -78,17 +81,19 @@ export default {
             default: 0.75,
             validator: value => isBetween(value, 0, 5)
         },
+
         hideProgressbar: { type: Boolean, default: false },
         errorDuration: { type: Number, default: 8000 },
         successDuration: { type: Number, default: 4000 },
         warningInfoDuration: { type: Number, default: 6000 },
-        theme: { type: String, default: "dark" },
-        baseIconClass: { type: String, default: "" },
+        theme: { type: String, default: 'dark' },
+        baseIconClass: { type: String, default: '' },
         orderLatest: { type: Boolean, default: true },
         transition: { type: [String, Object], default: () => {} },
         oneType: { type: Boolean, default: false },
         maxToasts: { type: Number, default: 6 }
     },
+
     data() {
         return {
             toasts: [],
@@ -96,8 +101,8 @@ export default {
             settings: {
                 singular: false,
                 withBackdrop: false,
-                backdrop: "rgba(0, 0, 0, 0.2)",
-                position: "bottom-right",
+                backdrop: 'rgba(0, 0, 0, 0.2)',
+                position: 'bottom-right',
                 defaultTitle: true,
                 canTimeout: true,
                 canPause: false,
@@ -108,8 +113,8 @@ export default {
                 errorDuration: 8000,
                 successDuration: 4000,
                 warningInfoDuration: 6000,
-                theme: "dark",
-                baseIconClass: "",
+                theme: 'dark',
+                baseIconClass: '',
                 orderLatest: true,
                 transition: null,
                 oneType: false,
@@ -117,6 +122,7 @@ export default {
             }
         };
     },
+
     computed: {
         /**
          * Return the appropriate transition
@@ -124,18 +130,18 @@ export default {
          *
          * @return {String}
          */
-        getTransition: function () {
+        getTransition: function() {
             if (this.settings.transition) {
                 return this.settings.transition;
             }
-            const position = this.settings.position.split("-");
-            if (position[1] === "left") {
-                return "vt-left";
+            const position = this.settings.position.split('-');
+            if (position[1] === 'left') {
+                return 'vt-left';
             }
-            if (position[1] === "center") {
-                return "vt-" + position[0];
+            if (position[1] === 'center') {
+                return 'vt-' + position[0];
             }
-            return "vt-right";
+            return 'vt-right';
         },
 
         /**
@@ -144,12 +150,13 @@ export default {
          *
          * @return {Object}
          */
-        flexDirection: function () {
+        flexDirection: function() {
             return {
-                "flex-direction":
-                    this.settings.orderLatest && this.settings.position.split("-")[0] === "bottom"
-                        ? "column"
-                        : "column-reverse"
+                'flex-direction':
+                    this.settings.orderLatest &&
+                    this.settings.position.split('-')[0] === 'bottom'
+                        ? 'column'
+                        : 'column-reverse'
             };
         },
 
@@ -159,15 +166,19 @@ export default {
          *
          * @return {Object}
          */
-        positionClasses: function () {
-            const position = this.settings.position.split("-");
+        positionClasses: function() {
+            const position = this.settings.position.split('-');
             let classes = {};
             if (position[0] === position[1]) {
-                classes["vt-center-center"] = true;
+                classes['vt-center-center'] = true;
                 return classes;
             }
-            classes[position[0] === "center" ? "vt-centerY" : "vt-" + position[0]] = true;
-            classes[position[1] === "center" ? "vt-centerX" : "vt-" + position[1]] = true;
+            classes[
+                position[0] === 'center' ? 'vt-centerY' : 'vt-' + position[0]
+            ] = true;
+            classes[
+                position[1] === 'center' ? 'vt-centerX' : 'vt-' + position[1]
+            ] = true;
             return classes;
         },
 
@@ -176,13 +187,14 @@ export default {
          * currently visible to the user.
          * @return {String[]}
          */
-        currentlyShowing: function () {
+        currentlyShowing: function() {
             return this.toasts.map(toast => toast.id);
         }
     },
+
     watch: {
         settings: {
-            handler: function (newSettings, oldSettings) {
+            handler: function(newSettings, oldSettings) {
                 if (isBoolean(newSettings.singular)) {
                     // if singular turned off release all queued toasts
                     if (!newSettings.singular) {
@@ -208,10 +220,12 @@ export default {
                     newSettings.orderLatest = false;
                 }
             },
+
             deep: true
         },
+
         toasts: {
-            handler: function (newValue) {
+            handler: function(newValue) {
                 // if there's anything at all in the queue
                 if (this.queue.length !== 0) {
                     this.$nextTick(() => {
@@ -247,15 +261,20 @@ export default {
                     });
                 }
             },
+
             deep: true
         }
     },
+
     mounted() {
         this.setSettings();
         // listen for notification events
-        this.$root.$on(["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"], payload => {
-            if (typeof payload.id === "string") {
-                this.remove(payload.id);
+        this.$root.$on(
+            ['vtFinished', 'vtDismissed', 'vtPromptResponse', 'vtLoadStop'],
+            payload => {
+                if (typeof payload.id === 'string') {
+                    this.remove(payload.id);
+                }
             }
         });
         // if there is a notification assigned to the window
@@ -266,9 +285,16 @@ export default {
             }, delay);
         }
     },
+
     beforeDestroy() {
-        this.$root.$off(["vtFinished", "vtDismissed", "vtPromptResponse", "vtLoadStop"]);
+        this.$root.$off([
+            'vtFinished',
+            'vtDismissed',
+            'vtPromptResponse',
+            'vtLoadStop'
+        ]);
     },
+
     methods: {
         //---Internal methods---//
         /**
@@ -302,7 +328,11 @@ export default {
          */
         uuidv4() {
             return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+                (
+                    c ^
+                    crypto.getRandomValues(new Uint8Array(1))[0] &
+                        15 >> c / 4
+                ).toString(16)
             );
         },
 
@@ -319,25 +349,25 @@ export default {
             }
             if (isBoolean(status.defaultTitle)) {
                 if (status.defaultTitle) {
-                    if (status.mode === "prompt" || status.mode === "loader") {
-                        return "";
+                    if (status.mode === 'prompt' || status.mode === 'loader') {
+                        return '';
                     }
                     if (status.type) {
                         return status.type.charAt(0).toUpperCase() + status.type.slice(1);
                     }
                 } else {
-                    return "";
+                    return '';
                 }
             }
             if (this.settings.defaultTitle) {
-                if (status.mode === "prompt" || status.mode === "loader") {
-                    return "";
+                if (status.mode === 'prompt' || status.mode === 'loader') {
+                    return '';
                 }
                 if (status.type) {
                     return status.type.charAt(0).toUpperCase() + status.type.slice(1);
                 }
             }
-            return "Info";
+            return 'Info';
         },
 
         /**
@@ -350,8 +380,8 @@ export default {
         arrayHasType(status) {
             return !!this.toasts.find(
                 toast =>
-                    (toast.mode && toast.mode === status.mode) ||
-                    (toast.type && toast.type === status.type)
+                    toast.mode && toast.mode === status.mode ||
+                    toast.type && toast.type === status.type
             );
         },
 
@@ -402,20 +432,20 @@ export default {
          */
         stopLoader(id = null) {
             let ids = id;
-            if (typeof id === "string") {
+            if (typeof id === 'string') {
                 ids = [id];
             } else if (Array.isArray(id)) {
                 ids = id;
             } else {
                 //get all loaders
                 ids = this.toasts.map(toast => {
-                    if (toast.mode === "loader") {
+                    if (toast.mode === 'loader') {
                         return toast.id;
                     }
                 });
             }
             ids.forEach(id => {
-                this.$root.$emit("vtLoadStop", { id: id });
+                this.$root.$emit('vtLoadStop', { id: id });
             });
             return ids.length;
         },
@@ -439,11 +469,11 @@ export default {
                 toast.duration = Number(status.duration);
             } else if (status.type) {
                 toast.duration =
-                    status.type === "error"
+                    status.type === 'error'
                         ? this.settings.errorDuration
-                        : status.type === "success"
-                        ? this.settings.successDuration
-                        : this.settings.warningInfoDuration;
+                        : status.type === 'success'
+                            ? this.settings.successDuration
+                            : this.settings.warningInfoDuration;
             }
             toast.answers =
                 status.answers && Object.keys(status.answers).length > 0
@@ -461,7 +491,7 @@ export default {
             toast.iconEnabled = isBoolean(status.iconEnabled)
                 ? status.iconEnabled
                 : this.settings.iconEnabled;
-            if (["prompt", "loader"].indexOf(status.mode) === -1) {
+            if (['prompt', 'loader'].indexOf(status.mode) === -1) {
                 toast.draggable = isBoolean(status.draggable)
                     ? status.draggable
                     : this.settings.draggable;
@@ -471,16 +501,16 @@ export default {
             toast.dragThreshold = isBetween(status.dragThreshold, 0, 5)
                 ? status.dragThreshold
                 : this.settings.dragThreshold;
-            if (status.mode === "prompt" || status.mode === "loader") {
+            if (status.mode === 'prompt' || status.mode === 'loader') {
                 toast.canTimeout = false;
             }
 
             toast.theme = status.theme ? status.theme : this.settings.theme;
             if (
                 // if singular and there's 1 already showing
-                (this.settings.singular && this.toasts.length > 0) ||
+                this.settings.singular && this.toasts.length > 0 ||
                 // if oneType turned on and that type already showing
-                (this.settings.oneType && this.arrayHasType(toast)) ||
+                this.settings.oneType && this.arrayHasType(toast) ||
                 // if it would exceed the max number of displayed toasts
                 this.toasts.length >= this.settings.maxToasts
             ) {

@@ -1,26 +1,28 @@
-import { default as vToastify } from "./components/VueToastify.vue";
+import VueToastify from './components/VueToastify.vue';
+import type { Plugin } from 'vue';
+import { Settings } from './type';
+import constants from "./components/constants";
 
-const VueToastify = {
-    install(Vue, settings = {}, router = null) {
-        let Constructor = Vue.extend(vToastify);
-        let ToastContainer = new Constructor();
+const plugin: Plugin = (app, settings: Settings = {}, router = null) {
+    let Constructor = app.extend(vToastify);
+    let ToastContainer = new Constructor();
 
         if (router) {
-            Vue.prototype.$vtRouter = router;
+            app.config.globalProperties.$vtRouter = router;
         }
 
         ToastContainer._props = Object.assign(ToastContainer._props, settings);
 
         const vm = ToastContainer.$mount();
 
-        document.querySelector("body").appendChild(vm.$el);
+        document.body.appendChild(vm.$el);
 
-        if (typeof window !== "undefined" && window.Vue) {
+        if (typeof window !== 'undefined' && window.Vue) {
             window.Vue.use(ToastContainer);
         }
 
         const vtNotify = (status, title = null) => {
-            if (typeof status === "string") {
+            if (typeof status === 'string') {
                 status = {
                     body: status
                 };
@@ -29,7 +31,7 @@ const VueToastify = {
                 status.title = title;
             }
             if (!status.type) {
-                status.type = "success";
+                status.type = 'success';
             }
             return ToastContainer.add(status);
         };
@@ -38,7 +40,7 @@ const VueToastify = {
                 return vtNotify(status, title);
             },
             info(status, title = null) {
-                if (typeof status === "string") {
+                if (typeof status === 'string') {
                     status = {
                         body: status
                     };
@@ -46,11 +48,11 @@ const VueToastify = {
                 if (title) {
                     status.title = title;
                 }
-                status.type = "info";
+                status.type = 'info';
                 return vtNotify(status);
             },
             warning(status, title = null) {
-                if (typeof status === "string") {
+                if (typeof status === 'string') {
                     status = {
                         body: status
                     };
@@ -58,11 +60,11 @@ const VueToastify = {
                 if (title) {
                     status.title = title;
                 }
-                status.type = "warning";
+                status.type = 'warning';
                 return vtNotify(status);
             },
             error(status, title = null) {
-                if (typeof status === "string") {
+                if (typeof status === 'string') {
                     status = {
                         body: status
                     };
@@ -76,11 +78,11 @@ const VueToastify = {
                 if (title) {
                     status.title = title;
                 }
-                status.type = "error";
+                status.type = 'error';
                 return vtNotify(status);
             },
             loader(status, title = null) {
-                if (typeof status === "string") {
+                if (typeof status === 'string') {
                     status = {
                         body: status
                     };
@@ -88,11 +90,11 @@ const VueToastify = {
                 if (title) {
                     status.title = title;
                 }
-                status.mode = "loader";
+                status.mode = 'loader';
                 return vtNotify(status);
             },
-            prompt(status, title = null) {
-                if (typeof status === "string") {
+            async prompt(status, title = null) {
+                if (typeof status === 'string') {
                     status = {
                         body: status
                     };
@@ -100,10 +102,10 @@ const VueToastify = {
                 if (title) {
                     status.title = title;
                 }
-                status.mode = "prompt";
+                status.mode = 'prompt';
                 const id = ToastContainer.add(status);
                 return new Promise(resolve => {
-                    ToastContainer.$root.$once("vtPromptResponse", payload => {
+                    ToastContainer.$root.$once('vtPromptResponse', payload => {
                         if (payload.id === id) {
                             resolve(payload.response);
                         }
@@ -146,7 +148,7 @@ const VueToastify = {
                         return (status, title = null) => {
                             let toast = {};
                             toast = Object.assign(toast, keyValArr[1]);
-                            if (typeof status === "string") {
+                            if (typeof status === 'string') {
                                 toast.body = status;
                             } else {
                                 toast = { ...keyValArr[1], ...status };
@@ -161,11 +163,10 @@ const VueToastify = {
             });
         }
 
-        Vue.prototype.$vtNotify = vtNotify;
-        Vue.$vtNotify = vtNotify;
-        Vue.prototype.$vToastify = toastify;
-        Vue.$vToastify = toastify;
-    }
+        app.config.globalProperties.$vtNotify = vtNotify;
+        app.$vtNotify = vtNotify;
+        app.config.globalProperties.$vToastify = toastify;
+        app.$vToastify = toastify;
 };
 
-export default VueToastify;
+export default plugin;

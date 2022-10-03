@@ -1,128 +1,121 @@
 <template>
     <div v-show="!hideProgressbar" class="vt-progress-bar">
-        <div class="vt-progress" :style="{ width: progress + '%' }"></div>
+        <div class="vt-progress" :style="{ width: progress + '%' }" />
     </div>
 </template>
 
-<script>
-const requestAnimationFrame =
-    window.requestAnimationFrame ||
-    window.webkitRequestAnimationFrame ||
-    window.mozRequestAnimationFrame ||
-    window.oRequestAnimationFrame ||
-    window.msRequestAnimationFrame;
-const cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
-export default {
-    name: "ProgressBar",
+<script lang="ts">
+import { defineComponent, ref, watch, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue';
+
+export default defineComponent({
+    name: 'ProgressBar',
     props: {
         canPause: { type: Boolean },
-        canTimeout: { type: Boolean },
         isHovered: { type: Boolean },
         hideProgressbar: { type: Boolean },
-        duration: { type: Number },
+        duration: {
+            type: Number,
+            default: 0
+        },
         id: { type: String }
     },
-    data() {
-        return {
-            progress: 0,
-            progressId: null,
-            timerId: null,
-            timerStartedAt: null,
-            timerPausedAt: null,
-            timerFinishesAt: null
-        };
-    },
-    watch: {
-        isHovered: function (boolean) {
-            if (boolean) {
-                this.timerPause();
-            } else {
-                this.timerStart();
-            }
-        }
-    },
-    beforeMount() {
-        this.timerFinishesAt = new Date(this.duration + Date.now());
-    },
-    mounted() {
-        this.$root.$emit("vtStarted", { id: this.id });
-        // start of the timer (a constant)
-        this.timerStartedAt = new Date();
-        // initial time to calculate with on the first start
-        this.timerPausedAt = new Date();
 
-        if (!this.canPause) {
-            // set new timeout
-            this.timerId = window.setTimeout(
-                () => this.$emit("vtFinished"),
-                this.timerFinishesAt.getTime() - Date.now()
-            );
-            // animation start
-            this.progressId = requestAnimationFrame(this.progressBar);
-        }
-        this.timerStart();
-    },
-    beforeDestroy() {
-        this.progress = 0;
-        window.clearTimeout(this.timerId);
-        if (this.progressId) {
-            cancelAnimationFrame(this.progressId);
-            this.progressId = null;
-        }
-    },
-    methods: {
-        timerStart() {
-            if (this.canPause) {
-                this.timerStartedAt = new Date(
-                    this.timerStartedAt.getTime() + (Date.now() - this.timerPausedAt.getTime())
+    emits: ['vtStarted', 'vtFinished', 'vtPaused'],
+
+    setup: (props, ctx) => {
+        const instance = getCurrentInstance()!;
+        const progress = ref(0);
+        const progressId = ref<ReturnType<typeof requestAnimationFrame>>();
+        const timerId = ref<ReturnType<typeof setTimeout>>();
+        // start of the timer (a constant)
+        const timerStartedAt = ref(new Date());
+        // initial time to calculate with on the first start
+        const timerPausedAt = ref(new Date());
+        const timerFinishesAt = ref(new Date(props.duration + Date.now()));
+
+        const timerStart = () => {
+            if (props.canPause) {
+                timerStartedAt.value = new Date(
+                    timerStartedAt.value.getTime() + (Date.now() - timerPausedAt.value.getTime())
                 );
 
                 // new future date = future date + elapsed time since pausing
-                this.timerFinishesAt = new Date(
-                    this.timerFinishesAt.getTime() + (Date.now() - this.timerPausedAt.getTime())
+                timerFinishesAt.value = new Date(
+                    timerFinishesAt.value.getTime() + (Date.now() - timerPausedAt.value.getTime())
                 );
 
-                if (!this.timerId && this.progress > 0) {
-                    this.$root.$emit("vtResumed", { id: this.id });
+                if (!timerId.value && progress.value > 0) {
+                    instance.root.emit('vtResumed', { id: props.id });
                 }
 
                 // set new timeout
-                this.timerId = window.setTimeout(
-                    () => this.$emit("vtFinished"),
-                    this.timerFinishesAt.getTime() - Date.now()
+                timerId.value = window.setTimeout(
+                    () => ctx.emit('vtFinished'),
+                    timerFinishesAt.value.getTime() - Date.now()
                 );
                 // animation start
-                this.progressId = requestAnimationFrame(this.progressBar);
+                progressId.value = requestAnimationFrame(progressBar);
             }
-        },
-        timerPause() {
-            if (this.canPause) {
+        };
+        const timerPause = () => {
+            if (props.canPause) {
                 // stop notification from closing
-                window.clearTimeout(this.timerId);
+                window.clearTimeout(timerId.value);
                 // set to null so animation won't stay in a loop
-                this.timerId = null;
+                timerId.value = undefined;
                 // stop loader animation from progressing
-                cancelAnimationFrame(this.progressId);
-                this.progressId = null;
-                this.$root.$emit("vtPaused", { id: this.id });
-                this.timerPausedAt = new Date();
+                cancelAnimationFrame(progressId.value!);
+                progressId.value = undefined;
+                instance.root.emit('vtPaused', { id: props.id });
+                timerPausedAt.value = new Date();
             }
-        },
-        progressBar() {
-            if (this.progress < 100) {
-                const wholeTime = this.timerFinishesAt.getTime() - this.timerStartedAt.getTime();
-                const elapsed = Date.now() - this.timerStartedAt.getTime();
+        };
+        const progressBar = () => {
+            if (progress.value < 100) {
+                const wholeTime = timerFinishesAt.value.getTime() - timerStartedAt.value.getTime();
+                const elapsed = Date.now() - timerStartedAt.value.getTime();
 
-                this.progress = (elapsed / wholeTime) * 100;
+                progress.value = elapsed / wholeTime * 100;
 
                 // if timer is running
-                if (this.timerId) {
-                    this.progressId = requestAnimationFrame(this.progressBar);
+                if (timerId.value) {
+                    progressId.value = requestAnimationFrame(progressBar);
                 }
             } else {
-                this.progressId = cancelAnimationFrame(this.progressId);
+                cancelAnimationFrame(progressId.value!);
+                progressId.value = undefined;
             }
-        }
+        };
+
+        watch(() => props.isHovered, boolean => boolean ? timerPause(): timerStart());
+
+        onMounted(() => {
+            ctx.emit('vtStarted', { id: props.id });
+
+            if (!props.canPause) {
+                // set new timeout
+                timerId.value = window.setTimeout(
+                    () => ctx.emit('vtFinished'),
+                    timerFinishesAt.value.getTime() - Date.now()
+                );
+                // animation start
+                progressId.value = requestAnimationFrame(progressBar);
+            }
+            timerStart();
+        });
+
+        onBeforeUnmount(() => {
+            progress.value = 0;
+            window.clearTimeout(timerId.value);
+            if (progressId.value) {
+                cancelAnimationFrame(progressId.value);
+                progressId.value = undefined;
+            }
+        });
+
+        return {
+            progress
+        };
     }
-};
+});
 </script>

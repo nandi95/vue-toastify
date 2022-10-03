@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { isString, isObject } from "../js/utils";
+import { isString, isObject } from "../utils";
 export default {
     name: "Icon",
     props: {
