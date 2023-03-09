@@ -6,18 +6,19 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue';
+import useVtEvents from "../composables/useVtEvents";
 
 export default defineComponent({
     name: 'ProgressBar',
     props: {
-        canPause: { type: Boolean },
+        pauseOnHover: { type: Boolean },
         isHovered: { type: Boolean },
         hideProgressbar: { type: Boolean },
         duration: {
             type: Number,
             default: 0
         },
-        id: { type: String }
+        id: { type: String, required: true }
     },
 
     emits: ['vtStarted', 'vtFinished', 'vtPaused'],
@@ -32,9 +33,10 @@ export default defineComponent({
         // initial time to calculate with on the first start
         const timerPausedAt = ref(new Date());
         const timerFinishesAt = ref(new Date(props.duration + Date.now()));
+        const events = useVtEvents();
 
         const timerStart = () => {
-            if (props.canPause) {
+            if (props.pauseOnHover) {
                 timerStartedAt.value = new Date(
                     timerStartedAt.value.getTime() + (Date.now() - timerPausedAt.value.getTime())
                 );
@@ -45,7 +47,7 @@ export default defineComponent({
                 );
 
                 if (!timerId.value && progress.value > 0) {
-                    instance.root.emit('vtResumed', { id: props.id });
+                    events.emit('vtResumed', { id: props.id });
                 }
 
                 // set new timeout
@@ -58,7 +60,7 @@ export default defineComponent({
             }
         };
         const timerPause = () => {
-            if (props.canPause) {
+            if (props.pauseOnHover) {
                 // stop notification from closing
                 window.clearTimeout(timerId.value);
                 // set to null so animation won't stay in a loop
@@ -66,7 +68,7 @@ export default defineComponent({
                 // stop loader animation from progressing
                 cancelAnimationFrame(progressId.value!);
                 progressId.value = undefined;
-                instance.root.emit('vtPaused', { id: props.id });
+                events.emit('vtPaused', { id: props.id });
                 timerPausedAt.value = new Date();
             }
         };
@@ -92,7 +94,7 @@ export default defineComponent({
         onMounted(() => {
             ctx.emit('vtStarted', { id: props.id });
 
-            if (!props.canPause) {
+            if (!props.pauseOnHover) {
                 // set new timeout
                 timerId.value = window.setTimeout(
                     () => ctx.emit('vtFinished'),

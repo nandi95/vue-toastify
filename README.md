@@ -39,7 +39,7 @@ npm i vue-toastify
 or with CDNs:
  - [jsDeliver](https://cdn.jsdelivr.net/npm/vue-toastify@latest)
  - [unpkg](https://unpkg.com/vue-toastify)
- 
+
  ***
 
 In your main js file:
@@ -63,7 +63,7 @@ Vue.use(VueToastify, {
 });
 ```
 or change any of the settings during run-time with the following
- 
+
 ```javascript
 this.$vToastify.setSettings(settingsObject);
 ```
@@ -89,7 +89,7 @@ Vue.use(VueToastify, {}, routerLoadedWithRoutes);
 | successDuration | Number | 4000 | The duration in milliseconds the success notification should be visible for. |
 | warningInfoDuration | Number | 6000 | The duration in milliseconds the warning and info notification should be visible for. |
 | canTimeout | Boolean | true | Whether the notifications disappears after the set time. |
-| canPause | Boolean | true | Whether the notifications can be paused by hovering over them. |
+| pauseOnHover | Boolean | true | Whether the notifications can be paused by hovering over them. |
 | hideProgressbar | Boolean | false | Whether the progressbar should be shown on the notification or not. |
 | defaultTitle | Boolean | true | Whether a default title should be shown if no title is supplied. |
 | theme | String | "dark" | What theme should be displaying. By default there's `light` and `dark`. |
@@ -112,7 +112,7 @@ You may optionally pass an argument to the above to only get the value for that 
 ## Status
 You can pass to the functions either a string for the body of the status and optionally a title for the second argument like so:
 ```javascript
-this.$vToastify.error("body", "title"); 
+this.$vToastify.error("body", "title");
 ```
 Or pass an object to the method:
 ```javascript
@@ -134,7 +134,7 @@ The following properties can be set on the object:
 You may additionally overwrite the following plugin settings on a notification by notification basis by adding them on the status object.
 
 - `canTimeout`
-- `canPause`
+- `pauseOnHover`
 - `defaultTitle`
 - `duration` - The time the notification is displayed for in milliseconds regardless of its type. (this cannot be updated later)
 - `theme`
@@ -153,7 +153,7 @@ fetch().then().catch(error => this.$vToastify.error(error));
 Only `this.$vToastify.error()` will look for `status` and `statusText` on the error object.
 
 **Every notification method returns a unique id associated to your notification object.**
- 
+
 ## Additional methods
 **The notification supports multiple modes**
 
@@ -187,7 +187,7 @@ There are various events are emitted by the notification:
  - `vtDragStarted`
  - `vtBeingDragged`
  - `vtDragFinished`
- 
+
  to which you can listen by either the `listen` or the `listenOnce` method. The event's payload is an object containing the notification's id:
 ```javascript
 this.$vToastify.listen("vtDismissed", payload => console.log(payload.id))
@@ -281,7 +281,7 @@ const mutations = {
   }
 };
 ```
- 
+
 ## Todos
 
 - Add ability to display notifications simultaneously at different locations

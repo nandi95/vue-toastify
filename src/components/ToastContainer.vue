@@ -15,7 +15,7 @@
             :style="flexDirection"
             :transition="getTransition"
             :position="settings.position">
-            <Toast
+            <vt-toast
                 v-for="status in toasts"
                 :key="status.id"
                 :status="status"
@@ -24,34 +24,33 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 // todo backdrop to transition with dragging if that's the only one left in the toasts and next isn't queued?
 // todo: create 3 containers and create a manager that manages the queue to push to the correct container
 //  (each container having 3 positions)
 //  ( position will be held on the status ) this will allow for separated transitions
-import Toast from './Toast.vue';
-import { isBetween, isBoolean } from '../utils';
+import { default as VtToast } from './Toast.vue';
+import { isBetween, isBoolean, uuidV4 } from '../utils';
 import VTTransition from './VTTransition.vue';
+import { computed, defineComponent, ref, UnwrapRef } from 'vue';
+import { FullToast, MaybeArray, Position, Toast as ToastType, ToastOptions } from "../type";
+import useVtEvents from "../composables/useVtEvents";
 
 let temp = {};
 
-export default {
+export default defineComponent({
     name: 'VueToastify',
     components: {
-        Toast,
+        VtToast,
         VTTransition
     },
 
     props: {
         singular: { type: Boolean, default: false },
         withBackdrop: { type: Boolean, default: false },
-        backdrop: {
-            type: String,
-            default: 'rgba(0, 0, 0, 0.2)'
-        },
-
+        backdrop: { type: String, default: 'rgba(0, 0, 0, 0.2)' },
         position: {
-            validator: function (value) {
+            validator: (value: Position) => {
                 // The value must match one of these strings
                 return (
                     [
@@ -72,14 +71,14 @@ export default {
         },
 
         defaultTitle: { type: Boolean, default: true },
-        canPause: { type: Boolean, default: true },
+        pauseOnHover: { type: Boolean, default: true },
         canTimeout: { type: Boolean, default: true },
         iconEnabled: { type: Boolean, default: true },
         draggable: { type: Boolean, default: true },
         dragThreshold: {
             type: Number,
             default: 0.75,
-            validator: value => isBetween(value, 0, 5)
+            validator: (value: number) => isBetween(value, 0, 5)
         },
 
         hideProgressbar: { type: Boolean, default: false },
@@ -89,52 +88,49 @@ export default {
         theme: { type: String, default: 'dark' },
         baseIconClass: { type: String, default: '' },
         orderLatest: { type: Boolean, default: true },
-        transition: { type: [String, Object], default: () => {} },
+        transition: { type: [String, Object], default: () => ({}) },
         oneType: { type: Boolean, default: false },
         maxToasts: { type: Number, default: 6 }
     },
 
-    data() {
-        return {
-            toasts: [],
-            queue: [],
-            settings: {
-                singular: false,
-                withBackdrop: false,
-                backdrop: 'rgba(0, 0, 0, 0.2)',
-                position: 'bottom-right',
-                defaultTitle: true,
-                canTimeout: true,
-                canPause: false,
-                iconEnabled: true,
-                draggable: true,
-                dragThreshold: 0.75,
-                hideProgressbar: false,
-                errorDuration: 8000,
-                successDuration: 4000,
-                warningInfoDuration: 6000,
-                theme: 'dark',
-                baseIconClass: '',
-                orderLatest: true,
-                transition: null,
-                oneType: false,
-                maxToasts: 6
-            }
-        };
-    },
+    setup: (_, ctx) => {
+        const toasts = ref<ToastType[]>([]);
+        const queue = ref<ToastType[]>([]);
+        const settings = ref({
+            singular: false,
+            withBackdrop: false,
+            backdrop: 'rgba(0, 0, 0, 0.2)',
+            position: 'bottom-right',
+            defaultTitle: true,
+            canTimeout: true,
+            pauseOnHover: false,
+            iconEnabled: true,
+            draggable: true,
+            dragThreshold: 0.75,
+            hideProgressbar: false,
+            errorDuration: 8000,
+            successDuration: 4000,
+            warningInfoDuration: 6000,
+            theme: 'dark',
+            baseIconClass: '',
+            orderLatest: true,
+            transition: null,
+            oneType: false,
+            maxToasts: 6
+        });
+        const events = useVtEvents();
 
-    computed: {
         /**
          * Return the appropriate transition
          * based on the position.
          *
          * @return {String}
          */
-        getTransition: function() {
-            if (this.settings.transition) {
-                return this.settings.transition;
+        const getTransition = computed(() => {
+            if (settings.value.transition) {
+                return settings.value.transition;
             }
-            const position = this.settings.position.split('-');
+            const position = settings.value.position.split('-');
             if (position[1] === 'left') {
                 return 'vt-left';
             }
@@ -142,33 +138,32 @@ export default {
                 return 'vt-' + position[0];
             }
             return 'vt-right';
-        },
-
+        });
         /**
          * Return a style object for determining
          * the toasts order.
+         * todo - simplify this
          *
          * @return {Object}
          */
-        flexDirection: function() {
+        const flexDirection = computed<Partial<CSSStyleDeclaration>>(() => {
             return {
-                'flex-direction':
-                    this.settings.orderLatest &&
-                    this.settings.position.split('-')[0] === 'bottom'
+                flexDirection:
+                    settings.value.orderLatest &&
+                    settings.value.position.split('-')[0] === 'bottom'
                         ? 'column'
                         : 'column-reverse'
             };
-        },
-
+        });
         /**
          * Return the appropriate classes
          * based on the position.
          *
          * @return {Object}
          */
-        positionClasses: function() {
-            const position = this.settings.position.split('-');
-            let classes = {};
+        const positionClasses = computed(() => {
+            const position = settings.value.position.split('-');
+            const classes: Record<string, boolean> = {};
             if (position[0] === position[1]) {
                 classes['vt-center-center'] = true;
                 return classes;
@@ -180,16 +175,294 @@ export default {
                 position[1] === 'center' ? 'vt-centerX' : 'vt-' + position[1]
             ] = true;
             return classes;
-        },
-
+        });
         /**
          * Returns the ids of all the toasts
          * currently visible to the user.
          * @return {String[]}
          */
-        currentlyShowing: function() {
-            return this.toasts.map(toast => toast.id);
-        }
+        const currentlyShowing = computed(() => {
+            return toasts.value.map(toast => toast.id);
+        });
+
+        /**
+         * Find the toast with the given id in the toasts
+         * and return its index from the array
+         *
+         * @return {Number}
+         */
+        const findToast = (id: ToastType['id']) => {
+            return toasts.value.findIndex(toast => {
+                return toast.id === id;
+            });
+        };
+        /**
+         * Find the toast with the given id in the queue
+         * and return its index from the array
+         *
+         * @return {Number}
+         */
+        const findQueuedToast = (id: ToastType['id']) => {
+            return queue.value.findIndex(toast => {
+                return toast.id === id;
+            });
+        };
+        /**
+         * Figure out the title from the status object.
+         *
+         * @param {Object} status
+         *
+         * @return {String}
+         */
+        const getTitle = (status: ToastOptions) => {
+            if (status.title) {
+                return status.title;
+            }
+            if (isBoolean(status.defaultTitle)) {
+                if (status.defaultTitle) {
+                    if (status.mode === 'prompt' || status.mode === 'loader') {
+                        return '';
+                    }
+                    if (status.type) {
+                        return status.type.charAt(0).toUpperCase() + status.type.slice(1);
+                    }
+                } else {
+                    return '';
+                }
+            }
+            if (settings.value.defaultTitle) {
+                if (status.mode === 'prompt' || status.mode === 'loader') {
+                    return '';
+                }
+                if (status.type) {
+                    return status.type.charAt(0).toUpperCase() + status.type.slice(1);
+                }
+            }
+            return 'Info';
+        };
+        /**
+         * Check if the toast already is being displayed.
+         *
+         * @param {Object} status
+         *
+         * @return {Boolean}
+         */
+        const arrayHasType = (status: ToastOptions) => {
+            return !!toasts.value.find(
+                toast =>
+                    toast.mode && toast.mode === status.mode ||
+                    toast.type && toast.type === status.type
+            );
+        };
+
+        /**
+         * Merges the passed in settings where the key exists
+         * in the original. If no argument merge refresh
+         * from the original settings.
+         *
+         * @param {Object} settings
+         *
+         * @return {Object<*>}
+         */
+        const setSettings = (settings?: keyof UnwrapRef<typeof settings>) => {
+            if (settings) {
+                Object.keys(settings.value).forEach(key => {
+                    if (settings[key] !== undefined) {
+                        this.$set(settings.value, key, settings[key]);
+                    }
+                });
+            } else {
+                settings.value = Object.assign({}, this._props);
+            }
+            return settings.value;
+        };
+        /**
+         * If argument set return the given setting,
+         * else return the settings object.
+         *
+         * @param {String} setting
+         *
+         * @return {Object|*}
+         */
+        const getSettings = (setting?: keyof UnwrapRef<typeof settings>) => {
+            if (!setting) {
+                return settings.value;
+            }
+
+            return settings.value[setting] ? settings.value[setting] : settings.value;
+        };
+        /**
+         * Dismiss the loader for the given ids
+         * or all of the loaders. Return
+         * the count of the dismissed
+         * loaders.
+         *
+         * @param {String|String[]} id
+         *
+         * @return {Number}
+         */
+        const stopLoader = (id?: MaybeArray<ToastType['id']>) =>{
+            const ids = [];
+            if (typeof id === 'string') {
+                ids.push(id);
+            } else if (Array.isArray(id)) {
+                ids.push(...id);
+            } else {
+                //get all loaders
+                ids.push(...toasts.value.filter(toast => toast.mode === 'loader').map(toast => toast.id));
+            }
+            ids.forEach(id => {
+                events.emit('vtLoadStop', { id: id });
+            });
+            return ids.length;
+        };
+        /**
+         * Add a new toast object to the toasts
+         * or queue respectively with all
+         * the parameters assigned.
+         * Return the uuid.
+         *
+         * @param {Object} status
+         *
+         * @return {String}
+         */
+        const add = (status: FullToast) => {
+            // copy object
+            const toast: Omit<ToastType, 'id'> & { id?: ToastType['id'] } = Object.assign({}, status); //todo update to deep copy
+            // if object doesn't have default values, set them
+            toast.duration = settings.value.warningInfoDuration;
+            if (Number(status.duration) > 0) {
+                toast.duration = Number(status.duration);
+            } else if (status.type) {
+                toast.duration =
+                    status.type === 'error'
+                        ? settings.value.errorDuration
+                        : status.type === 'success'
+                            ? settings.value.successDuration
+                            : settings.value.warningInfoDuration;
+            }
+            toast.answers =
+                status.answers && Object.keys(status.answers).length > 0
+                    ? status.answers
+                    : { Yes: true, No: false };
+            toast.pauseOnHover = isBoolean(status.pauseOnHover) ? status.pauseOnHover : settings.value.pauseOnHover;
+            toast.hideProgressbar = isBoolean(status.hideProgressbar)
+                ? status.hideProgressbar
+                : settings.value.hideProgressbar;
+            toast.id = uuidV4();
+            toast.title = getTitle(status);
+            toast.canTimeout = isBoolean(status.canTimeout)
+                ? status.canTimeout
+                : settings.value.canTimeout;
+            toast.iconEnabled = isBoolean(status.iconEnabled)
+                ? status.iconEnabled
+                : settings.value.iconEnabled;
+            if (['prompt', 'loader'].indexOf(status.mode) === -1) {
+                toast.draggable = isBoolean(status.draggable)
+                    ? status.draggable
+                    : settings.value.draggable;
+            } else {
+                toast.draggable = false;
+            }
+            toast.dragThreshold = isBetween(status.dragThreshold, 0, 5)
+                ? status.dragThreshold
+                : settings.value.dragThreshold;
+            if (status.mode === 'prompt' || status.mode === 'loader') {
+                toast.canTimeout = false;
+            }
+
+            toast.theme = status.theme ? status.theme : settings.value.theme;
+            if (
+                // if singular and there's 1 already showing
+                settings.value.singular && toasts.value.length > 0 ||
+                // if oneType turned on and that type already showing
+                settings.value.oneType && arrayHasType(toast) ||
+                // if it would exceed the max number of displayed toasts
+                toasts.value.length >= settings.value.maxToasts
+            ) {
+                this.$set(queue.value, queue.value.length, toast);
+                return toast.id;
+            }
+            this.$set(toasts.value, toasts.value.length, toast);
+            return toast.id;
+        };
+        /**
+         * Find the toast from the toast
+         * or the queue, if not found
+         * return false, otherwise
+         * return all.
+         *
+         * @param {String} id
+         *
+         * @return {Boolean|Object|Object[]}
+         */
+        const get = (id = null) => {
+            if (id) {
+                let toast = toasts.value.find(toast => {
+                    return toast.id === id;
+                });
+                if (!toast) {
+                    toast = queue.value.find(toast => {
+                        return toast.id === id;
+                    });
+                }
+                if (!toast) {
+                    return false;
+                }
+                return toast;
+            }
+            return toasts.value.concat(queue.value);
+        };
+        /**
+         * Update a toast by merging the
+         * argument and the existing status.
+         * Returns whether the update was
+         * successful or not.
+         *
+         * @param {String} id
+         * @param {Object} status
+         *
+         * @return {Boolean}
+         */
+        const set = (id: ToastType['id'], status) => {
+            let toast = get(id);
+            if (!toast || toast instanceof Array) {
+                return false;
+            }
+            if (findToast(id) !== -1) {
+                this.$set(toasts.value, findToast(id), Object.assign(toast, status));
+                return true;
+            }
+            this.$set(toasts.value, findQueuedToast(id), Object.assign(toast, status));
+            return true;
+        };
+        /**
+         * If id giver, removes the corresponding
+         * toast else remove all. If id not
+         * found returns false, otherwise
+         * an array of ids currently
+         * visible to the user.
+         *
+         * @param {String} id
+         * @return {Boolean|Array}
+         */
+        const remove = (id = null) => {
+            if (id) {
+                let index = findQueuedToast(id);
+                if (settings.value.singular && index !== -1) {
+                    this.$delete(queue.value, index);
+                    return currentlyShowing.value;
+                }
+                index = findToast(id);
+                if (index !== -1) {
+                    this.$delete(toasts.value, index);
+                    return currentlyShowing.value;
+                }
+                return false;
+            }
+            toasts.value = [];
+            return currentlyShowing.value;
+        };
     },
 
     watch: {
@@ -198,15 +471,15 @@ export default {
                 if (isBoolean(newSettings.singular)) {
                     // if singular turned off release all queued toasts
                     if (!newSettings.singular) {
-                        for (let i = 0; i < this.settings.maxToasts - 1; i++) {
-                            if (!this.queue[i]) {
+                        for (let i = 0; i < settings.value.maxToasts - 1; i++) {
+                            if (!queue.value[i]) {
                                 continue;
                             }
-                            if (!this.arrayHasType(this.queue[i])) {
+                            if (!this.arrayHasType(queue.value[i])) {
                                 this.$set(
-                                    this.toasts,
-                                    this.toasts.length,
-                                    this.queue.splice(i, 1)[0]
+                                    toasts.value,
+                                    toasts.value.length,
+                                    queue.value.splice(i, 1)[0]
                                 );
                             }
                         }
@@ -227,34 +500,34 @@ export default {
         toasts: {
             handler: function(newValue) {
                 // if there's anything at all in the queue
-                if (this.queue.length !== 0) {
+                if (queue.value.length !== 0) {
                     this.$nextTick(() => {
                         // if singular than oneType and maxToasts isn't a concern
-                        if (this.settings.singular) {
+                        if (settings.value.singular) {
                             if (newValue.length === 0) {
-                                this.$set(this.toasts, this.toasts.length, {
-                                    ...this.queue.shift(),
+                                this.$set(toasts.value, toasts.value.length, {
+                                    ...queue.value.shift(),
                                     delayed: true
                                 });
                             }
                             return;
                         }
-                        if (this.settings.oneType) {
-                            return this.queue.forEach((status, index) => {
+                        if (settings.value.oneType) {
+                            return queue.value.forEach((status, index) => {
                                 if (
                                     !this.arrayHasType(status) &&
-                                    this.toasts.length < this.settings.maxToasts
+                                    toasts.value.length < settings.value.maxToasts
                                 ) {
-                                    this.$set(this.toasts, this.toasts.length, {
-                                        ...this.queue.splice(index, 1)[0],
+                                    this.$set(toasts.value, toasts.value.length, {
+                                        ...queue.value.splice(index, 1)[0],
                                         delayed: true
                                     });
                                 }
                             });
                         }
-                        if (this.toasts.length < this.settings.maxToasts) {
-                            this.$set(this.toasts, this.toasts.length, {
-                                ...this.queue.shift(),
+                        if (toasts.value.length < settings.value.maxToasts) {
+                            this.$set(toasts.value, toasts.value.length, {
+                                ...queue.value.shift(),
                                 delayed: true
                             });
                         }
@@ -266,26 +539,6 @@ export default {
         }
     },
 
-    mounted() {
-        this.setSettings();
-        // listen for notification events
-        this.$root.$on(
-            ['vtFinished', 'vtDismissed', 'vtPromptResponse', 'vtLoadStop'],
-            payload => {
-                if (typeof payload.id === 'string') {
-                    this.remove(payload.id);
-                }
-            }
-        });
-        // if there is a notification assigned to the window
-        if (window.notification && window.notification.type && window.notification.body) {
-            const delay = window.notification.delay ? window.notification.delay : 0;
-            setTimeout(() => {
-                this.add(window.notification);
-            }, delay);
-        }
-    },
-
     beforeDestroy() {
         this.$root.$off([
             'vtFinished',
@@ -293,315 +546,8 @@ export default {
             'vtPromptResponse',
             'vtLoadStop'
         ]);
-    },
-
-    methods: {
-        //---Internal methods---//
-        /**
-         * Find the toast with the given id in the toasts
-         * and return its index from the array
-         *
-         * @return {Number}
-         */
-        findToast(id) {
-            return this.toasts.findIndex(toast => {
-                return toast.id === id;
-            });
-        },
-
-        /**
-         * Find the toast with the given id in the queue
-         * and return its index from the array
-         *
-         * @return {Number}
-         */
-        findQueuedToast(id) {
-            return this.queue.findIndex(toast => {
-                return toast.id === id;
-            });
-        },
-
-        /**
-         * Returns a UUID.
-         *
-         * @returns {String}
-         */
-        uuidv4() {
-            return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-                (
-                    c ^
-                    crypto.getRandomValues(new Uint8Array(1))[0] &
-                        15 >> c / 4
-                ).toString(16)
-            );
-        },
-
-        /**
-         * Figure out the title from the status object.
-         *
-         * @param {Object} status
-         *
-         * @return {String}
-         */
-        getTitle(status) {
-            if (status.title) {
-                return status.title;
-            }
-            if (isBoolean(status.defaultTitle)) {
-                if (status.defaultTitle) {
-                    if (status.mode === 'prompt' || status.mode === 'loader') {
-                        return '';
-                    }
-                    if (status.type) {
-                        return status.type.charAt(0).toUpperCase() + status.type.slice(1);
-                    }
-                } else {
-                    return '';
-                }
-            }
-            if (this.settings.defaultTitle) {
-                if (status.mode === 'prompt' || status.mode === 'loader') {
-                    return '';
-                }
-                if (status.type) {
-                    return status.type.charAt(0).toUpperCase() + status.type.slice(1);
-                }
-            }
-            return 'Info';
-        },
-
-        /**
-         * Check if the toast already is being displayed.
-         *
-         * @param {Object} status
-         *
-         * @return {Boolean}
-         */
-        arrayHasType(status) {
-            return !!this.toasts.find(
-                toast =>
-                    toast.mode && toast.mode === status.mode ||
-                    toast.type && toast.type === status.type
-            );
-        },
-
-        //---API methods---//
-        /**
-         * Merges the passed in settings where the key exists
-         * in the original. If no argument merge refresh
-         * from the original settings.
-         *
-         * @param {Object} settings
-         *
-         * @return {Object<*>}
-         */
-        setSettings(settings = null) {
-            if (settings) {
-                Object.keys(this.settings).forEach(key => {
-                    if (settings[key] !== undefined) {
-                        this.$set(this.settings, key, settings[key]);
-                    }
-                });
-            } else {
-                this.settings = Object.assign({}, this._props);
-            }
-            return this.settings;
-        },
-
-        /**
-         * If argument set return the given setting,
-         * else return the settings object.
-         *
-         * @param {String} setting
-         *
-         * @return {Object|*}
-         */
-        getSettings(setting = null) {
-            return this.settings[setting] ? this.settings[setting] : this.settings;
-        },
-
-        /**
-         * Dismiss the loader for the given ids
-         * or all of the loaders. Return
-         * the count of the dismissed
-         * loaders.
-         *
-         * @param {String|String[]} id
-         *
-         * @return {Number}
-         */
-        stopLoader(id = null) {
-            let ids = id;
-            if (typeof id === 'string') {
-                ids = [id];
-            } else if (Array.isArray(id)) {
-                ids = id;
-            } else {
-                //get all loaders
-                ids = this.toasts.map(toast => {
-                    if (toast.mode === 'loader') {
-                        return toast.id;
-                    }
-                });
-            }
-            ids.forEach(id => {
-                this.$root.$emit('vtLoadStop', { id: id });
-            });
-            return ids.length;
-        },
-
-        /**
-         * Add a new toast object to the toasts
-         * or queue respectively with all
-         * the parameters assigned.
-         * Return the uuid.
-         *
-         * @param {Object} status
-         *
-         * @return {String}
-         */
-        add(status) {
-            // copy object
-            let toast = Object.assign({}, status); //todo update to deep copy
-            // if object doesn't have default values, set them
-            toast.duration = this.settings.warningInfoDuration;
-            if (Number(status.duration) > 0) {
-                toast.duration = Number(status.duration);
-            } else if (status.type) {
-                toast.duration =
-                    status.type === 'error'
-                        ? this.settings.errorDuration
-                        : status.type === 'success'
-                            ? this.settings.successDuration
-                            : this.settings.warningInfoDuration;
-            }
-            toast.answers =
-                status.answers && Object.keys(status.answers).length > 0
-                    ? status.answers
-                    : { Yes: true, No: false };
-            toast.canPause = isBoolean(status.canPause) ? status.canPause : this.settings.canPause;
-            toast.hideProgressbar = isBoolean(status.hideProgressbar)
-                ? status.hideProgressbar
-                : this.settings.hideProgressbar;
-            toast.id = this.uuidv4();
-            toast.title = this.getTitle(status);
-            toast.canTimeout = isBoolean(status.canTimeout)
-                ? status.canTimeout
-                : this.settings.canTimeout;
-            toast.iconEnabled = isBoolean(status.iconEnabled)
-                ? status.iconEnabled
-                : this.settings.iconEnabled;
-            if (['prompt', 'loader'].indexOf(status.mode) === -1) {
-                toast.draggable = isBoolean(status.draggable)
-                    ? status.draggable
-                    : this.settings.draggable;
-            } else {
-                toast.draggable = false;
-            }
-            toast.dragThreshold = isBetween(status.dragThreshold, 0, 5)
-                ? status.dragThreshold
-                : this.settings.dragThreshold;
-            if (status.mode === 'prompt' || status.mode === 'loader') {
-                toast.canTimeout = false;
-            }
-
-            toast.theme = status.theme ? status.theme : this.settings.theme;
-            if (
-                // if singular and there's 1 already showing
-                this.settings.singular && this.toasts.length > 0 ||
-                // if oneType turned on and that type already showing
-                this.settings.oneType && this.arrayHasType(toast) ||
-                // if it would exceed the max number of displayed toasts
-                this.toasts.length >= this.settings.maxToasts
-            ) {
-                this.$set(this.queue, this.queue.length, toast);
-                return toast.id;
-            }
-            this.$set(this.toasts, this.toasts.length, toast);
-            return toast.id;
-        },
-
-        /**
-         * Find the toast from the toast
-         * or the queue, if not found
-         * return false, otherwise
-         * return all.
-         *
-         * @param {String} id
-         *
-         * @return {Boolean|Object|Object[]}
-         */
-        get(id = null) {
-            if (id) {
-                let toast = this.toasts.find(toast => {
-                    return toast.id === id;
-                });
-                if (!toast) {
-                    toast = this.queue.find(toast => {
-                        return toast.id === id;
-                    });
-                }
-                if (!toast) {
-                    return false;
-                }
-                return toast;
-            }
-            return this.toasts.concat(this.queue);
-        },
-
-        /**
-         * Update a toast by merging the
-         * argument and the existing status.
-         * Returns whether the update was
-         * successful or not.
-         *
-         * @param {String} id
-         * @param {Object} status
-         *
-         * @return {Boolean}
-         */
-        set(id, status) {
-            let toast = this.get(id);
-            if (!toast || toast instanceof Array) {
-                return false;
-            }
-            if (this.findToast(id) !== -1) {
-                this.$set(this.toasts, this.findToast(id), Object.assign(toast, status));
-                return true;
-            }
-            this.$set(this.toasts, this.findQueuedToast(id), Object.assign(toast, status));
-            return true;
-        },
-
-        /**
-         * If id giver, removes the corresponding
-         * toast else remove all. If id not
-         * found returns false, otherwise
-         * an array of ids currently
-         * visible to the user.
-         *
-         * @param {String} id
-         * @return {Boolean|Array}
-         */
-        remove(id = null) {
-            if (id) {
-                let index = this.findQueuedToast(id);
-                if (this.settings.singular && index !== -1) {
-                    this.$delete(this.queue, index);
-                    return this.currentlyShowing;
-                }
-                index = this.findToast(id);
-                if (index !== -1) {
-                    this.$delete(this.toasts, index);
-                    return this.currentlyShowing;
-                }
-                return false;
-            }
-            this.toasts = [];
-            return this.currentlyShowing;
-        }
     }
-};
+});
 </script>
 
 <style lang="scss">

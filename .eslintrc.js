@@ -86,14 +86,25 @@ module.exports = {
         // '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
         '@typescript-eslint/member-delimiter-style': 'warn',
         '@typescript-eslint/type-annotation-spacing': 'warn',
-        '@typescript-eslint/naming-convention': [
-            'error',
+        '@typescript-eslint/naming-convention': ['error',
             {
-                "selector": "objectLiteralProperty",
-                "format": ["camelCase"],
-                "filter": {
-                    "regex": "^(UI)",
-                    "match": false
+                selector: 'default',
+                format: ['camelCase']
+            },
+            {
+                selector: 'objectLiteralProperty',
+                format: ['camelCase', 'PascalCase']
+            },
+            {
+                selector: 'typeLike',
+                format: ['PascalCase']
+            },
+            {
+                selector: 'parameter',
+                format: null,
+                filter: {
+                    regex: '^_.*',
+                    match: true
                 }
             }
         ],

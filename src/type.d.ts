@@ -1,21 +1,13 @@
 import { RouteLocationRaw } from 'vue-router';
+import { uuidV4 } from "./utils";
 
-/**
- * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a
- */
-interface AnchorTagAttributes {
-    href?: string;
-    download?: any;
-    /**
-     * @default 'strict-origin-when-cross-origin
-     */
-    referrerpolicy?: 'no-referrer' | 'no-referrer-when-downgrade' | 'origin' | 'origin-when-cross-origin' | 'same-origin' | 'strict-origin' | 'strict-origin-when-cross-origin' | 'unsafe-url';
-    rel?: string;
-    /**
-     * @default '_self'
-     */
-    target?: '_blank' | '_self' | '_parent' | '_top';
-}
+type AnchorTagAttributes = Pick<HTMLAnchorElement, 'href' | 'download' | 'referrerPolicy' | 'rel' | 'target'>;
+
+type XPosition = 'left' | 'center' | 'right';
+type YPosition = 'top' | 'center' | 'bottom';
+export type Position = `${XPosition}-${YPosition}`;
+
+export type MaybeArray<T> = T | T[];
 
 export interface Icon {
     tag?: keyof HTMLElementTagNameMap;
@@ -36,8 +28,7 @@ export interface BaseSettings {
      *
      * @default true
      */
-    // todo - rename to pauseOnHover
-    canPause?: boolean;
+    pauseOnHover?: boolean;
 
     /**
      * Whether a default title should be shown if no title is supplied.
@@ -160,9 +151,11 @@ export interface Settings extends BaseSettings {
      * @default false
      */
     oneType?: boolean;
+
+    customNotifications?: Record<string, any>;
 }
 
-export interface Toast extends BaseSettings {
+export interface ToastOptions extends BaseSettings {
     /**
      * The time the notification is displayed for in milliseconds regardless of its type. (this cannot be updated later)
      */
@@ -192,7 +185,7 @@ export interface Toast extends BaseSettings {
      * If set the notification will be shown in the given mode: loader, prompt.
      * Alternatively you may use the methods: `this.$vToastify.loader("more readable")`
      */
-    mode?: string;
+    mode?: 'loader';
 
     /**
      * If set, clicking on the notification will take the user to the given location.
@@ -207,14 +200,26 @@ export interface Toast extends BaseSettings {
     icon?: string | Icon;
 
     /**
+     * This function will be called when the notification has been dismissed or the timeout has finished.
+     */
+    callback?: CallableFunction;
+}
+
+export type FullToast = ToastOptions & {
+    mode?: 'prompt';
+    /**
      * If the type is prompt the object keys will display to the user and the value will be returned to the promise.
      *
      * @default {{ Yes: true, No: false }}
      */
     answers?: Record<string, any>;
+};
 
+export type Status = string | FullToast;
+
+export interface Toast extends FullToast {
     /**
-     * This function will be called when the notification has been dismissed or the timeout has finished.
+     * v4 uuid.
      */
-    callback?: CallableFunction;
+    id: ReturnType<typeof uuidV4>;
 }
