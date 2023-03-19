@@ -223,3 +223,15 @@ export interface Toast extends FullToast {
      */
     id: ReturnType<typeof uuidV4>;
 }
+
+export interface CustomMethods {
+    [key: string]: (status: Status, title?: string) => Toast;
+}
+
+export type ContainerMethods = {
+    add: (status: Status, title?: string) => Toast;
+    remove: (toast: Toast) => void;
+    get: <T extends Toast['id']>(id?: T) => T extends undefined ? Toast[] : Toast | undefined;
+    set: (id: string, toast: Toast) => boolean;
+    stopLoader: (id: Toast['id']) => number;
+};

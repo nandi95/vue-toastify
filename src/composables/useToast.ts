@@ -1,5 +1,5 @@
-import { FullToast, Settings, Status, Toast } from '../type';
-
+import type { CustomMethods, FullToast, Settings, Status, Toast } from '../type';
+import ToastContainer from '../components/ToastContainer.vue';
 interface ToastPluginAPI {
     notify: (status: Status, title?: string) => Toast;
     success: (status: Status, title?: string) => Toast;
@@ -8,10 +8,17 @@ interface ToastPluginAPI {
     error: (status: Status, title?: string) => Toast;
     loader: (status: Status, title?: string) => Toast;
     prompt: (status: FullToast, title?: string) => Promise<Toast>;
-    [key: string]: (status: Status, title?: string) => Toast | Promise<Toast>;
+    removeToast: (id?: Toast['id']) => boolean;
+    updateToast: (id: Toast['id'], status: FullToast) => Toast;
+    settings: (settings?: Settings) => Settings;
+    getToast: (id: Toast['id']) => Toast | undefined;
+    stopLoader: (id: Toast['id']) => number;
 }
 
-export default function useToast(): ToastPluginAPI {
+export const customMethods: CustomMethods = {};
+export let container: Pick<InstanceType<typeof ToastContainer>, 'add'>;
+
+export default function useToast(): ToastPluginAPI | CustomMethods {
     const notify = (status: Status, title?: string) => {
         if (typeof status === 'string') {
             status = {
@@ -24,7 +31,7 @@ export default function useToast(): ToastPluginAPI {
         if (!status.type) {
             status.type = 'success';
         }
-        return ToastContainer.add(status);
+        return container.add(status);
     };
     const success = (status: Status, title?: string) => notify(status, title);
     const info = (status: Status, title?: string) => {

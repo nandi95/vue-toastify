@@ -1,27 +1,25 @@
 import type { InjectionKey, Plugin } from 'vue';
 import { Settings, Status, ToastOptions } from './type';
-import constants from './components/constants';
 import { createApp } from 'vue';
 import ToastContainer from './components/ToastContainer.vue';
+import { customMethods, container } from './composables/useToast';
+import useSettings from './composables/useSettings';
 
 export const pluginInjectionKey: InjectionKey<any> = Symbol('vue-toastify');
 const plugin: Plugin = (app, settings: Settings = {}) => {
-    const toastApp = createApp(ToastContainer, settings);
-
-    ToastContainer._props = Object.assign(ToastContainer._props, settings);
-
-    const vm = ToastContainer.$mount();
-
-    document.body.appendChild(vm.$el);
-
-    app.use(ToastContainer);
+    useSettings().updateSettings(settings);
+    const mountPoint = document.createElement('div');
+    mountPoint.setAttribute('id', pluginInjectionKey.toString());
+    document.body.appendChild(mountPoint);
+    const toastApp = createApp(ToastContainer).mount(mountPoint);
+    container = toastApp;
 
     if (
         settings.customNotifications &&
             Object.entries(settings.customNotifications).length > 0
     ) {
         Object.entries(settings.customNotifications).forEach(keyValArr => {
-            Object.defineProperty(toastify, keyValArr[0], {
+            Object.defineProperty(customMethods, keyValArr[0], {
                 get() {
                     return (status: Status, title = null) => {
                         let toast: Partial<ToastOptions> = {};
@@ -34,7 +32,7 @@ const plugin: Plugin = (app, settings: Settings = {}) => {
                         if (title) {
                             toast.title = title;
                         }
-                        return vtNotify(toast);
+                        return container.add(toast);
                     };
                 }
             });

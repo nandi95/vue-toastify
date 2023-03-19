@@ -1,26 +1,23 @@
 <template>
     <div>
-        <div
-            v-cloak
-            class="vt-backdrop-hidden"
-            :class="{
-                'vt-backdrop-visible': toasts.length > 0 && settings.withBackdrop
-            }"
-            :style="{
-                backgroundColor: settings.backdrop
-            }" />
-        <vt-transition
-            class="vt-notification-container"
-            :class="positionClasses"
-            :style="flexDirection"
-            :transition="getTransition"
-            :position="settings.position">
-            <vt-toast
-                v-for="status in toasts"
-                :key="status.id"
-                :status="status"
-                :base-icon-class="settings.baseIconClass" />
-        </vt-transition>
+        <div v-cloak
+             class="vt-backdrop-hidden"
+             :class="{
+                 'vt-backdrop-visible': toasts.length > 0 && settings.withBackdrop
+             }"
+             :style="{
+                 backgroundColor: settings.backdrop
+             }" />
+        <VtTransition class="vt-notification-container"
+                      :class="positionClasses"
+                      :style="flexDirection"
+                      :transition="getTransition"
+                      :position="settings.position">
+            <VtToast v-for="status in toasts"
+                     :key="status.id"
+                     :status="status"
+                     :base-icon-class="settings.baseIconClass" />
+        </VtTransition>
     </div>
 </template>
 
@@ -29,95 +26,31 @@
 // todo: create 3 containers and create a manager that manages the queue to push to the correct container
 //  (each container having 3 positions)
 //  ( position will be held on the status ) this will allow for separated transitions
-import { default as VtToast } from './Toast.vue';
+import VtToast from './VtToast.vue';
 import { isBetween, isBoolean, uuidV4 } from '../utils';
-import VTTransition from './VTTransition.vue';
-import { computed, defineComponent, ref, UnwrapRef } from 'vue';
-import { FullToast, MaybeArray, Position, Toast as ToastType, ToastOptions } from "../type";
-import useVtEvents from "../composables/useVtEvents";
+import VtTransition from './VtTransition.vue';
+import { computed, defineComponent, ref } from 'vue';
+// todo why the rename?
+import { ContainerMethods, FullToast, MaybeArray, Toast as ToastType, ToastOptions } from '../type';
+import useVtEvents from '../composables/useVtEvents';
+import useSettings from '../composables/useSettings';
 
-let temp = {};
+const temp = {};
 
 export default defineComponent({
     name: 'VueToastify',
+
     components: {
         VtToast,
-        VTTransition
+        VtTransition
     },
 
-    props: {
-        singular: { type: Boolean, default: false },
-        withBackdrop: { type: Boolean, default: false },
-        backdrop: { type: String, default: 'rgba(0, 0, 0, 0.2)' },
-        position: {
-            validator: (value: Position) => {
-                // The value must match one of these strings
-                return (
-                    [
-                        'top-left',
-                        'top-center',
-                        'top-right',
-                        'center-left',
-                        'center-center',
-                        'center-right',
-                        'bottom-left',
-                        'bottom-center',
-                        'bottom-right'
-                    ].indexOf(value) !== -1
-                );
-            },
+    expose: ['add', 'get', 'set', 'remove', 'stopLoader'],
 
-            default: 'bottom-right'
-        },
-
-        defaultTitle: { type: Boolean, default: true },
-        pauseOnHover: { type: Boolean, default: true },
-        canTimeout: { type: Boolean, default: true },
-        iconEnabled: { type: Boolean, default: true },
-        draggable: { type: Boolean, default: true },
-        dragThreshold: {
-            type: Number,
-            default: 0.75,
-            validator: (value: number) => isBetween(value, 0, 5)
-        },
-
-        hideProgressbar: { type: Boolean, default: false },
-        errorDuration: { type: Number, default: 8000 },
-        successDuration: { type: Number, default: 4000 },
-        warningInfoDuration: { type: Number, default: 6000 },
-        theme: { type: String, default: 'dark' },
-        baseIconClass: { type: String, default: '' },
-        orderLatest: { type: Boolean, default: true },
-        transition: { type: [String, Object], default: () => ({}) },
-        oneType: { type: Boolean, default: false },
-        maxToasts: { type: Number, default: 6 }
-    },
-
-    setup: (_, ctx) => {
+    setup: () => {
         const toasts = ref<ToastType[]>([]);
         const queue = ref<ToastType[]>([]);
-        const settings = ref({
-            singular: false,
-            withBackdrop: false,
-            backdrop: 'rgba(0, 0, 0, 0.2)',
-            position: 'bottom-right',
-            defaultTitle: true,
-            canTimeout: true,
-            pauseOnHover: false,
-            iconEnabled: true,
-            draggable: true,
-            dragThreshold: 0.75,
-            hideProgressbar: false,
-            errorDuration: 8000,
-            successDuration: 4000,
-            warningInfoDuration: 6000,
-            theme: 'dark',
-            baseIconClass: '',
-            orderLatest: true,
-            transition: null,
-            oneType: false,
-            maxToasts: 6
-        });
+        const { settings } = useSettings();
         const events = useVtEvents();
 
         /**
@@ -127,10 +60,10 @@ export default defineComponent({
          * @return {String}
          */
         const getTransition = computed(() => {
-            if (settings.value.transition) {
-                return settings.value.transition;
+            if (settings.transition) {
+                return settings.transition;
             }
-            const position = settings.value.position.split('-');
+            const position = settings.position.split('-');
             if (position[1] === 'left') {
                 return 'vt-left';
             }
@@ -149,8 +82,8 @@ export default defineComponent({
         const flexDirection = computed<Partial<CSSStyleDeclaration>>(() => {
             return {
                 flexDirection:
-                    settings.value.orderLatest &&
-                    settings.value.position.split('-')[0] === 'bottom'
+                    settings.orderLatest &&
+                    settings.position.split('-')[0] === 'bottom'
                         ? 'column'
                         : 'column-reverse'
             };
@@ -162,7 +95,7 @@ export default defineComponent({
          * @return {Object}
          */
         const positionClasses = computed(() => {
-            const position = settings.value.position.split('-');
+            const position = settings.position.split('-');
             const classes: Record<string, boolean> = {};
             if (position[0] === position[1]) {
                 classes['vt-center-center'] = true;
@@ -230,7 +163,7 @@ export default defineComponent({
                     return '';
                 }
             }
-            if (settings.value.defaultTitle) {
+            if (settings.defaultTitle) {
                 if (status.mode === 'prompt' || status.mode === 'loader') {
                     return '';
                 }
@@ -264,18 +197,6 @@ export default defineComponent({
          *
          * @return {Object<*>}
          */
-        const setSettings = (settings?: keyof UnwrapRef<typeof settings>) => {
-            if (settings) {
-                Object.keys(settings.value).forEach(key => {
-                    if (settings[key] !== undefined) {
-                        this.$set(settings.value, key, settings[key]);
-                    }
-                });
-            } else {
-                settings.value = Object.assign({}, this._props);
-            }
-            return settings.value;
-        };
         /**
          * If argument set return the given setting,
          * else return the settings object.
@@ -284,13 +205,6 @@ export default defineComponent({
          *
          * @return {Object|*}
          */
-        const getSettings = (setting?: keyof UnwrapRef<typeof settings>) => {
-            if (!setting) {
-                return settings.value;
-            }
-
-            return settings.value[setting] ? settings.value[setting] : settings.value;
-        };
         /**
          * Dismiss the loader for the given ids
          * or all of the loaders. Return
@@ -301,7 +215,7 @@ export default defineComponent({
          *
          * @return {Number}
          */
-        const stopLoader = (id?: MaybeArray<ToastType['id']>) =>{
+        const stopLoader: ContainerMethods['stopLoader'] = (id?: MaybeArray<ToastType['id']>) => {
             const ids = [];
             if (typeof id === 'string') {
                 ids.push(id);
@@ -330,55 +244,55 @@ export default defineComponent({
             // copy object
             const toast: Omit<ToastType, 'id'> & { id?: ToastType['id'] } = Object.assign({}, status); //todo update to deep copy
             // if object doesn't have default values, set them
-            toast.duration = settings.value.warningInfoDuration;
+            toast.duration = settings.warningInfoDuration;
             if (Number(status.duration) > 0) {
                 toast.duration = Number(status.duration);
             } else if (status.type) {
                 toast.duration =
                     status.type === 'error'
-                        ? settings.value.errorDuration
+                        ? settings.errorDuration
                         : status.type === 'success'
-                            ? settings.value.successDuration
-                            : settings.value.warningInfoDuration;
+                            ? settings.successDuration
+                            : settings.warningInfoDuration;
             }
             toast.answers =
                 status.answers && Object.keys(status.answers).length > 0
                     ? status.answers
                     : { Yes: true, No: false };
-            toast.pauseOnHover = isBoolean(status.pauseOnHover) ? status.pauseOnHover : settings.value.pauseOnHover;
+            toast.pauseOnHover = isBoolean(status.pauseOnHover) ? status.pauseOnHover : settings.pauseOnHover;
             toast.hideProgressbar = isBoolean(status.hideProgressbar)
                 ? status.hideProgressbar
-                : settings.value.hideProgressbar;
+                : settings.hideProgressbar;
             toast.id = uuidV4();
             toast.title = getTitle(status);
             toast.canTimeout = isBoolean(status.canTimeout)
                 ? status.canTimeout
-                : settings.value.canTimeout;
+                : settings.canTimeout;
             toast.iconEnabled = isBoolean(status.iconEnabled)
                 ? status.iconEnabled
-                : settings.value.iconEnabled;
+                : settings.iconEnabled;
             if (['prompt', 'loader'].indexOf(status.mode) === -1) {
                 toast.draggable = isBoolean(status.draggable)
                     ? status.draggable
-                    : settings.value.draggable;
+                    : settings.draggable;
             } else {
                 toast.draggable = false;
             }
             toast.dragThreshold = isBetween(status.dragThreshold, 0, 5)
                 ? status.dragThreshold
-                : settings.value.dragThreshold;
+                : settings.dragThreshold;
             if (status.mode === 'prompt' || status.mode === 'loader') {
                 toast.canTimeout = false;
             }
 
-            toast.theme = status.theme ? status.theme : settings.value.theme;
+            toast.theme = status.theme ? status.theme : settings.theme;
             if (
                 // if singular and there's 1 already showing
-                settings.value.singular && toasts.value.length > 0 ||
+                settings.singular && toasts.value.length > 0 ||
                 // if oneType turned on and that type already showing
-                settings.value.oneType && arrayHasType(toast) ||
+                settings.oneType && arrayHasType(toast) ||
                 // if it would exceed the max number of displayed toasts
-                toasts.value.length >= settings.value.maxToasts
+                toasts.value.length >= settings.maxToasts
             ) {
                 this.$set(queue.value, queue.value.length, toast);
                 return toast.id;
@@ -396,21 +310,11 @@ export default defineComponent({
          *
          * @return {Boolean|Object|Object[]}
          */
-        const get = (id = null) => {
+        const get: ContainerMethods['get'] = (id?: ToastType['id']) => {
             if (id) {
-                let toast = toasts.value.find(toast => {
-                    return toast.id === id;
-                });
-                if (!toast) {
-                    toast = queue.value.find(toast => {
-                        return toast.id === id;
-                    });
-                }
-                if (!toast) {
-                    return false;
-                }
-                return toast;
+                return toasts.value.find(toast => toast.id === id) ?? queue.value.find(toast => toast.id === id);
             }
+
             return toasts.value.concat(queue.value);
         };
         /**
@@ -424,8 +328,8 @@ export default defineComponent({
          *
          * @return {Boolean}
          */
-        const set = (id: ToastType['id'], status) => {
-            let toast = get(id);
+        const set: ContainerMethods['set'] = (id: ToastType['id'], status) => {
+            const toast = get(id);
             if (!toast || toast instanceof Array) {
                 return false;
             }
@@ -446,10 +350,10 @@ export default defineComponent({
          * @param {String} id
          * @return {Boolean|Array}
          */
-        const remove = (id = null) => {
+        const remove: ContainerMethods['remove'] = (id?: ToastType['id']) => {
             if (id) {
                 let index = findQueuedToast(id);
-                if (settings.value.singular && index !== -1) {
+                if (settings.singular && index !== -1) {
                     this.$delete(queue.value, index);
                     return currentlyShowing.value;
                 }
@@ -463,6 +367,19 @@ export default defineComponent({
             toasts.value = [];
             return currentlyShowing.value;
         };
+
+        return {
+            toasts,
+            settings,
+            positionClasses,
+            flexDirection,
+            getTransition,
+            add,
+            get,
+            set,
+            remove,
+            stopLoader
+        };
     },
 
     watch: {
@@ -471,7 +388,7 @@ export default defineComponent({
                 if (isBoolean(newSettings.singular)) {
                     // if singular turned off release all queued toasts
                     if (!newSettings.singular) {
-                        for (let i = 0; i < settings.value.maxToasts - 1; i++) {
+                        for (let i = 0; i < settings.maxToasts - 1; i++) {
                             if (!queue.value[i]) {
                                 continue;
                             }
@@ -503,7 +420,7 @@ export default defineComponent({
                 if (queue.value.length !== 0) {
                     this.$nextTick(() => {
                         // if singular than oneType and maxToasts isn't a concern
-                        if (settings.value.singular) {
+                        if (settings.singular) {
                             if (newValue.length === 0) {
                                 this.$set(toasts.value, toasts.value.length, {
                                     ...queue.value.shift(),
@@ -512,11 +429,11 @@ export default defineComponent({
                             }
                             return;
                         }
-                        if (settings.value.oneType) {
+                        if (settings.oneType) {
                             return queue.value.forEach((status, index) => {
                                 if (
                                     !this.arrayHasType(status) &&
-                                    toasts.value.length < settings.value.maxToasts
+                                    toasts.value.length < settings.maxToasts
                                 ) {
                                     this.$set(toasts.value, toasts.value.length, {
                                         ...queue.value.splice(index, 1)[0],
@@ -525,7 +442,7 @@ export default defineComponent({
                                 }
                             });
                         }
-                        if (toasts.value.length < settings.value.maxToasts) {
+                        if (toasts.value.length < settings.maxToasts) {
                             this.$set(toasts.value, toasts.value.length, {
                                 ...queue.value.shift(),
                                 delayed: true
@@ -539,7 +456,7 @@ export default defineComponent({
         }
     },
 
-    beforeDestroy() {
+    beforeUnmount() {
         this.$root.$off([
             'vtFinished',
             'vtDismissed',
@@ -562,6 +479,7 @@ export default defineComponent({
     height: auto;
     z-index: 9999;
 }
+
 .vt-backdrop-hidden {
     transition: all 150ms ease-out;
     opacity: 0;
@@ -573,17 +491,21 @@ export default defineComponent({
     bottom: 0;
     position: fixed;
 }
+
 .vt-backdrop-visible {
     opacity: 1;
     visibility: visible;
 }
+
 .vt-top {
     top: 0;
 }
+
 .vt-centerY {
     top: 50%;
     transform: translateY(-50%);
 }
+
 .vt-bottom {
     bottom: 0;
 }
@@ -591,10 +513,12 @@ export default defineComponent({
 .vt-left {
     left: 0;
 }
+
 .vt-centerX {
     left: 50%;
     transform: translateX(-50%);
 }
+
 .vt-right {
     right: 0;
 }
@@ -604,5 +528,6 @@ export default defineComponent({
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
 @import "../assets/toast";
 </style>
