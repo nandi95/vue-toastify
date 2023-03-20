@@ -5,6 +5,7 @@
                :style="draggableStyles"
                :class="notificationClass"
                draggable="false"
+               @click="dismiss"
                @mouseenter="isHovered = true"
                @mouseleave="isHovered = false"
                @touchstart="isHovered = true"
@@ -39,7 +40,7 @@
 import ProgressBar from './ProgressBar.vue';
 import VtIcon from './VtIcon.vue';
 import useDraggable from '../composables/useDraggable';
-import { computed, defineComponent, onBeforeUnmount, onMounted, PropType, ref } from 'vue';
+import { computed, defineComponent, onMounted, PropType, ref } from 'vue';
 import { isObject, isString } from '../utils';
 import { Toast } from '../type';
 import useVtEvents from '../composables/useVtEvents';
@@ -63,7 +64,6 @@ export default defineComponent({
 
     setup: (props) => {
         const isHovered = ref(false);
-        const { hasMoved } = useDraggable(props.status.draggable);
         const events = useVtEvents();
 
         const notificationClass = computed(() => {
@@ -148,6 +148,7 @@ export default defineComponent({
                 props.status.callback ? props.status.callback() : null;
             }
         };
+        const { hasMoved, draggableStyles } = useDraggable(props, closeNotification);
         const dismiss = (event: Event) => {
             if (isNotification.value && !hasMoved.value) {
                 closeNotification();
@@ -178,22 +179,13 @@ export default defineComponent({
         };
 
         onMounted(() => {
-            this.$el.addEventListener('click', dismiss);
             if (props.status.mode === 'loader') {
                 events.once('vtLoadStop', payload => {
-                    //if all loaders should stop or only this
-                    if (payload.id) {
-                        if (payload.id === props.status.id) {
-                            closeNotification();
-                        }
-                    } else {
+                    if (payload.id === props.status.id) {
                         closeNotification();
                     }
                 });
             }
-        });
-        onBeforeUnmount(() => {
-            this.$el.removeEventListener('click', this.dismiss);
         });
 
         return {
@@ -204,7 +196,9 @@ export default defineComponent({
             urlTarget,
             isNotification,
             closeNotification,
-            respond
+            respond,
+            dismiss,
+            draggableStyles
         };
     }
 });

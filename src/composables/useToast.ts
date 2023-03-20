@@ -1,5 +1,15 @@
-import type { CustomMethods, FullToast, Settings, Status, Toast } from '../type';
-import ToastContainer from '../components/ToastContainer.vue';
+import type {
+    ContainerMethods,
+    CustomMethods,
+    FullToast,
+    Settings,
+    Status,
+    Toast,
+    ToastOptions
+} from '../type';
+import useSettings from './useSettings';
+import useVtEvents from './useVtEvents';
+
 interface ToastPluginAPI {
     notify: (status: Status, title?: string) => Toast;
     success: (status: Status, title?: string) => Toast;
@@ -9,16 +19,17 @@ interface ToastPluginAPI {
     loader: (status: Status, title?: string) => Toast;
     prompt: (status: FullToast, title?: string) => Promise<Toast>;
     removeToast: (id?: Toast['id']) => boolean;
-    updateToast: (id: Toast['id'], status: FullToast) => Toast;
+    updateToast: (id: Toast['id'], status: FullToast) => boolean;
     settings: (settings?: Settings) => Settings;
     getToast: (id: Toast['id']) => Toast | undefined;
     stopLoader: (id: Toast['id']) => number;
+    remove: (id?: Toast['id']) => number;
 }
 
 export const customMethods: CustomMethods = {};
-export let container: Pick<InstanceType<typeof ToastContainer>, 'add'>;
+export let app: { container: ContainerMethods };
 
-export default function useToast(): ToastPluginAPI | CustomMethods {
+export default function useToast(): ToastPluginAPI & CustomMethods {
     const notify = (status: Status, title?: string) => {
         if (typeof status === 'string') {
             status = {
@@ -31,7 +42,7 @@ export default function useToast(): ToastPluginAPI | CustomMethods {
         if (!status.type) {
             status.type = 'success';
         }
-        return container.add(status);
+        return app.container.add(status);
     };
     const success = (status: Status, title?: string) => notify(status, title);
     const info = (status: Status, title?: string) => {
@@ -59,24 +70,24 @@ export default function useToast(): ToastPluginAPI | CustomMethods {
         return notify(status);
     };
     const error = (status: Status | Response, title?: string) => {
+        const notification = {} as FullToast;
+
         if (typeof status === 'string') {
-            status = {
-                body: status
-            };
+            notification.body = status;
         }
-        if ('status' in status && status.statusText) {
-            status = {
-                title: status.status.toString(),
-                body: status.statusText
-            };
+        if (status instanceof Response) {
+            notification.title = status.status.toString();
+            notification.body = status.statusText;
         }
         if (title) {
-            status.title = title;
+            notification.title = title;
         }
-        status.type = 'error';
-        return notify(status);
+
+        notification.type = 'error';
+
+        return notify(notification);
     };
-    const loader = (status: Status, title?: string) => {
+    const loader = (status: ToastOptions, title?: string) => {
         if (typeof status === 'string') {
             status = {
                 body: status
@@ -94,14 +105,19 @@ export default function useToast(): ToastPluginAPI | CustomMethods {
                 body: status
             };
         }
+
         if (title) {
             status.title = title;
         }
+
         status.mode = 'prompt';
-        const id = ToastContainer.add(status);
+
+        const events = useVtEvents();
+        const toast = app.container.add(status);
+
         return new Promise(resolve => {
-            ToastContainer.$root.$once('vtPromptResponse', payload => {
-                if (payload.id === id) {
+            events.once('vtPromptResponse', payload => {
+                if (payload.id === toast.id) {
                     resolve(payload.response);
                 }
             });
@@ -109,6 +125,7 @@ export default function useToast(): ToastPluginAPI | CustomMethods {
     };
 
     return {
+        ...customMethods,
         notify,
         success,
         info,
@@ -117,25 +134,21 @@ export default function useToast(): ToastPluginAPI | CustomMethods {
         loader,
         prompt,
         stopLoader(id?: Toast['id']) {
-            ToastContainer.stopLoader(id);
+            return app.container.stopLoader(id);
         },
         getToast(id?: Toast['id']): Toast | undefined {
-            return ToastContainer.get(id);
+            return app.container.get(id);
         },
-        updateToast(id: Toast['id'], status): Toast {
-            return ToastContainer.set(id, status);
+        updateToast(id: Toast['id'], status: FullToast): boolean {
+            return app.container.set(id, status);
         },
-        removeToast(id?: Toast['id']): boolean {
-            return ToastContainer.remove(id);
+        remove(id?: Toast['id']): number {
+            return app.container.remove(id);
         },
         settings(settings?: Settings): Settings {
-            if (settings) {
-                ToastContainer.setSettings(settings);
-            }
+            const settingsComposable = useSettings();
 
-            return ToastContainer.getSettings();
-
-            return ToastContainer.setSettings(settings);
+            return settings ? settingsComposable.updateSettings(settings) : settingsComposable.settings;
         }
     };
 }

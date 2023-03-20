@@ -1,5 +1,6 @@
 import { onMounted, onBeforeUnmount, getCurrentInstance, ref, computed, ComputedRef } from 'vue';
-import useVtEvents from "./useVtEvents";
+import useVtEvents from './useVtEvents';
+import { Toast } from '../type';
 
 export function xPos(event: TouchEvent | MouseEvent): number {
     return 'targetTouches' in event && event.targetTouches.length > 0
@@ -22,7 +23,10 @@ type Draggable = {
     draggableStyles: ComputedRef<Partial<CSSStyleDeclaration>>;
 };
 
-export default function useDraggable(props): Draggable {
+export default function useDraggable(
+    props: { status: Required<Pick<Toast, 'id' | 'dragThreshold' | 'draggable'>> },
+    close: () => void
+): Draggable {
     const instance = getCurrentInstance()!;
     const dragStartPos = ref<Coordinates>();
     const dragPos = ref<Coordinates>();
@@ -72,12 +76,12 @@ export default function useDraggable(props): Draggable {
             dragPos.value = { x: xPos(event), y: yPos(event) };
             if (!hasMoved.value) {
                 events.emit('vtDragStarted', {
-                    id: this.status.id,
+                    id: props.status.id,
                     position: dragStartPos.value!
                 });
             } else {
                 events.emit('vtBeingDragged', {
-                    id: this.status.id,
+                    id: props.status.id,
                     position: dragPos.value
                 });
             }
@@ -86,23 +90,23 @@ export default function useDraggable(props): Draggable {
     const dragFinished = () => {
         if (hasMoved.value) {
             events.emit('vtDragFinished', {
-                id: this.status.id,
+                id: props.status.id,
                 position: dragPos.value!
             });
             // todo if at least 75% of the notification is out of the window (in case of mobile)
-            // eslint-disable-next-line no-unused-vars
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const isAlmostOffRight =
                 element.value.getBoundingClientRect().right > window.innerWidth &&
                 element.value.getBoundingClientRect().right - window.innerWidth >
-                startingClientRect.value.width * 0.75;
-            // eslint-disable-next-line no-unused-vars
+                startingClientRect.value!.width * 0.75;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const isAlmostOffLeft =
-                element.value.getBoundingClientRect().right < startingClientRect.value.width * 0.25;
+                element.value.getBoundingClientRect().right < startingClientRect.value!.width * 0.25;
             if (
-                Math.abs(startingClientRect.value.left - element.value.getBoundingClientRect().left) >
-                this.removalDistance
+                Math.abs(startingClientRect.value!.left - element.value.getBoundingClientRect().left) >
+                removalDistance.value
             ) {
-                this.closeNotification();
+                close();
             }
             isDragged.value = false;
             // execute after the next event cycle
@@ -115,7 +119,7 @@ export default function useDraggable(props): Draggable {
         }
     };
 
-    if (canDrag) {
+    if (props.status.draggable) {
         onMounted(() => {
             element.value.addEventListener('touchstart', dragStarted);
             element.value.addEventListener('mousedown', dragStarted);

@@ -225,13 +225,17 @@ export interface Toast extends FullToast {
 }
 
 export interface CustomMethods {
-    [key: string]: (status: Status, title?: string) => Toast;
+    [key: string]: (...args: any[]) => Toast;
 }
 
 export type ContainerMethods = {
-    add: (status: Status, title?: string) => Toast;
-    remove: (toast: Toast) => void;
+    add: (status: FullToast) => Toast;
+    /**
+     * Remove a toast by id.
+     * @param id
+     */
+    remove: (id?: Toast['id']) => number;
     get: <T extends Toast['id']>(id?: T) => T extends undefined ? Toast[] : Toast | undefined;
-    set: (id: string, toast: Toast) => boolean;
-    stopLoader: (id: Toast['id']) => number;
+    set: (id: string, toast: FullToast) => boolean;
+    stopLoader: (id?: Toast['id']) => number;
 };

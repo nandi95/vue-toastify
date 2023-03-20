@@ -28,33 +28,28 @@ const settings = reactive<DefaultSettings>({
     customNotifications: {}
 });
 
-type UpdateSettings =
-    ((newSettings: Settings) => Settings) |
-    (<T extends keyof Settings>(key: T, value: Settings[T]) => Settings);
-
 type UseSettings = {
     settings: DeepReadonly<DefaultSettings>;
-    updateSettings: UpdateSettings;
+    updateSettings: <T extends keyof Settings | Settings>(
+        key: T,
+        value?: T extends keyof Settings ? Settings[T] : never
+    ) => Settings;
 };
 
 /**
  * Base settings applying plugin wide.
  */
 export default function useSettings(): UseSettings {
-    const updateSettings: UpdateSettings = <T extends keyof Settings | Settings>(
-        key: T,
-        newSettings?: Settings | Settings[keyof Settings]
-    ) => {
-        if (arguments.length === 1 && typeof key === 'object') {
-            newSettings = key;
-        } else if (arguments.length === 2 && typeof key === 'string') {
-            newSettings = { [key]: newSettings };
-        }
-
-        return Object.assign(settings, newSettings);
-    };
     return {
         settings: readonly(settings),
-        updateSettings
+        updateSettings: (key, newSettings) => {
+            if (arguments.length === 1 && typeof key === 'object') {
+                newSettings = key;
+            } else if (arguments.length === 2 && typeof key === 'string') {
+                newSettings = { [key]: newSettings };
+            }
+
+            return Object.assign(settings, newSettings);
+        }
     };
 }

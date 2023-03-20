@@ -15,11 +15,13 @@ type EventMap = {
     vtResumed: { id: string };
 };
 
+export type EventName = keyof EventMap;
+
 type Events = {
-    on: <T extends keyof EventMap>(event: T, callback: (payload: EventMap[T]) => void) => void;
-    once: <T extends keyof EventMap>(event: T, callback: (payload: EventMap[T]) => void) => void;
-    off: <T extends keyof EventMap>(event: T, callback?: (payload: EventMap[T]) => void) => void;
-    emit: <T extends keyof EventMap>(event: T, payload: EventMap[T]) => void;
+    on: <T extends EventName>(event: T, callback: (payload: EventMap[T]) => void) => void;
+    once: <T extends EventName>(event: T, callback: (payload: EventMap[T]) => void) => void;
+    off: <T extends EventName>(event: T, callback?: (payload: EventMap[T]) => void) => void;
+    emit: <T extends EventName>(event: T, payload: EventMap[T]) => void;
 };
 
 const events: Record<keyof EventMap, CallableFunction[]> = {
