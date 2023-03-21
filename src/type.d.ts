@@ -185,7 +185,14 @@ export interface ToastOptions extends BaseSettings {
      * If set the notification will be shown in the given mode: loader, prompt.
      * Alternatively you may use the methods: `this.$vToastify.loader("more readable")`
      */
-    mode?: 'loader';
+    mode?: 'loader' | 'prompt';
+
+    /**
+     * If the type is prompt the object keys will display to the user and the value will be returned to the promise.
+     *
+     * @default {{ Yes: true, No: false }}
+     */
+    answers?: Record<string, any>;
 
     /**
      * If set, clicking on the notification will take the user to the given location.
@@ -203,21 +210,16 @@ export interface ToastOptions extends BaseSettings {
      * This function will be called when the notification has been dismissed or the timeout has finished.
      */
     callback?: CallableFunction;
+
+    /**
+     * Delay the notification by the given number of milliseconds.
+     */
+    delay?: number;
 }
 
-export type FullToast = ToastOptions & {
-    mode?: 'prompt';
-    /**
-     * If the type is prompt the object keys will display to the user and the value will be returned to the promise.
-     *
-     * @default {{ Yes: true, No: false }}
-     */
-    answers?: Record<string, any>;
-};
+export type Status = string | ToastOptions;
 
-export type Status = string | FullToast;
-
-export interface Toast extends FullToast {
+export interface Toast extends ToastOptions {
     /**
      * v4 uuid.
      */
@@ -225,17 +227,17 @@ export interface Toast extends FullToast {
 }
 
 export interface CustomMethods {
-    [key: string]: (...args: any[]) => Toast;
+    [key: string]: (...args: any[]) => Toast | Promise<Toast>;
 }
 
 export type ContainerMethods = {
-    add: (status: FullToast) => Toast;
+    add: (status: ToastOptions) => Toast;
     /**
      * Remove a toast by id.
      * @param id
      */
     remove: (id?: Toast['id']) => number;
     get: <T extends Toast['id']>(id?: T) => T extends undefined ? Toast[] : Toast | undefined;
-    set: (id: string, toast: FullToast) => boolean;
+    set: (id: string, toast: ToastOptions) => boolean;
     stopLoader: (id?: Toast['id']) => number;
 };

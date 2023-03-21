@@ -5,6 +5,7 @@
                :style="draggableStyles"
                :class="notificationClass"
                draggable="false"
+               :data-delay="!!status.delay"
                @click="dismiss"
                @mouseenter="isHovered = true"
                @mouseleave="isHovered = false"

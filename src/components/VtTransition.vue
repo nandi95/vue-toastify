@@ -22,7 +22,7 @@ export default defineComponent({
         position: { type: String, required: true }
     },
 
-    setup: () => {
+    setup: (props) => {
         const instance = getCurrentInstance()!;
 
         // todo - consider will-change
@@ -33,7 +33,7 @@ export default defineComponent({
             ) {
                 return;
             }
-            const position = this.position.split('-');
+            const position = props.position.split('-');
             // https://forum.vuejs.org/t/transition-group-move-class-not-occuring-in-the-array/6381/5
             // these rules ensure the toast stays where it is
             const { height, width, marginBottom } = window.getComputedStyle(el);
@@ -75,11 +75,11 @@ export default defineComponent({
 
         const beforeLeave = (el: HTMLElement) => {
             // this ensures that notifications won't move until the other has been removed
-            for (let i = 0; i < el.parentNode.childNodes.length; i++) {
-                if (el.parentNode.childNodes[i].isSameNode(el)) {
+            for (let i = 0; i < el.parentNode!.childNodes.length; i++) {
+                if (el.parentNode!.childNodes[i].isSameNode(el)) {
                     continue;
                 }
-                el.parentNode.childNodes[i].dataset.delayed = true;
+                el.parentNode!.childNodes[i].dataset.delayed = true;
             }
             el.classList.remove('vt-default-position');
         };

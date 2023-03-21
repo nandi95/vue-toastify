@@ -1,7 +1,6 @@
 import type {
     ContainerMethods,
     CustomMethods,
-    FullToast,
     Settings,
     Status,
     Toast,
@@ -17,9 +16,9 @@ interface ToastPluginAPI {
     warning: (status: Status, title?: string) => Toast;
     error: (status: Status, title?: string) => Toast;
     loader: (status: Status, title?: string) => Toast;
-    prompt: (status: FullToast, title?: string) => Promise<Toast>;
+    prompt: <T>(status: Omit<ToastOptions, 'mode' | 'answers'> & { answers: Record<string, T> }) => Promise<T>;
     removeToast: (id?: Toast['id']) => boolean;
-    updateToast: (id: Toast['id'], status: FullToast) => boolean;
+    updateToast: (id: Toast['id'], status: ToastOptions) => boolean;
     settings: (settings?: Settings) => Settings;
     getToast: (id: Toast['id']) => Toast | undefined;
     stopLoader: (id: Toast['id']) => number;
@@ -70,7 +69,7 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         return notify(status);
     };
     const error = (status: Status | Response, title?: string) => {
-        const notification = {} as FullToast;
+        const notification = {} as ToastOptions;
 
         if (typeof status === 'string') {
             notification.body = status;
@@ -87,7 +86,7 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
 
         return notify(notification);
     };
-    const loader = (status: ToastOptions, title?: string) => {
+    const loader = (status: Status, title?: string) => {
         if (typeof status === 'string') {
             status = {
                 body: status
@@ -99,23 +98,13 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         status.mode = 'loader';
         return notify(status);
     };
-    const prompt = async (status: Status, title?: string) => {
-        if (typeof status === 'string') {
-            status = {
-                body: status
-            };
-        }
-
-        if (title) {
-            status.title = title;
-        }
-
-        status.mode = 'prompt';
+    const prompt = async <T>(status: Omit<ToastOptions, 'mode' | 'answers'> & { answers: Record<string, T> }) => {
+        (status as ToastOptions).mode = 'prompt';
 
         const events = useVtEvents();
         const toast = app.container.add(status);
 
-        return new Promise(resolve => {
+        return new Promise<T>(resolve => {
             events.once('vtPromptResponse', payload => {
                 if (payload.id === toast.id) {
                     resolve(payload.response);
@@ -139,7 +128,7 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         getToast(id?: Toast['id']): Toast | undefined {
             return app.container.get(id);
         },
-        updateToast(id: Toast['id'], status: FullToast): boolean {
+        updateToast(id: Toast['id'], status: ToastOptions): boolean {
             return app.container.set(id, status);
         },
         remove(id?: Toast['id']): number {
@@ -149,6 +138,9 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
             const settingsComposable = useSettings();
 
             return settings ? settingsComposable.updateSettings(settings) : settingsComposable.settings;
+        },
+        removeToast(id?: Toast['id']): boolean {
+            return app.container.remove(id);
         }
     };
 }

@@ -29,13 +29,12 @@
 import VtToast from './VtToast.vue';
 import { isBetween, isBoolean, uuidV4 } from '../utils';
 import VtTransition from './VtTransition.vue';
-import { computed, defineComponent, nextTick, onBeforeUnmount, ref, watch } from "vue";
-// todo why the rename?
-import type { ContainerMethods, FullToast, MaybeArray, Toast, ToastOptions } from '../type';
+import { computed, defineComponent, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import type { ContainerMethods, ToastOptions, MaybeArray, Toast } from '../type';
 import useVtEvents, { EventName } from '../composables/useVtEvents';
 import useSettings from '../composables/useSettings';
 
-const temp = {};
+const temp = {} as { orderLatest?: boolean };
 
 export default defineComponent({
     name: 'VueToastify',
@@ -50,7 +49,7 @@ export default defineComponent({
     setup: () => {
         const toasts = ref<Toast[]>([]);
         const queue = ref<Toast[]>([]);
-        const { settings } = useSettings();
+        const { settings, updateSettings } = useSettings();
         const events = useVtEvents();
 
         /**
@@ -156,6 +155,7 @@ export default defineComponent({
                     if (status.mode === 'prompt' || status.mode === 'loader') {
                         return '';
                     }
+
                     if (status.type) {
                         return status.type.charAt(0).toUpperCase() + status.type.slice(1);
                     }
@@ -167,6 +167,7 @@ export default defineComponent({
                 if (status.mode === 'prompt' || status.mode === 'loader') {
                     return '';
                 }
+
                 if (status.type) {
                     return status.type.charAt(0).toUpperCase() + status.type.slice(1);
                 }
@@ -240,9 +241,15 @@ export default defineComponent({
          *
          * @return {String}
          */
-        const add = (status: FullToast) => {
+        const add = (status: ToastOptions) => {
             // copy object
-            const toast: Omit<Toast, 'id'> & { id?: Toast['id'] } = Object.assign({}, status); //todo update to deep copy
+            const toast = Object.assign(
+                {},
+                status,
+                {
+                    id: uuidV4()
+                }
+            ) as Toast; //todo update to deep copy
             // if object doesn't have default values, set them
             toast.duration = settings.warningInfoDuration;
 
@@ -265,7 +272,6 @@ export default defineComponent({
             toast.hideProgressbar = isBoolean(status.hideProgressbar)
                 ? status.hideProgressbar
                 : settings.hideProgressbar;
-            toast.id = uuidV4();
             toast.title = getTitle(status);
             toast.canTimeout = isBoolean(status.canTimeout)
                 ? status.canTimeout
@@ -300,11 +306,11 @@ export default defineComponent({
                 // if it would exceed the max number of displayed toasts
                 toasts.value.length >= settings.maxToasts
             ) {
-                this.$set(queue.value, queue.value.length, toast);
+                queue.value.push(toast);
                 return toast.id;
             }
 
-            this.$set(toasts.value, toasts.value.length, toast);
+            toasts.value.push(toast);
             return toast.id;
         };
         /**
@@ -337,12 +343,19 @@ export default defineComponent({
          */
         const set: ContainerMethods['set'] = (id: Toast['id'], status) => {
             const toast = get(id);
+
             if (!toast) {
                 return false;
             }
 
             if (findToast(id) !== -1) {
-                this.$set(toasts.value, findToast(id), Object.assign(toast, status));
+                toasts.value = toasts.value.map(toast => {
+                    if (toast.id === id) {
+                        return Object.assign(toast, status);
+                    }
+
+                    return toast;
+                });
                 return true;
             }
 
@@ -384,32 +397,30 @@ export default defineComponent({
             return currentlyShowing.value.length;
         };
 
-        watch(() => settings.singular, newVal => {
+        watch(() => settings, (newSettings, oldSettings) => {
             // if singular turned off release all queued toasts
-            if (!settings.singular) {
-                for (let i = 0; i < settings.maxToasts - 1; i++) {
+            if (!newSettings.singular) {
+                for (let i = 0; i < newSettings.maxToasts - 1; i++) {
                     if (!queue.value[i]) {
                         continue;
                     }
-                    if (!this.arrayHasType(queue.value[i])) {
-                        this.$set(
-                            toasts.value,
-                            toasts.value.length,
-                            queue.value.splice(i, 1)[0]
-                        );
+
+                    if (!arrayHasType(queue.value[i])) {
+                        toasts.value.push(queue.value.splice(i, 1)[0]);
                     }
                 }
                 if (isBoolean(temp.orderLatest)) {
-                    settings.orderLatest = temp.orderLatest;
+                    updateSettings({ orderLatest: temp.orderLatest });
                     delete temp.orderLatest;
                 }
                 return;
             }
+
             temp.orderLatest = oldSettings.orderLatest;
-            settings.orderLatest = false;
+            updateSettings({ orderLatest: false });
         });
 
-        watch(() => toasts.value, async newVal => {
+        watch(() => toasts.value, async newValue => {
             // if there's anything at all in the queue
             if (queue.value.length !== 0) {
                 await nextTick();
@@ -417,7 +428,8 @@ export default defineComponent({
                 // if singular than oneType and maxToasts isn't a concern
                 if (settings.singular) {
                     if (newValue.length === 0) {
-                        this.$set(toasts.value, toasts.value.length, {
+                        // fixme - this will re-trigger the watch?
+                        toasts.value.push({
                             ...queue.value.shift(),
                             delayed: true
                         });
@@ -427,7 +439,7 @@ export default defineComponent({
                 if (settings.oneType) {
                     return queue.value.forEach((status, index) => {
                         if (
-                            !this.arrayHasType(status) &&
+                            !arrayHasType(status) &&
                             toasts.value.length < settings.maxToasts
                         ) {
                             this.$set(toasts.value, toasts.value.length, {
