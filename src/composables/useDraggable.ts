@@ -49,7 +49,10 @@ export default function useDraggable(
         return startingClientRect.value.width * props.status.dragThreshold;
     });
     const draggableStyles = computed<Partial<CSSStyleDeclaration>>(() => {
-        if (!isDragged.value || dragStartPos.value!.x === dragPos.value!.x || !hasMoved.value) {
+        if (!isDragged.value ||
+            dragPos.value !== undefined && dragStartPos.value !== undefined && dragStartPos.value.x === dragPos.value.x ||
+            !hasMoved.value
+        ) {
             return {};
         }
 

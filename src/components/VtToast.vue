@@ -13,7 +13,7 @@
                @touchend="isHovered = false">
         <ProgressBar v-if="isNotification && status.canTimeout"
                      :id="status.id"
-                     :ref="'progress-' + status.id"
+                     ref="progressBar"
                      :can-pause="status.pauseOnHover"
                      :duration="status.duration"
                      :is-hovered="isHovered"
@@ -66,6 +66,7 @@ export default defineComponent({
     setup: (props) => {
         const isHovered = ref(false);
         const events = useVtEvents();
+        const progressBar = ref();
 
         const notificationClass = computed(() => {
             const obj: Record<string, boolean> = {};
@@ -77,7 +78,7 @@ export default defineComponent({
             obj['vt-theme-' + props.status.theme!] = true;
             return obj;
         });
-        const isNotification = computed(() => ['prompt', 'loader'].indexOf(props.status.mode) === -1);
+        const isNotification = computed(() => ['prompt', 'loader'].indexOf(props.status.mode!) === -1);
         const tag = computed(() => {
             if (!hasUrl.value) {
                 return 'div';
@@ -133,9 +134,8 @@ export default defineComponent({
 
         const closeNotification = () => {
             const progress = Math.ceil(
-                this.$refs['progress-' + props.status.id]
-                    ? this.$refs['progress-' + props.status.id].progress
-                    : undefined
+                // todo - will this work considering every toast has the same ref name?
+                progressBar.value ? progressBar.value.progress : NaN
             );
 
             // if notification manually dismissed before the timeout or in case if it cannot timeout AND isn't prompt or loader
@@ -199,7 +199,8 @@ export default defineComponent({
             closeNotification,
             respond,
             dismiss,
-            draggableStyles
+            draggableStyles,
+            progressBar
         };
     }
 });

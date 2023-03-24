@@ -12,7 +12,8 @@
 </template>
 
 <script lang="ts">
-import { getCurrentInstance, defineComponent } from 'vue';
+import { defineComponent } from 'vue';
+import useSettings from '../composables/useSettings';
 
 export default defineComponent({
     name: 'VtTransition',
@@ -23,13 +24,13 @@ export default defineComponent({
     },
 
     setup: (props) => {
-        const instance = getCurrentInstance()!;
+        const { settings } = useSettings();
 
         // todo - consider will-change
         const leave = (el: HTMLElement) => {
             if (
-                instance.parent!.singular ||
-                instance.parent!.oneType && instance.parent!.$el.childNodes.length === 1
+                settings.singular ||
+                settings.oneType && el.parentNode!.childNodes.length === 1
             ) {
                 return;
             }
@@ -39,20 +40,18 @@ export default defineComponent({
             const { height, width, marginBottom } = window.getComputedStyle(el);
             // when the last toast removed the container collapses hence the need for the width subtraction
             el.style.left =
-                el.offsetLeft -
-                (el.parentNode.childNodes.length === 1 ? parseInt(width) : 0) +
-                'px';
-            el.style.top = el.offsetTop + 'px';
+                String(el.offsetLeft - (el.parentNode!.childNodes.length === 1 ? parseInt(width) : 0)) + 'px';
+            el.style.top = String(el.offsetTop) + 'px';
             if (position[0] === 'center') {
                 el.style.top =
-                    parseInt(el.style.top) -
+                    String(parseInt(el.style.top) -
                     parseInt(height) / 2 -
-                    parseInt(marginBottom) / 2 +
+                    parseInt(marginBottom) / 2) +
                     'px';
             }
             if (position[0] === 'bottom') {
                 el.style.top =
-                    parseInt(el.style.top) - parseInt(height) - parseInt(marginBottom) + 'px';
+                    String(parseInt(el.style.top) - parseInt(height) - parseInt(marginBottom)) + 'px';
             }
             // absolute position may mess with the width so lets set to initial
             el.style.width = width;
@@ -60,13 +59,14 @@ export default defineComponent({
         };
 
         const beforeEnter = (el: HTMLElement) => {
+            // todo - has this ever worked?
             // no delay on making space for notification
-            this.$el.childNodes.forEach(node => delete node.dataset.delayed);
-            if (el.__vue__.status.delayed) {
-                el.dataset.delayed = true;
-                el.classList.add('vt-move');
-                delete el.__vue__.status.delayed;
-            }
+            // this.$el.childNodes.forEach(node => delete node.dataset.delayed);
+            // if (el.__vue__.status.delayed) {
+            //     el.dataset.delayed = true;
+            //     el.classList.add('vt-move');
+            //     delete el.__vue__.status.delayed;
+            // }
         };
 
         const afterEnter = (el: HTMLElement) => {
@@ -79,7 +79,7 @@ export default defineComponent({
                 if (el.parentNode!.childNodes[i].isSameNode(el)) {
                     continue;
                 }
-                el.parentNode!.childNodes[i].dataset.delayed = true;
+                (el.parentElement!.children[i] as HTMLElement).dataset.delayed = 'true';
             }
             el.classList.remove('vt-default-position');
         };

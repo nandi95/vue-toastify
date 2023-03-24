@@ -108,14 +108,6 @@ export default defineComponent({
             ] = true;
             return classes;
         });
-        /**
-         * Returns the ids of all the toasts
-         * currently visible to the user.
-         * @return {String[]}
-         */
-        const currentlyShowing = computed(() => {
-            return toasts.value.map(toast => toast.id);
-        });
 
         /**
          * Find the toast with the given id in the toasts
@@ -228,6 +220,7 @@ export default defineComponent({
             }
             ids.forEach(id => {
                 events.emit('vtLoadStop', { id: id });
+                remove(id);
             });
             return ids.length;
         };
@@ -311,6 +304,11 @@ export default defineComponent({
             }
 
             toasts.value.push(toast);
+            events.once('vtDismissed', (payload) => {
+                if (payload.id === toast.id) {
+                    remove(toast.id);
+                }
+            });
             return toast.id;
         };
         /**
@@ -390,11 +388,12 @@ export default defineComponent({
                     return 1;
                 }
 
-                return index;
+                return 0;
             }
+            const removeCount = toasts.value.length;
             toasts.value = [];
 
-            return currentlyShowing.value.length;
+            return removeCount;
         };
 
         watch(() => settings, (newSettings, oldSettings) => {

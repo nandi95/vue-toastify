@@ -227,7 +227,6 @@ export interface Toast extends ToastOptions {
 }
 
 export interface CustomMethods {
-    [key: string]: (...args: any[]) => Toast | Promise<Toast>;
 }
 
 export type ContainerMethods = {

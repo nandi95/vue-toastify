@@ -43,13 +43,14 @@ export default function useSettings(): UseSettings {
     return {
         settings: readonly(settings),
         updateSettings: (key, newSettings) => {
+            let settingsNew = {} as Settings;
             if (arguments.length === 1 && typeof key === 'object') {
-                newSettings = key;
+                settingsNew = key;
             } else if (arguments.length === 2 && typeof key === 'string') {
-                newSettings = { [key]: newSettings };
+                settingsNew = { [key]: newSettings };
             }
 
-            return Object.assign(settings, newSettings);
+            return Object.assign(settings, settingsNew);
         }
     };
 }

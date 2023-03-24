@@ -347,26 +347,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, getCurrentInstance, onMounted, ref, watch } from 'vue';
-import { ToastOptions } from "./type";
+import { defineComponent, onMounted, reactive, ref, watch } from 'vue';
+import { ToastOptions } from './type';
+import { useToast } from './index';
 
 export default defineComponent({
     name: 'App',
 
     setup: () => {
-        const instance = getCurrentInstance();
-
-        const status = ref<ToastOptions>({
+        const status = reactive<ToastOptions>({
             title: 'Toastified!',
             body: 'This is the body.',
-            type: null,
+            type: undefined,
             pauseOnHover: false,
             canTimeout: false,
             defaultTitle: true,
-            duration: null,
-            icon: null,
-            mode: '',
-            answers: null,
+            duration: undefined,
+            icon: undefined,
+            mode: undefined,
+            answers: undefined,
             url: ''
         });
         const lightTheme = ref(false);
@@ -376,95 +375,96 @@ export default defineComponent({
         const body = ref(null);
         const showWarning = ref(false);
         const loading = ref(false);
+        const toast = useToast();
 
         onMounted(() => {
-            instance.$vtNotify(this.status);
+            toast.notify(status);
         });
 
         watch(() => withBackdrop.value, val => {
-            this.$vToastify.setSettings({ withBackdrop: val });
+            toast.settings({ withBackdrop: val });
         });
         watch(() => lightTheme.value, val => {
-            this.$vToastify.setSettings({ theme: val ? 'light' : 'dark' });
+            toast.settings({ theme: val ? 'light' : 'dark' });
         });
         watch(() => defaultTitle.value, val => {
-            this.$vToastify.setSettings({ defaultTitle: val });
+            toast.settings({ defaultTitle: val });
         });
         watch(() => singular.value, val => {
-            this.$vToastify.setSettings({ singular: val });
+            toast.settings({ singular: val });
         });
 
-        const addToastify = () => {
-            if (this.status.body.length > 0) {
-                if (this.status.mode === 'prompt') {
+        const addToastify = async () => {
+            if (status.body.length > 0) {
+                if (status.mode === 'prompt') {
                     try {
-                        const answersString = this.status.answers;
-                        this.status.answers = eval('(' + answersString + ')');
-                        this.$vToastify.prompt(this.status).then(value => {
+                        const answersString = status.answers;
+                        status.answers = JSON.parse('(' + String(answersString) + ')');
+                        await toast.prompt(status as Parameters<typeof toast['prompt']>[0]).then(value => {
                             console.info('The answer was:');
                             console.log(
                                 '%c%s',
                                 'color: #10bd0a;',
-                                value + ' (' + typeof value + ')'
+                                String(value) + ' (' + typeof value + ')'
                             );
                         });
-                        this.status.answers = answersString;
+                        status.answers = answersString;
                     } catch (error) {
-                        this.$vToastify.error(
+                        toast.error(
                             'Invalid answers object. More info can be found in the console.'
                         );
                         console.error(error);
                     }
                 } else {
-                    this.$vtNotify(this.status);
-                    if (this.status.mode === 'loader') {
-                        this.loading = true;
-                        if (this.withBackdrop) {
-                            this.showWarning = true;
+                    toast.notify(status);
+                    if (status.mode === 'loader') {
+                        loading.value = true;
+                        if (withBackdrop.value) {
+                            showWarning.value = true;
                         }
                     }
                 }
             } else {
-                this.$vToastify.error('The body has to be present.', '😠');
+                toast.error('The body has to be present.', '😠');
             }
         };
         const checkTimingProps = () => {
-            if (!this.status.canTimeout) {
-                this.status.duration = null;
-                this.status.pauseOnHover = false;
+            if (!status.canTimeout) {
+                status.duration = undefined;
+                status.pauseOnHover = false;
                 setTimeout(() => {
-                    document.getElementById('can-pause').checked = false;
+                    (document.getElementById('can-pause') as HTMLInputElement).checked = false;
                 }, 75);
             }
         };
         const disableProps = () => {
             if (
-                this.status.mode === 'prompt' ||
-          this.status.mode === 'loader'
+                status.mode === 'prompt' ||
+          status.mode === 'loader'
             ) {
-                this.status.duration = null;
-                this.status.defaultTitle = false;
-                this.status.pauseOnHover = false;
-                this.status.canTimeout = false;
-                this.status.type = '';
+                status.duration = undefined;
+                status.defaultTitle = false;
+                status.pauseOnHover = false;
+                status.canTimeout = false;
+                status.type = undefined;
                 setTimeout(() => {
-                    document.getElementById('can-pause').checked = false;
-                    document.getElementById('can-timeout').checked = false;
-                    document.getElementById('default-title').checked = false;
+                    (document.getElementById('can-pause') as HTMLInputElement).checked = false;
+                    (document.getElementById('can-timeout') as HTMLInputElement).checked = false;
+                    (document.getElementById('default-title') as HTMLInputElement).checked = false;
                 }, 75);
             }
         };
         const loadStop = () => {
-            this.$vToastify.stopLoader();
-            this.loading = false;
-            this.showWarning = false;
+            toast.stopLoader();
+            loading.value = false;
+            showWarning.value = false;
         };
         const checkIfLoading = () => {
-            if (this.$vToastify.getToast().length < 1) {
-                this.withBackdrop = false;
+            if (toast.getToasts().length < 1) {
+                withBackdrop.value = false;
             }
-            if (this.loading) {
-                this.showWarning = true;
+            if (loading.value) {
+                showWarning.value = true;
             }
         };
 

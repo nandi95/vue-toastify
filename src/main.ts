@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import VueToastify from './VueToastify';
+import plugin from './index';
 import './assets/style.scss';
 
-createApp(App).use(VueToastify).mount('#app');
+createApp(App).use(plugin).mount('#app');

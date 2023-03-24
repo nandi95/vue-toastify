@@ -17,16 +17,18 @@ interface ToastPluginAPI {
     error: (status: Status, title?: string) => Toast;
     loader: (status: Status, title?: string) => Toast;
     prompt: <T>(status: Omit<ToastOptions, 'mode' | 'answers'> & { answers: Record<string, T> }) => Promise<T>;
-    removeToast: (id?: Toast['id']) => boolean;
     updateToast: (id: Toast['id'], status: ToastOptions) => boolean;
     settings: (settings?: Settings) => Settings;
-    getToast: (id: Toast['id']) => Toast | undefined;
-    stopLoader: (id: Toast['id']) => number;
+    findToast: <T extends Toast['id']>(id: T) => Toast | undefined;
+    getToasts: () => Toast[];
+    stopLoader: (id?: Toast['id']) => number;
     remove: (id?: Toast['id']) => number;
 }
 
 export const customMethods: CustomMethods = {};
-export let app: { container: ContainerMethods };
+// @ts-expect-error
+//eslint-disable-next-line prefer-const
+export let app: { container: ContainerMethods } = {};
 
 export default function useToast(): ToastPluginAPI & CustomMethods {
     const notify = (status: Status, title?: string) => {
@@ -107,7 +109,7 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         return new Promise<T>(resolve => {
             events.once('vtPromptResponse', payload => {
                 if (payload.id === toast.id) {
-                    resolve(payload.response);
+                    resolve(payload.response as T);
                 }
             });
         });
@@ -125,8 +127,11 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         stopLoader(id?: Toast['id']) {
             return app.container.stopLoader(id);
         },
-        getToast(id?: Toast['id']): Toast | undefined {
+        findToast(id?: Toast['id']): Toast | undefined {
             return app.container.get(id);
+        },
+        getToasts(): Toast[] {
+            return app.container.get() as unknown as Toast[];
         },
         updateToast(id: Toast['id'], status: ToastOptions): boolean {
             return app.container.set(id, status);
@@ -138,9 +143,6 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
             const settingsComposable = useSettings();
 
             return settings ? settingsComposable.updateSettings(settings) : settingsComposable.settings;
-        },
-        removeToast(id?: Toast['id']): boolean {
-            return app.container.remove(id);
         }
     };
 }

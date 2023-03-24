@@ -49,6 +49,7 @@
   align-items: center;
   flex-flow: wrap row;
   align-content: center;
+  user-select: none;
   & > .vt-progress-bar {
     height: 3px;
     width: 100%;
@@ -169,12 +170,12 @@
 
   @each $name, $value in $colors {
     $adjusted: 0;
-    $value: math.div($value, 255);
+    $value: calc($value / 255);
 
     @if $value < 0.03928 {
-      $value: math.div($value, 12.92);
+      $value: calc($value / 12.92);
     } @else {
-      $value: ($value + .055) / 1.055;
+      $value: calc(($value + .055) / 1.055);
       $value: math.pow($value, 2); // todo exponent used to be 2.4
     }
 
