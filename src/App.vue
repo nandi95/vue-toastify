@@ -13,316 +13,84 @@
             <div
                 class="flex xl:justify-center justify-around flex-wrap flex-row">
                 <div class="flex flex-col w-auto sm:max-w-50 sm:mr-2">
-                    <div
-                        class="font-mono border-gray-200 bg-gray-800 text-gray-400 p-5 rounded-lg shadow-xl mx-auto max-w-md mb-8 break-words">
-                        <p>status: {</p>
-                        <p v-if="status.title" class="ml-8">
-                            title: "<span v-text="status.title" />",
-                        </p>
-                        <p class="ml-8">
-                            body: "<span v-text="status.body" /><span>"</span>
-                            <span v-if="
-                                status.duration ||
-                                    status.icon ||
-                                    status.defaultTitle ||
-                                    status.canTimeout ||
-                                    status.pauseOnHover ||
-                                    status.type ||
-                                    status.mode ||
-                                    status.answers ||
-                                    status.url
-                            ">,</span>
-                        </p>
-                        <p v-if="status.type" class="ml-8">
-                            type: "<span v-text="status.type" /><span>"</span>
-                            <span v-if="
-                                status.duration ||
-                                    status.icon ||
-                                    status.defaultTitle ||
-                                    status.canTimeout ||
-                                    status.pauseOnHover ||
-                                    status.mode ||
-                                    status.answers ||
-                                    status.url
-                            ">,</span>
-                        </p>
-                        <p v-if="status.pauseOnHover" class="ml-8">
-                            pauseOnHover: <span v-text="status.pauseOnHover" />
-                            <span v-if="
-                                status.duration ||
-                                    status.icon ||
-                                    status.defaultTitle ||
-                                    status.canTimeout ||
-                                    status.mode ||
-                                    status.answers ||
-                                    status.url
-                            ">,</span>
-                        </p>
-                        <p v-if="status.canTimeout" class="ml-8">
-                            canTimeout: <span v-text="status.canTimeout" />
-                            <span v-if="
-                                status.duration ||
-                                    status.icon ||
-                                    status.defaultTitle ||
-                                    status.mode ||
-                                    status.answers ||
-                                    status.url
-                            ">,</span>
-                        </p>
-                        <p v-if="status.defaultTitle" class="ml-8">
-                            defaultTitle:
-                            <span v-text="status.defaultTitle" /><span v-if="
-                                status.duration ||
-                                    status.icon ||
-                                    status.mode ||
-                                    status.answers ||
-                                    status.url
-                            ">,</span>
-                        </p>
-                        <p v-if="status.mode" class="ml-8">
-                            mode: "<span v-text="status.mode" /><span>"</span><span v-if="
-                                status.duration ||
-                                    status.icon ||
-                                    status.answers ||
-                                    status.url
-                            ">,</span>
-                        </p>
-                        <p v-if="status.answers" class="ml-8">
-                            answers: <span v-text="status.answers" /><span v-if="
-                                status.duration || status.icon || status.url
-                            ">,</span>
-                        </p>
-                        <p v-if="status.duration" class="ml-8">
-                            duration:
-                            <span v-text="status.duration" />
-                            <span v-if="status.icon || status.url">,</span>
-                        </p>
-                        <p v-if="status.icon" class="ml-8">
-                            icon: "<span v-text="status.icon" /><span>"</span>
-                            <span v-if="status.url">,</span>
-                        </p>
-                        <p v-if="status.url" class="ml-8">
-                            url: "<span v-text="status.url" /><span>"</span>
-                        </p>
-                        <p>}</p>
-                    </div>
+                    <AppStatusDisplay :status="status" />
                     <div class="w-full mx-auto">
-                        <div
-                            class="flex justify-between align-middle items-center mb-5">
-                            <label for="title">Title:</label>
-                            <input id="title"
-                                   v-model="status.title"
-                                   type="text"
-                                   class="input w-3/4 sm:w-2/3 md:w-4/5">
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center mb-5">
-                            <label for="body">Body:</label>
-                            <textarea id="body"
-                                      v-model="status.body"
-                                      class="input w-3/4 sm:w-2/3 md:w-4/5"
-                                      placeholder="Html is also accepted."
-                                      :class="{ invalid: status.body < 1 }" />
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center mb-5">
-                            <label for="type">Type:</label>
-                            <select id="type"
-                                    v-model="status.type"
-                                    class="input text-center"
-                                    :disabled="
-                                        status.mode === 'loader' ||
-                                            status.mode === 'prompt'
-                                    ">
-                                <option value=""
-                                        class="text-gray-800 font-hairline">
-                                    Leave empty
-                                </option>
-                                <option value="success"
-                                        class="text-gray-800 font-hairline">
-                                    Success
-                                </option>
-                                <option value="error"
-                                        class="text-gray-800 font-hairline">
-                                    Error
-                                </option>
-                                <option value="warning"
-                                        class="text-gray-800 font-hairline">
-                                    Warning
-                                </option>
-                                <option value="info"
-                                        class="text-gray-800 font-hairline">
-                                    Info
-                                </option>
-                            </select>
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center mb-5">
-                            <label for="type">Mode:</label>
-                            <select id="mode"
-                                    v-model="status.mode"
-                                    class="input text-center"
-                                    @change="disableProps">
-                                <option value=""
-                                        class="text-gray-800 font-hairline">
-                                    Leave empty
-                                </option>
-                                <option value="prompt"
-                                        class="text-gray-800 font-hairline">
-                                    Prompt
-                                </option>
-                                <option value="loader"
-                                        class="text-gray-800 font-hairline">
-                                    Loader
-                                </option>
-                            </select>
-                        </div>
-                        <div v-if="status.mode === 'prompt'"
-                             class="flex justify-between align-middle items-center mb-5">
-                            <label for="type">Answers:</label>
-                            <textarea id="answers"
-                                      v-model="status.answers"
-                                      class="input w-3/4 sm:w-2/3 md:w-4/5"
-                                      placeholder="eg.: {Yes: true, No: false}" />
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center mb-5">
-                            <label for="url">Url:</label>
-                            <input id="url"
-                                   v-model="status.url"
-                                   type="text"
-                                   class="input w-3/4 sm:w-2/3 md:w-4/5"
-                                   placeholder="https://www.example.com">
-                        </div>
+                        <AppInput v-model="status.title" name="title" label="Title" />
+                        <AppTextarea v-model="status.body"
+                                     name="body"
+                                     label="Body"
+                                     :error="status.body < 1 ? 'Needs to have length' : ''" />
+                        <AppSelect v-model="status.type"
+                                   name="type"
+                                   label="Type"
+                                   :options="typeOptions"
+                                   :disabled="
+                                       status.mode === 'loader' ||
+                                           status.mode === 'prompt'
+                                   " />
+                        <AppSelect v-model="status.mode"
+                                   name="mode"
+                                   label="Mode"
+                                   :options="modeOptions"
+                                   @change="disableProps" />
+                        <AppTextarea v-if="status.mode === 'prompt'"
+                                     v-model="answers"
+                                     name="answers"
+                                     label="Answers"
+                                     :error="jsonError"
+                                     placeholder="eg.: '{&quot;Yes&quot;:true,&quot;No&quot;:false}'"
+                                     @update:model-value="updateAnswers" />
+                        <AppInput v-model="status.url"
+                                  name="url"
+                                  label="Url"
+                                  placeholder="https://www.example.com" />
                     </div>
                 </div>
                 <div class="w-full sm:w-1/2 xl:w-1/4 sm:max-w-50 sm:ml-2">
-                    <div class="w-1/2 mx-auto lg:w-2/3 xl:w-1/2 mb-12">
-                        <div
-                            class="flex justify-between align-middle items-center my-1">
-                            <p>Can Be Paused:</p>
-                            <div>
-                                <input id="can-pause"
-                                       v-model="status.pauseOnHover"
-                                       type="checkbox"
-                                       class="cbx"
-                                       style="display: none"
-                                       @change="checkTimingProps">
-                                <label for="can-pause"
-                                       class="toggle"><span /></label>
-                            </div>
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center my-1">
-                            <p>Can Timeout:</p>
-                            <div>
-                                <input id="can-timeout"
-                                       v-model="status.canTimeout"
-                                       type="checkbox"
-                                       class="cbx"
-                                       style="display: none"
-                                       @change="
-                                           checkTimingProps();
-                                           disableProps();
-                                       ">
-                                <label for="can-timeout"
-                                       class="toggle"><span /></label>
-                            </div>
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center my-1">
-                            <p>Use Default Title:</p>
-                            <div>
-                                <input id="default-title"
-                                       v-model="status.defaultTitle"
-                                       type="checkbox"
-                                       class="cbx"
-                                       style="display: none"
-                                       @change="disableProps">
-                                <label for="default-title"
-                                       class="toggle"><span /></label>
-                            </div>
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center my-1">
-                            <p>Use Light Theme:</p>
-                            <div>
-                                <input id="light-theme"
-                                       v-model="lightTheme"
-                                       type="checkbox"
-                                       class="cbx"
-                                       style="display: none">
-                                <label for="light-theme"
-                                       class="toggle"><span /></label>
-                            </div>
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center my-1">
-                            <p>With backdrop:</p>
-                            <div>
-                                <input id="with-backdrop"
-                                       v-model="withBackdrop"
-                                       type="checkbox"
-                                       class="cbx"
-                                       style="display: none"
-                                       @change="checkIfLoading">
-                                <label for="with-backdrop"
-                                       class="toggle"><span /></label>
-                            </div>
-                        </div>
-                        <div
-                            class="flex justify-between align-middle items-center my-1">
-                            <p>One notification at a time:</p>
-                            <div>
-                                <input id="singular"
-                                       v-model="singular"
-                                       type="checkbox"
-                                       class="cbx"
-                                       style="display: none"
-                                       @change="checkIfLoading">
-                                <label for="singular"
-                                       class="toggle"><span /></label>
-                            </div>
-                        </div>
+                    <div class="w-1/2 mx-auto lg:w-2/3 xl:w-1/2 mb-12 space-y-3">
+                        <AppToggle v-model="status.pauseOnHover" label="Can be Paused" @change="checkTimingProps" />
+                        <AppToggle v-model="status.canTimeout"
+                                   label="Can Timeout"
+                                   @change="
+                                       checkTimingProps();
+                                       disableProps();
+                                   " />
+                        <AppToggle v-model="status.defaultTitle"
+                                   label="Use Default Title"
+                                   @change="disableProps" />
+                        <AppToggle v-model="lightTheme"
+                                   label="Use Light Theme" />
+                        <AppToggle v-model="withBackdrop"
+                                   label="With Backdrop"
+                                   @change="checkIfLoading" />
+                        <AppToggle v-model="singular"
+                                   label="One notification at a time"
+                                   @change="checkIfLoading" />
                     </div>
                     <div class="flex flex-col justify-around w-full">
-                        <div
-                            class="flex flex-row justify-between align-middle items-center w-3/4 md:w-2/3 lg:w-10/12 mx-auto">
-                            <label for="duration">Duration:</label>
-                            <input id="duration"
-                                   v-model="status.duration"
-                                   type="number"
-                                   class="input w-1/2 md:w-auto"
-                                   min="1"
-                                   step="1"
-                                   :class="{ disabled: !status.canTimeout }"
-                                   :disabled="!status.canTimeout"
-                                   placeholder="ms">
-                        </div>
-                        <div
-                            class="flex flex-row justify-between align-middle items-center w-3/4 md:w-2/3 lg:w-10/12 mt-3 mx-auto">
-                            <label for="icon">Icon:</label>
-                            <textarea id="icon"
-                                      v-model="status.icon"
-                                      class="input w-auto sm:w-3/4 md:w-auto"
-                                      placeholder="Html is expected" />
-                        </div>
+                        <AppInput v-model="status.duration"
+                                  name="duration"
+                                  label="Duration"
+                                  :disabled="!status.canTimeout"
+                                  placeholder="ms"
+                                  type="number"
+                                  min="1"
+                                  step="1" />
+                        <AppTextarea v-model="status.icon"
+                                     name="icon"
+                                     label="Icon"
+                                     placeholder="Html is expected" />
                     </div>
                 </div>
             </div>
             <div
                 class="flex justify-around items-center align-middle flex-wrap my-4">
-                <iframe src="https://ghbtns.com/github-btn.html?user=nandi95&repo=vue-toastify&type=star&count=true&size=large"
-                        frameborder="0"
-                        scrolling="0"
-                        width="180px"
-                        height="30px" />
                 <button v-if="status.mode === 'loader'"
                         class="btn"
                         @click="loadStop">
                     Call .stopLoader()
                 </button>
-                <button class="btn" @click="addToastify">
+                <button class="btn" @click="addToast">
                     Toastify!
                 </button>
             </div>
@@ -347,12 +115,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref, watch } from 'vue';
+import { defineComponent, markRaw, onMounted, reactive, ref, watch } from 'vue';
 import { ToastOptions } from './type';
 import { useToast } from './index';
+import AppToggle from './app-components/AppToggle.vue';
+import AppInput from './app-components/AppInput.vue';
+import AppSelect from './app-components/AppSelect.vue';
+import AppTextarea from './app-components/AppTextarea.vue';
+import AppStatusDisplay from './app-components/AppStatusDisplay.vue';
+import { isObject } from './utils';
 
 export default defineComponent({
     name: 'App',
+    components: { AppStatusDisplay, AppTextarea, AppSelect, AppInput, AppToggle },
 
     setup: () => {
         const status = reactive<ToastOptions>({
@@ -376,6 +151,49 @@ export default defineComponent({
         const showWarning = ref(false);
         const loading = ref(false);
         const toast = useToast();
+        const jsonError = ref('');
+        const modeOptions = markRaw([
+            { value: '', text: 'Leave empty', selected: true },
+            { value: 'prompt', text: 'Prompt', selected: false },
+            { value: 'loader', text: 'Loader', selected: false }
+        ]);
+        const typeOptions = markRaw([
+            { value: '', text: 'Leave empty', selected: true },
+            { value: 'info', text: 'Info', selected: false },
+            { value: 'success', text: 'Success', selected: false },
+            { value: 'warning', text: 'Warning', selected: false },
+            { value: 'error', text: 'Error', selected: false }
+        ]);
+        const answers = ref('{"Yes":true,"No":false}');
+
+        const updateAnswers = (val: string) => {
+            if (!val) {
+                return 'Required';
+            }
+
+            let object;
+            // '{"Yes":true,"No":false}' => {Yes: true, No: false
+            try {
+                object = JSON.parse(val);
+            } catch (e) {
+                jsonError.value = 'Must be a valid JSON';
+                return;
+            }
+
+            if (!isObject(object)) {
+                jsonError.value = 'Must be a valid object';
+                return;
+            }
+
+            if (Object.keys(object).length < 2) {
+                jsonError.value = 'At least 2 answers are required';
+                return;
+            }
+
+            status.answers = object;
+        };
+
+        watch(() => answers.value, updateAnswers);
 
         onMounted(() => {
             toast.notify(status);
@@ -394,27 +212,10 @@ export default defineComponent({
             toast.settings({ singular: val });
         });
 
-        const addToastify = async () => {
+        const addToast = () => {
             if (status.body.length > 0) {
-                if (status.mode === 'prompt') {
-                    try {
-                        const answersString = status.answers;
-                        status.answers = JSON.parse('(' + String(answersString) + ')');
-                        await toast.prompt(status as Parameters<typeof toast['prompt']>[0]).then(value => {
-                            console.info('The answer was:');
-                            console.log(
-                                '%c%s',
-                                'color: #10bd0a;',
-                                String(value) + ' (' + typeof value + ')'
-                            );
-                        });
-                        status.answers = answersString;
-                    } catch (error) {
-                        toast.error(
-                            'Invalid answers object. More info can be found in the console.'
-                        );
-                        console.error(error);
-                    }
+                if (status.mode === 'prompt' && jsonError.value.length) {
+                    toast.error(jsonError.value, '😠');
                 } else {
                     toast.notify(status);
                     if (status.mode === 'loader') {
@@ -432,9 +233,9 @@ export default defineComponent({
             if (!status.canTimeout) {
                 status.duration = undefined;
                 status.pauseOnHover = false;
-                setTimeout(() => {
-                    (document.getElementById('can-pause') as HTMLInputElement).checked = false;
-                }, 75);
+                // setTimeout(() => {
+                //     (document.getElementById('can-pause') as HTMLInputElement).checked = false;
+                // }, 75);
             }
         };
         const disableProps = () => {
@@ -447,11 +248,6 @@ export default defineComponent({
                 status.pauseOnHover = false;
                 status.canTimeout = false;
                 status.type = undefined;
-                setTimeout(() => {
-                    (document.getElementById('can-pause') as HTMLInputElement).checked = false;
-                    (document.getElementById('can-timeout') as HTMLInputElement).checked = false;
-                    (document.getElementById('default-title') as HTMLInputElement).checked = false;
-                }, 75);
             }
         };
         const loadStop = () => {
@@ -477,11 +273,16 @@ export default defineComponent({
             body,
             showWarning,
             loading,
-            addToastify,
+            addToast,
             checkTimingProps,
             disableProps,
             loadStop,
-            checkIfLoading
+            checkIfLoading,
+            jsonError,
+            updateAnswers,
+            typeOptions,
+            modeOptions,
+            answers
         };
     }
 });
@@ -515,15 +316,6 @@ export default defineComponent({
   cursor: not-allowed;
   background-color: #d0d0d0;
   transition: all 0.2s ease-out;
-}
-
-.invalid {
-  background-color: #c8847d;
-  transition: all 0.2s ease-out;
-
-  &::placeholder {
-    color: #2d3748;
-  }
 }
 
 * {
@@ -561,7 +353,7 @@ body {
 }
 
 .btn {
-  @apply shadow-md rounded bg-blue-800 text-gray-200 px-5 py-3 bg-blue-700 bg-blue-500;
+  @apply shadow-md rounded text-gray-200 px-5 py-3 bg-blue-500;
   transition: all 0.2s ease-out;
 
   &:hover {

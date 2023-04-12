@@ -44,9 +44,10 @@ export default function useSettings(): UseSettings {
         settings: readonly(settings),
         updateSettings: (key, newSettings) => {
             let settingsNew = {} as Settings;
-            if (arguments.length === 1 && typeof key === 'object') {
+
+            if (typeof key === 'object' && newSettings === undefined) {
                 settingsNew = key;
-            } else if (arguments.length === 2 && typeof key === 'string') {
+            } else if (typeof key === 'string') {
                 settingsNew = { [key]: newSettings };
             }
 

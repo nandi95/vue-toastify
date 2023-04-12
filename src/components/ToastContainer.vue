@@ -16,6 +16,7 @@
             <VtToast v-for="status in toasts"
                      :key="status.id"
                      :status="status"
+                     @vt-remove="remove(status.id)"
                      :base-icon-class="settings.baseIconClass" />
         </VtTransition>
     </div>
@@ -273,12 +274,12 @@ export default defineComponent({
                 ? status.iconEnabled
                 : settings.iconEnabled;
 
-            if (['prompt', 'loader'].indexOf(status.mode) === -1) {
+            if (status.mode === 'prompt' || status.mode === 'loader') {
+                toast.draggable = false;
+            } else {
                 toast.draggable = isBoolean(status.draggable)
                     ? status.draggable
                     : settings.draggable;
-            } else {
-                toast.draggable = false;
             }
 
             toast.dragThreshold = status.dragThreshold && isBetween(status.dragThreshold, 0, 5)
@@ -304,11 +305,7 @@ export default defineComponent({
             }
 
             toasts.value.push(toast);
-            events.once('vtDismissed', (payload) => {
-                if (payload.id === toast.id) {
-                    remove(toast.id);
-                }
-            });
+
             return toast.id;
         };
         /**
@@ -321,12 +318,15 @@ export default defineComponent({
          *
          * @return {Boolean|Object|Object[]}
          */
-        const get: ContainerMethods['get'] = (id?: Toast['id']) => {
+        const get: ContainerMethods['get'] = <T extends Toast['id']>(id?: T): ReturnType<ContainerMethods['get']>=> {
             if (id) {
                 return toasts.value.find(toast => toast.id === id) ?? queue.value.find(toast => toast.id === id);
             }
 
-            return toasts.value.concat(queue.value);
+            return [
+                ...toasts.value,
+                ...queue.value
+            ] as ReturnType<ContainerMethods['get']>;
         };
         /**
          * Update a toast by merging the
@@ -357,7 +357,7 @@ export default defineComponent({
                 return true;
             }
 
-            this.$set(toasts.value, findQueuedToast(id), Object.assign(toast, status));
+            toasts.value[findQueuedToast(id)] = Object.assign(toast, status);
             return true;
         };
         /**
@@ -375,6 +375,7 @@ export default defineComponent({
                 let index = findQueuedToast(id);
 
                 if (settings.singular && index !== -1) {
+                    queue.value[index]!.callback?.();
                     queue.value.splice(index, 1);
 
                     return 1;
@@ -383,6 +384,7 @@ export default defineComponent({
                 index = findToast(id);
 
                 if (index !== -1) {
+                    toasts.value[index]!.callback?.();
                     toasts.value.splice(index, 1);
 
                     return 1;
@@ -390,6 +392,7 @@ export default defineComponent({
 
                 return 0;
             }
+
             const removeCount = toasts.value.length;
             toasts.value = [];
 
@@ -426,6 +429,7 @@ export default defineComponent({
 
                 // if singular than oneType and maxToasts isn't a concern
                 if (settings.singular) {
+                    // todo - doesn't currently work with
                     if (newValue.length === 0) {
                         // fixme - this will re-trigger the watch?
                         toasts.value.push({
@@ -441,7 +445,7 @@ export default defineComponent({
                             !arrayHasType(status) &&
                             toasts.value.length < settings.maxToasts
                         ) {
-                            this.$set(toasts.value, toasts.value.length, {
+                            toasts.value.push({
                                 ...queue.value.splice(index, 1)[0],
                                 delayed: true
                             });
@@ -449,19 +453,12 @@ export default defineComponent({
                     });
                 }
                 if (toasts.value.length < settings.maxToasts) {
-                    this.$set(toasts.value, toasts.value.length, {
+                    toasts.value.push({
                         ...queue.value.shift(),
                         delayed: true
                     });
                 }
             }
-        });
-
-        onBeforeUnmount(() => {
-            (['vtFinished', 'vtDismissed', 'vtPromptResponse', 'vtLoadStop'] as EventName[])
-                .forEach(event => {
-                    events.off(event);
-                });
         });
 
         return {

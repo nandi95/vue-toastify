@@ -8,6 +8,7 @@ type EventMap = {
     vtBeingDragged: { id: string; position: Coordinates };
     vtDragStarted: { id: string; position: Coordinates };
     vtDismissed: { id: string };
+    vtStarted: { id: string };
     vtFinished: { id: string };
     vtLoadStop: { id: string };
     vtPromptResponse: { id: string; response: any };
@@ -29,6 +30,7 @@ const events: Record<keyof EventMap, CallableFunction[]> = {
     vtBeingDragged: [],
     vtDragStarted: [],
     vtDismissed: [],
+    vtStarted: [],
     vtFinished: [],
     vtLoadStop: [],
     vtPromptResponse: [],

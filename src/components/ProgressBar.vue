@@ -5,8 +5,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, onBeforeUnmount, getCurrentInstance } from 'vue';
-import useVtEvents from "../composables/useVtEvents";
+import { defineComponent, ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import useVtEvents from '../composables/useVtEvents';
 
 export default defineComponent({
     name: 'ProgressBar',
@@ -14,17 +14,15 @@ export default defineComponent({
         pauseOnHover: { type: Boolean },
         isHovered: { type: Boolean },
         hideProgressbar: { type: Boolean },
-        duration: {
-            type: Number,
-            default: 0
-        },
+        duration: { type: Number, default: 0 },
         id: { type: String, required: true }
     },
 
-    emits: ['vtStarted', 'vtFinished', 'vtPaused'],
+    emits: ['vtFinished'],
+
+    expose: ['progress'],
 
     setup: (props, ctx) => {
-        const instance = getCurrentInstance()!;
         const progress = ref(0);
         const progressId = ref<ReturnType<typeof requestAnimationFrame>>();
         const timerId = ref<ReturnType<typeof setTimeout>>();
@@ -92,7 +90,7 @@ export default defineComponent({
         watch(() => props.isHovered, boolean => boolean ? timerPause(): timerStart());
 
         onMounted(() => {
-            ctx.emit('vtStarted', { id: props.id });
+            events.emit('vtStarted', { id: props.id });
 
             if (!props.pauseOnHover) {
                 // set new timeout

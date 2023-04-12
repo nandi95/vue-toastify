@@ -105,6 +105,7 @@ export default function useDraggable(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const isAlmostOffLeft =
                 element.value.getBoundingClientRect().right < startingClientRect.value!.width * 0.25;
+            // todo - if they dragging with high speed then the removal distance can be shortened somewhat
             if (
                 Math.abs(startingClientRect.value!.left - element.value.getBoundingClientRect().left) >
                 removalDistance.value

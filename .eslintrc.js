@@ -1,10 +1,7 @@
 module.exports = {
     root: true,
-    parser: 'vue-eslint-parser',
     env: {
-        node: true,
-        browser: true,
-        es6: true,
+        node: true
     },
     extends: [
         'eslint:recommended',
@@ -14,7 +11,6 @@ module.exports = {
         '@vue/typescript/recommended',
     ],
     plugins: [
-        '@typescript-eslint',
         'vue'
     ],
     ignorePatterns: [
