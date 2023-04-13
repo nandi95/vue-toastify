@@ -53,7 +53,7 @@
 </template>
 
 <script lang="ts">
-import { isString, isObject } from '../utils';
+import { isObject } from '../utils';
 import { computed, defineComponent } from 'vue';
 
 export default defineComponent({
@@ -71,12 +71,14 @@ export default defineComponent({
             if (!props.icon) {
                 return false;
             }
+
             let icon = {
                 tag: 'i',
                 ligature: '',
                 class: props.baseIconClass
             };
-            if (isString(props.icon)) {
+
+            if (typeof props.icon === 'string') {
                 if (props.icon.toLowerCase().includes('<svg')) {
                     icon.tag = 'div';
                     icon.ligature = props.icon;
@@ -84,18 +86,23 @@ export default defineComponent({
                     icon.class = icon.class + ' ' + props.icon;
                 }
             }
+
             if (isObject(props.icon)) {
                 icon = Object.assign(icon, props.icon);
             }
+
             return icon;
         });
 
         const containerClasses = computed(() => {
             const obj: Record<string, boolean> = {};
+
             if (props.mode !== 'loader') {
                 obj['vt-circle'] = !props.icon;
             }
+
             obj['vt-prompt'] = props.mode === 'prompt';
+
             if (props.mode === undefined || props.mode.length === 0) {
                 obj['vt-' + (props.type ? props.type : 'info')] = true;
             }

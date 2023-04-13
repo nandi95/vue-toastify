@@ -1,15 +1,18 @@
 {
-    "name": "vue-toastify-v2",
+    "name": "vue-toastify",
     "version": "0.0.0",
     "scripts": {
         "dev": "vite",
-        "build:demo": "vuedx-typecheck . && vite build",
+        "build:demo": "vite build",
         "serve": "vite preview",
-        "build:lib": "rollup -c && tsc --emitDeclarationOnly"
+        "build:lib": "vite build --mode=library && tsc -p tsconfig.build.json"
     },
     "module": "index.esm.js",
     "files": [
-        "index.esm.js"
+        "dist/types",
+        "dist/index.es.js",
+        "dist/index.umd.js",
+        "dist/index.css"
     ],
     "dependencies": {
         "vue": "^3.0.11"

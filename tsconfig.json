@@ -2,6 +2,8 @@
     "compilerOptions": {
         "target": "esnext",
         "module": "esnext",
+        "declaration": true,
+        "declarationDir": "dist/types",
         "rootDir": "./",
         "moduleResolution": "node",
         "strict": true,
@@ -9,6 +11,7 @@
         "sourceMap": true,
         "resolveJsonModule": true,
         "esModuleInterop": true,
+        "skipLibCheck": true,
         "lib": [
             "esnext",
             "dom"
@@ -21,6 +24,7 @@
         "src/**/*.ts",
         "src/**/*.d.ts",
         "src/**/*.tsx",
-        "src/**/*.vue"
+        "src/**/*.vue",
+        "vite.config.ts"
     ]
 }

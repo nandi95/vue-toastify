@@ -1,0 +1,13 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "emitDeclarationOnly": true
+    },
+    "include": [
+        "src/index.ts",
+        "src/type.d.ts",
+        "src/composables/useSettings.ts",
+        "src/composables/useToast.ts",
+        "src/composables/useVtEvents.ts"
+    ]
+}

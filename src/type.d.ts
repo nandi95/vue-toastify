@@ -1,11 +1,8 @@
-import { RouteLocationRaw } from 'vue-router';
-import { uuidV4 } from "./utils";
-
-type AnchorTagAttributes = Pick<HTMLAnchorElement, 'href' | 'download' | 'referrerPolicy' | 'rel' | 'target'>;
+import type { uuidV4 } from './utils';
 
 type XPosition = 'left' | 'center' | 'right';
 type YPosition = 'top' | 'center' | 'bottom';
-export type Position = `${XPosition}-${YPosition}`;
+export type Position = `${YPosition}-${XPosition}`;
 
 export type MaybeArray<T> = T | T[];
 
@@ -15,6 +12,9 @@ export interface Icon {
     icon?: string;
 }
 
+/**
+ * Settings that can be applied to both toasts and global settings.
+ */
 export interface BaseSettings {
     /**
      * Whether the toast disappears after a time.
@@ -45,7 +45,8 @@ export interface BaseSettings {
     hideProgressbar?: boolean;
 
     /**
-     * What theme should be displaying. By default, there's `light` and `dark`.
+     * The theme that should be displaying.
+     * By default, there's `light` and `dark`.
      *
      * @default 'dark'
      */
@@ -110,7 +111,7 @@ export interface Settings extends BaseSettings {
      *
      * @default bottom-right
      */
-    position?: string;
+    position?: Position;
 
     /**
      * The duration in milliseconds the error notification should be visible for.
@@ -146,7 +147,8 @@ export interface Settings extends BaseSettings {
     maxToasts?: number;
 
     /**
-     * If turned on, only toasts with unique mode/type will be show. Others are queued.
+     * If turned on, only toasts with unique mode/type will be shown.
+     * Others are queued.
      *
      * @default false
      */
@@ -172,10 +174,8 @@ export interface ToastOptions extends BaseSettings {
     title?: string;
 
     /**
-     * todo - update this description
-     * Defines what notification type should be showing available types: "success", "warning", "info", "error" defaults to "success".
-     * This can only be set if you're using `this.$vtNotify()`
-     * Alternatively you may use the methods: `this.$vToastify.warning("more readable")`
+     * Defines what notification type should be showing available types:
+     * "success", "warning", "info", "error".
      *
      * @default 'success'
      */
@@ -195,14 +195,8 @@ export interface ToastOptions extends BaseSettings {
     answers?: Record<string, any>;
 
     /**
-     * If set, clicking on the notification will take the user to the given location.
-     * If it's a string and used with router and route not found this will be ignored.
-     * If giving an object then you can either define attributes of the anchor tag like: { href: "https//google.com", target="_blank" } or pass the object you would pass to the router.push() function.
-     */
-    url?: string | RouteLocationRaw | AnchorTagAttributes;
-
-    /**
-     * This will be displayed instead of the default icons. If is a string the string will be assigned to the class unless it is an svg.
+     * This will be displayed instead of the default icons.
+     * If is a string the string will be assigned to the class unless it is a svg.
      */
     icon?: string | Icon;
 
@@ -226,17 +220,38 @@ export interface Toast extends ToastOptions {
     id: ReturnType<typeof uuidV4>;
 }
 
+/**
+ * Interface allowing to extend the useToast's available methods.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CustomMethods {
 }
 
 export type ContainerMethods = {
+    /**
+     * Add new toast.
+     * @param status
+     */
     add: (status: ToastOptions) => Toast;
     /**
-     * Remove a toast by id.
+     * Remove toast by id or all toasts (queued included) if no id given.
      * @param id
      */
     remove: (id?: Toast['id']) => number;
+    /**
+     * Get toast by id or all toasts (queued included) if no id given.
+     * @param id
+     */
     get: <T extends Toast['id']>(id?: T) => T extends undefined ? Toast[] : Toast | undefined;
+    /**
+     * Update toast by id.
+     * @param id
+     * @param toast
+     */
     set: (id: string, toast: ToastOptions) => boolean;
+    /**
+     * Stop the loader toast by id or all loaders if no id given.
+     * @param id
+     */
     stopLoader: (id?: Toast['id']) => number;
 };

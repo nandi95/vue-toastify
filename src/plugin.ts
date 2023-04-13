@@ -5,7 +5,7 @@ import ToastContainer from './components/ToastContainer.vue';
 import { customMethods, app } from './composables/useToast';
 import useSettings from './composables/useSettings';
 
-export const pluginInjectionKey: InjectionKey<any> = Symbol('vue-toastify');
+const pluginInjectionKey: InjectionKey<any> = Symbol('vue-toastify');
 const plugin: Plugin = (_, settings: Settings = {}) => {
     useSettings().updateSettings(settings);
 

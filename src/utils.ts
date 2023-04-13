@@ -1,9 +1,6 @@
 export const isBoolean = (value: any): value is boolean => {
     return typeof value === 'boolean';
 };
-export const isString = (value: any): value is string => {
-    return typeof value === 'string';
-};
 export function isObject<T extends Record<any, any>>(value: any): value is NonNullable<T> {
     return value !== null && typeof value === 'object' && !Array.isArray(value);
 }

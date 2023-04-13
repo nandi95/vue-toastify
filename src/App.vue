@@ -40,10 +40,6 @@
                                      :error="jsonError"
                                      placeholder="eg.: '{&quot;Yes&quot;:true,&quot;No&quot;:false}'"
                                      @update:model-value="updateAnswers" />
-                        <AppInput v-model="status.url"
-                                  name="url"
-                                  label="Url"
-                                  placeholder="https://www.example.com" />
                     </div>
                 </div>
                 <div class="w-full sm:w-1/2 xl:w-1/4 sm:max-w-50 sm:ml-2">
@@ -142,8 +138,7 @@ export default defineComponent({
             duration: undefined,
             icon: undefined,
             mode: undefined,
-            answers: undefined,
-            url: ''
+            answers: undefined
         });
         const lightTheme = ref(false);
         const defaultTitle = ref(true);
@@ -151,7 +146,6 @@ export default defineComponent({
         const singular = ref(false);
         const body = ref(null);
         const showWarning = ref(false);
-        const loading = ref(false);
         const toast = useToast();
         const jsonError = ref('');
         const modeOptions = markRaw([
@@ -224,11 +218,8 @@ export default defineComponent({
                     toast.error(jsonError.value, '😠');
                 } else {
                     toast.notify(status);
-                    if (status.mode === 'loader') {
-                        loading.value = true;
-                        if (withBackdrop.value) {
-                            showWarning.value = true;
-                        }
+                    if (status.mode === 'loader' && withBackdrop.value) {
+                        showWarning.value = true;
                     }
                 }
             } else {
@@ -252,15 +243,11 @@ export default defineComponent({
         };
         const loadStop = () => {
             toast.stopLoader();
-            loading.value = false;
             showWarning.value = false;
         };
         const checkIfLoading = () => {
             if (toast.getToasts().length < 1) {
                 withBackdrop.value = false;
-            }
-            if (loading.value) {
-                showWarning.value = true;
             }
         };
 
@@ -272,7 +259,6 @@ export default defineComponent({
             singular,
             body,
             showWarning,
-            loading,
             addToast,
             checkTimingProps,
             disableProps,

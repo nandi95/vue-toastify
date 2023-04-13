@@ -26,8 +26,8 @@
 <script lang="ts">
 // todo backdrop to transition with dragging if that's the only one left in the toasts and next isn't queued?
 // todo: create 3 containers and create a manager that manages the queue to push to the correct container
-//  (each container having 3 positions)
-//  ( position will be held on the status ) this will allow for separated transitions
+//  (each container has 3 positions)
+//  (position will be held on the status) this will allow for separated transitions
 import VtToast from './VtToast.vue';
 import { isBetween, isBoolean, uuidV4 } from '../utils';
 import VtTransition from './VtTransition.vue';
@@ -335,7 +335,7 @@ export default defineComponent({
             ] as ReturnType<ContainerMethods['get']>;
         };
         /**
-         * Update a toast by merging the
+         * Update toast by merging the
          * argument and the existing status.
          * Returns whether the update was
          * successful or not.
