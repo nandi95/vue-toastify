@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, getCurrentInstance } from 'vue';
 import useSettings from '../composables/useSettings';
 
 export default defineComponent({
@@ -25,6 +25,7 @@ export default defineComponent({
 
     setup: (props) => {
         const { settings } = useSettings();
+        const instance = getCurrentInstance();
 
         // todo - consider will-change
         const leave = (el: HTMLElement) => {
@@ -53,24 +54,26 @@ export default defineComponent({
                 el.style.top =
                     String(parseInt(el.style.top) - parseInt(height) - parseInt(marginBottom)) + 'px';
             }
-            // absolute position may mess with the width so lets set to initial
+            // absolute position may mess with the width so let's set to initial
             el.style.width = width;
             el.style.position = 'absolute';
         };
 
         const beforeEnter = (el: HTMLElement) => {
-            // todo - has this ever worked?
-            // no delay on making space for notification
-            // this.$el.childNodes.forEach(node => delete node.dataset.delayed);
-            // if (el.__vue__.status.delayed) {
-            //     el.dataset.delayed = true;
-            //     el.classList.add('vt-move');
-            //     delete el.__vue__.status.delayed;
-            // }
+            const toastContainer = instance?.vnode.el as HTMLDivElement;
+
+            for (const toastContainerElement of toastContainer.children) {
+                delete (toastContainerElement as HTMLDivElement).dataset.delayed;
+            }
+
+            if (el.dataset.delayed) {
+                el.classList.add('vt-move');
+            }
         };
 
         const afterEnter = (el: HTMLElement) => {
             el.removeAttribute('data-delayed');
+            el.classList.remove('vt-move');
         };
 
         const beforeLeave = (el: HTMLElement) => {
@@ -79,9 +82,9 @@ export default defineComponent({
                 if (el.parentNode!.childNodes[i].isSameNode(el)) {
                     continue;
                 }
+
                 (el.parentElement!.children[i] as HTMLElement).dataset.delayed = 'true';
             }
-            el.classList.remove('vt-default-position');
         };
 
         return {

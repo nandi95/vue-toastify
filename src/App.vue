@@ -1,11 +1,11 @@
 <template>
-    <div>
+    <div class="bg-gradient-to-br from-base-100 to-base-300 py-2 min-h-screen">
         <header
             class="flex justify-center text-center flex-col flex-no-wrap mb-10 pt-3">
-            <h2 class="text-blue-800 font-bold text-3xl mb-2">
+            <h2 class="text-primary font-bold text-3xl mb-2">
                 Vue Toastify
             </h2>
-            <p class="text-gray-600">
+            <p class="text-primary-content/80">
                 A fuss free notification component.
             </p>
         </header>
@@ -47,7 +47,7 @@
                     </div>
                 </div>
                 <div class="w-full sm:w-1/2 xl:w-1/4 sm:max-w-50 sm:ml-2">
-                    <div class="w-1/2 mx-auto lg:w-2/3 xl:w-1/2 mb-12 space-y-3">
+                    <div class="w-1/2 mx-auto lg:w-2/3 xl:w-1/2 mb-12 space-y-1">
                         <AppToggle v-model="status.pauseOnHover" label="Can be Paused" @change="checkTimingProps" />
                         <AppToggle v-model="status.canTimeout"
                                    label="Can Timeout"
@@ -66,6 +66,9 @@
                         <AppToggle v-model="singular"
                                    label="One notification at a time"
                                    @change="checkIfLoading" />
+                        <AppToggle v-model="oneTypeAtAtime"
+                                   label="One type at a time"
+                                   @change="checkIfLoading" />
                     </div>
                     <div class="flex flex-col justify-around w-full">
                         <AppInput v-model="status.duration"
@@ -83,8 +86,7 @@
                     </div>
                 </div>
             </div>
-            <div
-                class="flex justify-around items-center align-middle flex-wrap my-4">
+            <div class="flex justify-around items-center align-middle flex-wrap mt-2">
                 <button v-if="status.mode === 'loader'"
                         class="btn"
                         @click="loadStop">
@@ -165,6 +167,7 @@ export default defineComponent({
             { value: 'error', text: 'Error', selected: false }
         ]);
         const answers = ref('{"Yes":true,"No":false}');
+        const oneTypeAtAtime = ref(false);
 
         const updateAnswers = (val: string) => {
             if (!val) {
@@ -211,6 +214,9 @@ export default defineComponent({
         watch(() => singular.value, val => {
             toast.settings({ singular: val });
         });
+        watch(() => oneTypeAtAtime.value, val => {
+            toast.settings({ oneType: val });
+        });
 
         const addToast = () => {
             if (status.body.length > 0) {
@@ -233,16 +239,10 @@ export default defineComponent({
             if (!status.canTimeout) {
                 status.duration = undefined;
                 status.pauseOnHover = false;
-                // setTimeout(() => {
-                //     (document.getElementById('can-pause') as HTMLInputElement).checked = false;
-                // }, 75);
             }
         };
         const disableProps = () => {
-            if (
-                status.mode === 'prompt' ||
-          status.mode === 'loader'
-            ) {
+            if (status.mode === 'prompt' || status.mode === 'loader') {
                 status.duration = undefined;
                 status.defaultTitle = false;
                 status.pauseOnHover = false;
@@ -282,91 +282,14 @@ export default defineComponent({
             updateAnswers,
             typeOptions,
             modeOptions,
-            answers
+            answers,
+            oneTypeAtAtime
         };
     }
 });
 </script>
 
 <style lang="scss">
-.transition-all {
-  transition: all 0.2s ease-out;
-}
-
-.input {
-  @apply rounded-bl-sm h-10 p-2 bg-gray-200 shadow w-auto;
-  &:focus {
-    box-shadow: inset 0 0 7px 0 rgba(0, 0, 0, 0.05);
-    background-color: #eeeeee;
-    border-left: 4px solid rgba(46, 80, 138, 0.79);
-    border-right: none;
-    border-top: none;
-    border-bottom: none;
-    outline: none;
-    transition: all 0.2s ease-out;
-  }
-
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease-out;
-  min-height: 42px;
-}
-
-.disabled {
-  cursor: not-allowed;
-  background-color: #d0d0d0;
-  transition: all 0.2s ease-out;
-}
-
-* {
-  font-family: "Poppins", sans-serif;
-}
-
-html {
-  min-height: 100%;
-}
-
-body {
-  background: rgb(246, 246, 246);
-  width: 100%;
-  height: auto;
-  background: -moz-linear-gradient(
-          180deg,
-          rgba(246, 246, 246, 1) 0%,
-          rgba(226, 226, 226, 1) 100%
-  );
-  background: -webkit-linear-gradient(
-          180deg,
-          rgba(246, 246, 246, 1) 0%,
-          rgba(226, 226, 226, 1) 100%
-  );
-  background: linear-gradient(
-          180deg,
-          rgba(246, 246, 246, 1) 0%,
-          rgba(226, 226, 226, 1) 100%
-  );
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f6f6f6", endColorstr="#e2e2e2", GradientType=1);
-}
-
-#app {
-  margin: auto;
-}
-
-.btn {
-  @apply shadow-md rounded text-gray-200 px-5 py-3 bg-blue-500;
-  transition: all 0.2s ease-out;
-
-  &:hover {
-    @apply bg-blue-700;
-    transition: all 0.2s ease-out;
-  }
-
-  &:active {
-    @apply bg-blue-800;
-    transition: all 0.2s ease-out;
-  }
-}
-
 .warning {
   top: 50%;
   left: 50%;
@@ -382,7 +305,7 @@ body {
   transition: all 100ms ease-in;
 }
 
-.warning-enter,
+.warning-enter-from,
 .warning-leave-to {
   opacity: 0;
 }

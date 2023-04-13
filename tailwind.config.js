@@ -4,6 +4,6 @@
 module.exports = {
   content: ['**/*.html', './src/**/*.{ts,tsx,vue}'],
     plugins: [
-        require('@tailwindcss/forms'),
+        require("daisyui"),
     ]
 }

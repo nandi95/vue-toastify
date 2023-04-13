@@ -241,7 +241,7 @@ $themes: (
 .vt-bottom-enter-active,
 .vt-top-enter-active,
 .vt-center-enter-active {
-  transition: all 0.2s ease-out;
+  transition: transform 200ms ease-out, opacity 200ms ease-out;
 }
 
 .vt-right-leave-active,
@@ -249,34 +249,34 @@ $themes: (
 .vt-bottom-leave-active,
 .vt-top-leave-active,
 .vt-center-leave-active {
-  transition: all 0.2s ease-in;
+  transition: transform 200ms ease-in, opacity 200ms ease-in;
 }
 
-.vt-right-enter,
+.vt-right-enter-from,
 .vt-right-leave-to {
   transform: translateX(50px);
   opacity: 0;
 }
 
-.vt-left-enter,
+.vt-left-enter-from,
 .vt-left-leave-to {
   transform: translateX(-50px);
   opacity: 0;
 }
 
-.vt-bottom-enter,
+.vt-bottom-enter-from,
 .vt-bottom-leave-to {
   transform: translateY(50px);
   opacity: 0;
 }
 
-.vt-top-enter,
+.vt-top-enter-from,
 .vt-top-leave-to {
   transform: translateY(-50px);
   opacity: 0;
 }
 
-.vt-center-enter,
+.vt-center-enter-from,
 .vt-center-leave-to {
   opacity: 0;
 }

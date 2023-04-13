@@ -16,8 +16,9 @@
             <VtToast v-for="status in toasts"
                      :key="status.id"
                      :status="status"
-                     @vt-remove="remove(status.id)"
-                     :base-icon-class="settings.baseIconClass" />
+                     :delayed="!!status.delayed || false"
+                     :base-icon-class="settings.baseIconClass"
+                     @vt-remove="remove(status.id)" />
         </VtTransition>
     </div>
 </template>
@@ -30,9 +31,9 @@
 import VtToast from './VtToast.vue';
 import { isBetween, isBoolean, uuidV4 } from '../utils';
 import VtTransition from './VtTransition.vue';
-import { computed, defineComponent, nextTick, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, defineComponent, nextTick, ref, watch } from 'vue';
 import type { ContainerMethods, ToastOptions, MaybeArray, Toast } from '../type';
-import useVtEvents, { EventName } from '../composables/useVtEvents';
+import useVtEvents from '../composables/useVtEvents';
 import useSettings from '../composables/useSettings';
 
 const temp = {} as { orderLatest?: boolean };
@@ -48,8 +49,8 @@ export default defineComponent({
     expose: ['add', 'get', 'set', 'remove', 'stopLoader'],
 
     setup: () => {
-        const toasts = ref<Toast[]>([]);
-        const queue = ref<Toast[]>([]);
+        const toasts = ref<(Toast & { delayed?: boolean })[]>([]);
+        const queue = ref<(Toast & { delayed?: boolean })[]>([]);
         const { settings, updateSettings } = useSettings();
         const events = useVtEvents();
 
@@ -63,13 +64,17 @@ export default defineComponent({
             if (settings.transition) {
                 return settings.transition;
             }
+
             const position = settings.position.split('-');
+
             if (position[1] === 'left') {
                 return 'vt-left';
             }
+
             if (position[1] === 'center') {
                 return 'vt-' + position[0];
             }
+
             return 'vt-right';
         });
         /**
@@ -298,9 +303,10 @@ export default defineComponent({
                 // if oneType turned on and that type already showing
                 settings.oneType && arrayHasType(toast) ||
                 // if it would exceed the max number of displayed toasts
-                toasts.value.length >= settings.maxToasts
+                toasts.value.length + 1 >= settings.maxToasts
             ) {
-                queue.value.push(toast);
+                queue.value.push({ ...toast, delayed: true });
+
                 return toast.id;
             }
 
@@ -375,8 +381,7 @@ export default defineComponent({
                 let index = findQueuedToast(id);
 
                 if (settings.singular && index !== -1) {
-                    queue.value[index]!.callback?.();
-                    queue.value.splice(index, 1);
+                    queue.value.splice(index, 1)[0].callback?.();
 
                     return 1;
                 }
@@ -384,8 +389,7 @@ export default defineComponent({
                 index = findToast(id);
 
                 if (index !== -1) {
-                    toasts.value[index]!.callback?.();
-                    toasts.value.splice(index, 1);
+                    toasts.value.splice(index, 1)[0].callback?.();
 
                     return 1;
                 }
@@ -393,8 +397,13 @@ export default defineComponent({
                 return 0;
             }
 
-            const removeCount = toasts.value.length;
+            const removeCount = toasts.value.length + queue.value.length;
+
+            toasts.value.forEach(toast => toast.callback?.());
+            queue.value.forEach(toast => toast.callback?.());
+
             toasts.value = [];
+            queue.value = [];
 
             return removeCount;
         };
@@ -422,44 +431,50 @@ export default defineComponent({
             updateSettings({ orderLatest: false });
         });
 
-        watch(() => toasts.value, async newValue => {
+        watch(
+            () => toasts.value,
+            async newValue => {
             // if there's anything at all in the queue
-            if (queue.value.length !== 0) {
-                await nextTick();
+                if (queue.value.length !== 0) {
+                    await nextTick();
 
-                // if singular than oneType and maxToasts isn't a concern
-                if (settings.singular) {
+                    // if singular than oneType and maxToasts isn't a concern
+                    if (settings.singular) {
                     // todo - doesn't currently work with
-                    if (newValue.length === 0) {
-                        // fixme - this will re-trigger the watch?
+                        if (newValue.length === 0) {
+                            // fixme - this will re-trigger the watch?
+                            toasts.value.push({
+                                ...queue.value.shift(),
+                                delayed: true
+                            });
+                        }
+                        return;
+                    }
+
+                    if (settings.oneType) {
+                        return queue.value.forEach((status, index) => {
+                            if (
+                                !arrayHasType(status) &&
+                            toasts.value.length < settings.maxToasts
+                            ) {
+                                toasts.value.push({
+                                    ...queue.value.splice(index, 1)[0],
+                                    delayed: true
+                                });
+                            }
+                        });
+                    }
+
+                    if (toasts.value.length < settings.maxToasts) {
                         toasts.value.push({
                             ...queue.value.shift(),
                             delayed: true
                         });
                     }
-                    return;
                 }
-                if (settings.oneType) {
-                    return queue.value.forEach((status, index) => {
-                        if (
-                            !arrayHasType(status) &&
-                            toasts.value.length < settings.maxToasts
-                        ) {
-                            toasts.value.push({
-                                ...queue.value.splice(index, 1)[0],
-                                delayed: true
-                            });
-                        }
-                    });
-                }
-                if (toasts.value.length < settings.maxToasts) {
-                    toasts.value.push({
-                        ...queue.value.shift(),
-                        delayed: true
-                    });
-                }
-            }
-        });
+            },
+            { deep: true }
+        );
 
         return {
             toasts,

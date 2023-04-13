@@ -1,6 +1,6 @@
 <template>
     <div>
-        <label :for="name" class="block text-sm font-medium leading-6 text-gray-900">
+        <label :for="name" class="label">
             {{ label }}
         </label>
         <div class="mt-2">
@@ -8,9 +8,7 @@
                    :value="modelValue"
                    :name="name"
                    type="text"
-                   class="block w-full rounded-md border-0 py-3 text-gray-900 shadow-sm ring-1 ring-inset px-2
-                          ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600
-                          sm:text-sm sm:leading-6"
+                   class="input"
                    v-bind="$attrs"
                    :class="{
                        'text-red-900 placeholder-text-300 ring-red-300 focus:ring-red-500': error

@@ -24,7 +24,7 @@ const plugin: Plugin = (_, settings: Settings = {}) => {
             Object.defineProperty(customMethods, keyValArr[0], {
                 get() {
                     return (status: Status, title = null) => {
-                        let toast: Partial<ToastOptions> = Object.assign({}, keyValArr[1]);
+                        let toast: ToastOptions = Object.assign({}, keyValArr[1]);
 
                         if (typeof status === 'string') {
                             toast.body = status;
