@@ -1,18 +1,29 @@
 {
     "name": "vue-toastify",
-    "version": "0.0.0",
+    "version": "2.0.0-alpha.1",
+    "license": "MIT",
+    "author": "Nandor Kraszlan",
     "scripts": {
         "dev": "vite",
         "build:demo": "vite build",
         "serve": "vite preview",
-        "build:lib": "vite build --mode=library && tsc -p tsconfig.build.json"
+        "build:lib": "vite build --mode=library && tsc -p tsconfig.build.json && cp -r dist/* ./"
     },
     "module": "index.esm.js",
+    "main": "index.umd.js",
+    "exports": {
+        ".": {
+            "import": "./index.es.js",
+            "require": "./index.umd.js"
+        },
+        "./index.css": "./index.css"
+    },
+    "types": "types/src/index.d.ts",
     "files": [
-        "dist/types",
-        "dist/index.es.js",
-        "dist/index.umd.js",
-        "dist/index.css"
+        "types",
+        "index.es.js",
+        "index.umd.js",
+        "index.css"
     ],
     "dependencies": {
         "vue": "^3.0.11"

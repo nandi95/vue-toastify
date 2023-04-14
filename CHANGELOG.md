@@ -3,6 +3,8 @@
 Refactor:
 - Rewritten codebase using v3 of Vue, and its composition api.
 - Removed support for passing in router to the plugin. (Developer can just use the callback option)
+- Added pauseOnFocusLoss option to pause the timer when the window loses focus.
+- Added dynamic theme creation
 
 **v1.8.1** *25/11/2021*
 

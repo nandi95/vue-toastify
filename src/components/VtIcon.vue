@@ -55,6 +55,8 @@
 <script lang="ts">
 import { isObject } from '../utils';
 import { computed, defineComponent } from 'vue';
+import type { PropType } from 'vue';
+import type { Icon } from '../type';
 
 export default defineComponent({
     name: 'VtIcon',
@@ -62,7 +64,7 @@ export default defineComponent({
     props: {
         mode: { type: String },
         type: { type: String },
-        icon: { type: [Object, String] },
+        icon: { type: [Object, String] as PropType<Icon | string> },
         baseIconClass: { type: String, default: '' }
     },
 

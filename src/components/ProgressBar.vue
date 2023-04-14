@@ -1,5 +1,5 @@
 <template>
-    <div v-show="!hideProgressbar" class="vt-progress-bar">
+    <div class="vt-progress-bar">
         <div class="vt-progress" :style="{ width: progress + '%' }" />
     </div>
 </template>
@@ -10,10 +10,9 @@ import useVtEvents from '../composables/useVtEvents';
 
 export default defineComponent({
     name: 'ProgressBar',
+
     props: {
-        pauseOnHover: { type: Boolean },
-        isHovered: { type: Boolean },
-        hideProgressbar: { type: Boolean },
+        isPaused: { type: Boolean },
         duration: { type: Number, default: 0 },
         id: { type: String, required: true }
     },
@@ -34,41 +33,37 @@ export default defineComponent({
         const events = useVtEvents();
 
         const timerStart = () => {
-            if (props.pauseOnHover) {
-                timerStartedAt.value = new Date(
-                    timerStartedAt.value.getTime() + (Date.now() - timerPausedAt.value.getTime())
-                );
+            timerStartedAt.value = new Date(
+                timerStartedAt.value.getTime() + (Date.now() - timerPausedAt.value.getTime())
+            );
 
-                // new future date = future date + elapsed time since pausing
-                timerFinishesAt.value = new Date(
-                    timerFinishesAt.value.getTime() + (Date.now() - timerPausedAt.value.getTime())
-                );
+            // new future date = future date + elapsed time since pausing
+            timerFinishesAt.value = new Date(
+                timerFinishesAt.value.getTime() + (Date.now() - timerPausedAt.value.getTime())
+            );
 
-                if (!timerId.value && progress.value > 0) {
-                    events.emit('vtResumed', { id: props.id });
-                }
-
-                // set new timeout
-                timerId.value = window.setTimeout(
-                    () => ctx.emit('vtFinished'),
-                    timerFinishesAt.value.getTime() - Date.now()
-                );
-                // animation start
-                progressId.value = requestAnimationFrame(progressBar);
+            if (!timerId.value && progress.value > 0) {
+                events.emit('vtResumed', { id: props.id });
             }
+
+            // set new timeout
+            timerId.value = window.setTimeout(
+                () => ctx.emit('vtFinished'),
+                timerFinishesAt.value.getTime() - Date.now()
+            );
+            // animation start
+            progressId.value = requestAnimationFrame(progressBar);
         };
         const timerPause = () => {
-            if (props.pauseOnHover) {
-                // stop notification from closing
-                window.clearTimeout(timerId.value);
-                // set to null so animation won't stay in a loop
-                timerId.value = undefined;
-                // stop loader animation from progressing
-                cancelAnimationFrame(progressId.value!);
-                progressId.value = undefined;
-                events.emit('vtPaused', { id: props.id });
-                timerPausedAt.value = new Date();
-            }
+            // stop notification from closing
+            window.clearTimeout(timerId.value);
+            // set to null so animation won't stay in a loop
+            timerId.value = undefined;
+            // stop loader animation from progressing
+            cancelAnimationFrame(progressId.value!);
+            progressId.value = undefined;
+            events.emit('vtPaused', { id: props.id });
+            timerPausedAt.value = new Date();
         };
         const progressBar = () => {
             if (progress.value < 100) {
@@ -87,20 +82,24 @@ export default defineComponent({
             }
         };
 
-        watch(() => props.isHovered, boolean => boolean ? timerPause(): timerStart());
+        watch(() => props.isPaused, boolean => boolean ? timerPause(): timerStart());
 
         onMounted(() => {
             events.emit('vtStarted', { id: props.id });
 
-            if (!props.pauseOnHover) {
-                // set new timeout
-                timerId.value = window.setTimeout(
-                    () => ctx.emit('vtFinished'),
-                    timerFinishesAt.value.getTime() - Date.now()
-                );
-                // animation start
-                progressId.value = requestAnimationFrame(progressBar);
-            }
+            // set new timeout
+            timerId.value = window.setTimeout(
+                () => {
+                    // ensure progress bar is full
+                    // (there's a chance it won't be if when the timer finishes,
+                    // the animation frame hasn't been called yet)
+                    progress.value = 100;
+                    ctx.emit("vtFinished");
+                },
+                timerFinishesAt.value.getTime() - Date.now()
+            );
+            // animation start
+            progressId.value = requestAnimationFrame(progressBar);
             timerStart();
         });
 

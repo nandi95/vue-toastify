@@ -12,6 +12,7 @@ const settings = reactive<DefaultSettings>({
     defaultTitle: true,
     canTimeout: true,
     pauseOnHover: false,
+    pauseOnFocusLoss: true,
     iconEnabled: true,
     draggable: true,
     dragThreshold: 0.75,

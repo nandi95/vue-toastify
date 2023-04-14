@@ -1,6 +1,5 @@
 import type {
     ContainerMethods,
-    CustomMethods,
     Settings,
     Status,
     Toast,
@@ -9,13 +8,15 @@ import type {
 import useSettings from './useSettings';
 import useVtEvents from './useVtEvents';
 
-interface ToastPluginAPI {
-    notify: (status: Status, title?: string) => Toast;
-    success: (status: Status, title?: string) => Toast;
-    info: (status: Status, title?: string) => Toast;
-    warning: (status: Status, title?: string) => Toast;
-    error: (status: Status, title?: string) => Toast;
-    loader: (status: Status, title?: string) => Toast;
+export type CustomMethods = Record<string, (status?: Status, title?: string) => string>;
+
+export interface ToastPluginAPI {
+    notify: (status: Status, title?: string) => Toast['id'];
+    success: (status: Status, title?: string) => Toast['id'];
+    info: (status: Status, title?: string) => Toast['id'];
+    warning: (status: Status, title?: string) => Toast['id'];
+    error: (status: Status, title?: string) => Toast['id'];
+    loader: (status: Status, title?: string) => Toast['id'];
     prompt: <T>(status: Omit<ToastOptions, 'mode' | 'answers'> & { answers: Record<string, T> }) => Promise<T>;
     updateToast: (id: Toast['id'], status: ToastOptions) => boolean;
     settings: (settings?: Settings) => Settings;
@@ -25,28 +26,29 @@ interface ToastPluginAPI {
     remove: (id?: Toast['id']) => number;
 }
 
-export const customMethods: CustomMethods = {};
 // @ts-expect-error
 //eslint-disable-next-line prefer-const
 export let app: { container: ContainerMethods } = {};
 
-export default function useToast(): ToastPluginAPI & CustomMethods {
-    const notify = (status: Status, title?: string) => {
-        if (typeof status === 'string') {
-            status = {
-                body: status
-            };
-        }
-        if (title) {
-            status.title = title;
-        }
-        if (!status.type) {
-            status.type = 'success';
-        }
-        return app.container.add(status);
-    };
-    const success = (status: Status, title?: string) => notify(status, title);
-    const info = (status: Status, title?: string) => {
+const notify = (status: Status, title?: string): ReturnType<ToastPluginAPI['notify']> => {
+    if (typeof status === 'string') {
+        status = {
+            body: status
+        };
+    }
+    if (title) {
+        status.title = title;
+    }
+    if (!status.type) {
+        status.type = 'success';
+    }
+    return app.container.add(status);
+};
+
+export const toastMethods: ToastPluginAPI = {
+    notify,
+    success: (status: Status, title?: string) => notify(status, title),
+    info: (status: Status, title?: string) => {
         if (typeof status === 'string') {
             status = {
                 body: status
@@ -57,8 +59,8 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         }
         status.type = 'info';
         return notify(status);
-    };
-    const warning = (status: Status, title?: string) => {
+    },
+    warning: (status: Status, title?: string) => {
         if (typeof status === 'string') {
             status = {
                 body: status
@@ -69,17 +71,14 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         }
         status.type = 'warning';
         return notify(status);
-    };
-    const error = (status: Status | Response, title?: string) => {
+    },
+    error: (status: Status, title?: string) => {
         const notification = {} as ToastOptions;
 
         if (typeof status === 'string') {
             notification.body = status;
         }
-        if (status instanceof Response) {
-            notification.title = status.status.toString();
-            notification.body = status.statusText;
-        }
+
         if (title) {
             notification.title = title;
         }
@@ -87,8 +86,8 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         notification.type = 'error';
 
         return notify(notification);
-    };
-    const loader = (status: Status, title?: string) => {
+    },
+    loader: (status: Status, title?: string) => {
         if (typeof status === 'string') {
             status = {
                 body: status
@@ -99,50 +98,43 @@ export default function useToast(): ToastPluginAPI & CustomMethods {
         }
         status.mode = 'loader';
         return notify(status);
-    };
-    const prompt = async <T>(status: Omit<ToastOptions, 'mode' | 'answers'> & { answers: Record<string, T> }) => {
+    },
+    prompt: async <T>(status: Omit<ToastOptions, 'mode' | 'answers'> & { answers: Record<string, T> }) => {
         (status as ToastOptions).mode = 'prompt';
 
         const events = useVtEvents();
-        const toast = app.container.add(status);
+        const toastId = app.container.add(status);
 
         return new Promise<T>(resolve => {
             events.once('vtPromptResponse', payload => {
-                if (payload.id === toast.id) {
+                if (payload.id === toastId) {
                     resolve(payload.response as T);
                 }
             });
         });
-    };
+    },
+    stopLoader(id?: Toast['id']): number {
+        return app.container.stopLoader(id);
+    },
+    findToast(id?: Toast['id']): Toast | undefined {
+        return app.container.get(id);
+    },
+    getToasts(): Toast[] {
+        return app.container.get() as unknown as Toast[];
+    },
+    updateToast(id: Toast['id'], status: ToastOptions): boolean {
+        return app.container.set(id, status);
+    },
+    remove(id?: Toast['id']): number {
+        return app.container.remove(id);
+    },
+    settings(settings?: Settings): Settings {
+        const settingsComposable = useSettings();
 
-    return {
-        ...customMethods,
-        notify,
-        success,
-        info,
-        warning,
-        error,
-        loader,
-        prompt,
-        stopLoader(id?: Toast['id']) {
-            return app.container.stopLoader(id);
-        },
-        findToast(id?: Toast['id']): Toast | undefined {
-            return app.container.get(id);
-        },
-        getToasts(): Toast[] {
-            return app.container.get() as unknown as Toast[];
-        },
-        updateToast(id: Toast['id'], status: ToastOptions): boolean {
-            return app.container.set(id, status);
-        },
-        remove(id?: Toast['id']): number {
-            return app.container.remove(id);
-        },
-        settings(settings?: Settings): Settings {
-            const settingsComposable = useSettings();
+        return settings ? settingsComposable.updateSettings(settings) : settingsComposable.settings;
+    }
+};
 
-            return settings ? settingsComposable.updateSettings(settings) : settingsComposable.settings;
-        }
-    };
+export default function useToast(): ToastPluginAPI {
+    return toastMethods;
 }

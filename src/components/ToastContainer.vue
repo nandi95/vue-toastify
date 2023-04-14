@@ -240,7 +240,7 @@ export default defineComponent({
          *
          * @return {String}
          */
-        const add = (status: ToastOptions) => {
+        const add: ContainerMethods['add'] = (status: ToastOptions) => {
             // copy object
             const toast = Object.assign(
                 {},
@@ -267,7 +267,12 @@ export default defineComponent({
                 status.answers && Object.keys(status.answers).length > 0
                     ? status.answers
                     : { Yes: true, No: false };
-            toast.pauseOnHover = isBoolean(status.pauseOnHover) ? status.pauseOnHover : settings.pauseOnHover;
+            toast.pauseOnHover = isBoolean(status.pauseOnHover)
+                ? status.pauseOnHover
+                : settings.pauseOnHover;
+            toast.pauseOnFocusLoss = isBoolean(status.pauseOnFocusLoss)
+                ? status.pauseOnFocusLoss
+                : settings.pauseOnFocusLoss;
             toast.hideProgressbar = isBoolean(status.hideProgressbar)
                 ? status.hideProgressbar
                 : settings.hideProgressbar;
@@ -302,7 +307,7 @@ export default defineComponent({
                 settings.singular && toasts.value.length > 0 ||
                 // if oneType turned on and that type already showing
                 settings.oneType && arrayHasType(toast) ||
-                // if it would exceed the max number of displayed toasts
+                // if it exceeds the max number of displayed toasts
                 toasts.value.length + 1 >= settings.maxToasts
             ) {
                 queue.value.push({ ...toast, delayed: true });

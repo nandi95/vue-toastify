@@ -213,6 +213,10 @@ export default defineComponent({
         });
 
         const addToast = () => {
+            // const name = uuidV4();
+            // createVtTheme(name, '#'+(0x1000000+Math.random()*0xffffff).toString(16).substr(1,6));
+            //
+            // status.theme = name;
             if (status.body.length > 0) {
                 if (status.mode === 'prompt' && jsonError.value.length) {
                     toast.error(jsonError.value, '😠');

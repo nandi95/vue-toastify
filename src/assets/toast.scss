@@ -166,7 +166,6 @@
   );
 
   @each $name, $value in $colors {
-    $adjusted: 0;
     $value: calc($value / 255);
 
     @if $value < 0.03928 {

@@ -1,4 +1,5 @@
-import { onMounted, onBeforeUnmount, getCurrentInstance, ref, computed, ComputedRef } from 'vue';
+import { onMounted, onBeforeUnmount, getCurrentInstance, ref, computed } from 'vue';
+import type { Ref, ComputedRef } from 'vue';
 import useVtEvents from './useVtEvents';
 import { Toast } from '../type';
 
@@ -21,6 +22,7 @@ export type Coordinates = {
 type Draggable = {
     hasMoved: ComputedRef<boolean>;
     draggableStyles: ComputedRef<Partial<CSSStyleDeclaration>>;
+    isDragged: Readonly<Ref<boolean>>;
 };
 
 export default function useDraggable(
@@ -144,6 +146,7 @@ export default function useDraggable(
 
     return {
         hasMoved,
-        draggableStyles
+        draggableStyles,
+        isDragged
     };
 }

@@ -1,13 +1,17 @@
-import type { uuidV4 } from './utils';
-
-type XPosition = 'left' | 'center' | 'right';
-type YPosition = 'top' | 'center' | 'bottom';
+export type XPosition = 'left' | 'center' | 'right';
+export type YPosition = 'top' | 'center' | 'bottom';
 export type Position = `${YPosition}-${XPosition}`;
 
 export type MaybeArray<T> = T | T[];
 
 export interface Icon {
+    /**
+     * The html element name to use.
+     */
     tag?: keyof HTMLElementTagNameMap;
+    /**
+     * The html to use.
+     */
     ligature?: string;
     icon?: string;
 }
@@ -50,12 +54,12 @@ export interface BaseSettings {
      *
      * @default 'dark'
      */
-    theme?: string;
+    theme?: 'light' | 'dark' | string;
 
     /**
      * If string supplied this will apply the usual transition classes (eg.: .name-enter-active).
-     * If object supplied it expect a `name` and optionally a `moveClass` (this class has to use `!important` for its rules) attribute.
-     * The name will be applied as above. The move class applied when the notifications adjust their position.
+     * If an object is supplied, it expects a `name` and optionally a `moveClass` (this class has to use `!important` for its rules) attribute.
+     * The name will be applied as above. The move class is applied when the notifications adjust their position.
      */
     transition?: string | { name: string; moveClass?: string };
 
@@ -86,6 +90,13 @@ export interface BaseSettings {
      * @default true
      */
     orderLatest?: boolean;
+
+    /**
+     * Whether the toast should pause when the window loses focus.
+     *
+     * @default true
+     */
+    pauseOnFocusLoss?: boolean;
 }
 
 export interface Settings extends BaseSettings {
@@ -154,7 +165,7 @@ export interface Settings extends BaseSettings {
      */
     oneType?: boolean;
 
-    customNotifications?: Record<string, any>;
+    customNotifications?: Record<string, ToastOptions>;
 }
 
 export interface ToastOptions extends BaseSettings {
@@ -217,14 +228,7 @@ export interface Toast extends ToastOptions {
     /**
      * v4 uuid.
      */
-    id: ReturnType<typeof uuidV4>;
-}
-
-/**
- * Interface allowing to extend the useToast's available methods.
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface CustomMethods {
+    id: string;
 }
 
 export type ContainerMethods = {
@@ -232,7 +236,7 @@ export type ContainerMethods = {
      * Add new toast.
      * @param status
      */
-    add: (status: ToastOptions) => Toast;
+    add: (status: ToastOptions) => Toast['id'];
     /**
      * Remove toast by id or all toasts (queued included) if no id given.
      * @param id

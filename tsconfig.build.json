@@ -5,7 +5,7 @@
     },
     "include": [
         "src/index.ts",
-        "src/type.d.ts",
+        "src/type.ts",
         "src/composables/useSettings.ts",
         "src/composables/useToast.ts",
         "src/composables/useVtEvents.ts"

@@ -1,5 +1,14 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import pkg from './package.json' assert { type: 'json' };
+
+const banner = `
+/*! ================================
+${pkg.name} v${pkg.version}
+(c) 2019-present ${pkg.author}
+Released under ${pkg.license} License
+================================== */
+`;
 
 export default defineConfig(({ mode }) => {
     const config: Parameters<typeof defineConfig>[0] = {
@@ -16,8 +25,8 @@ export default defineConfig(({ mode }) => {
             copyPublicDir: false,
             lib: {
                 entry: 'src/index.ts',
-                name: 'vue-toastify',
-                fileName: (format) => `index.${format}.js`,
+                name: pkg.name,
+                fileName: (format) => `index.${format}.js`
             },
             rollupOptions: {
                 external: ['vue'],
@@ -26,7 +35,8 @@ export default defineConfig(({ mode }) => {
                         vue: 'Vue'
                     },
                     assetFileNames: assetInfo => assetInfo.name === 'style.css' ? 'index.css' :assetInfo.name!,
-                    exports: 'named'
+                    exports: 'named',
+                    banner
                 }
             }
         };
