@@ -78,18 +78,12 @@ export interface BaseSettings {
     draggable?: boolean;
 
     /**
-     * A number between 0 - 5 representing how far the notification should be dragged to dismiss.
+     * A number between 0-5 representing how far the notification should be dragged to dismiss.
      *
      * @default 0.75
      */
+    // todo - 5 is probably an option for too high value
     dragThreshold?: number;
-
-    /**
-     * Whether new notifications should display on top of the stack or not.
-     *
-     * @default true
-     */
-    orderLatest?: boolean;
 
     /**
      * Whether the toast should pause when the window loses focus.
@@ -106,7 +100,16 @@ export interface Settings extends BaseSettings {
     singular?: boolean;
 
     /**
+     * Whether new notifications should display on top of the stack or not.
+     *
+     * @default true
+     */
+    orderLatest?: boolean;
+
+    /**
      * Show a backdrop that blocks the rest of the page.
+     *
+     * @default false
      */
     withBackdrop?: boolean;
 
@@ -146,7 +149,7 @@ export interface Settings extends BaseSettings {
     warningInfoDuration?: number;
 
     /**
-     * If string is set, this will be appended to every user supplied icon's class.
+     * If string is set, this will be appended to every user-supplied icon's class.
      */
     baseIconClass?: string;
 
