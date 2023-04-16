@@ -310,12 +310,26 @@ export default defineComponent({
                 // if it exceeds the max number of displayed toasts
                 toasts.value.length + 1 >= settings.maxToasts
             ) {
+                if (toast.delay) {
+                    setTimeout(() => {
+                        queue.value.push({ ...toast, delayed: true });
+                    }, toast.delay);
+                } else {
+                    queue.value.push({ ...toast, delayed: true });
+                }
+
                 queue.value.push({ ...toast, delayed: true });
 
                 return toast.id;
             }
 
-            toasts.value.push(toast);
+            if (toast.delay) {
+                setTimeout(() => {
+                    toasts.value.push(toast);
+                }, toast.delay);
+            } else {
+                toasts.value.push(toast);
+            }
 
             return toast.id;
         };
