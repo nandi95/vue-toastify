@@ -1,0 +1,27 @@
+version: 2
+updates:
+
+- package-ecosystem: npm
+  directory: '/'
+  target-branch: release/0.x
+  schedule:
+    interval: monthly
+    time: '00:00'
+  open-pull-requests-limit: 10
+  commit-message:
+    prefix: fix
+    prefix-development: chore
+    include: scope
+
+
+- package-ecosystem: github-actions
+  directory: '/'
+  target-branch: release/0.x
+  schedule:
+    interval: monthly
+    time: '00:00'
+  open-pull-requests-limit: 10
+  commit-message:
+    prefix: fix
+    prefix-development: chore
+    include: scope
