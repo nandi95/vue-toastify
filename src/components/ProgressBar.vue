@@ -29,6 +29,7 @@ export default defineComponent({
         const timerStartedAt = ref(new Date());
         // initial time to calculate with on the first start
         const timerPausedAt = ref(new Date());
+        // eslint-disable-next-line vue/no-setup-props-destructure
         const timerFinishesAt = ref(new Date(props.duration + Date.now()));
         const events = useVtEvents();
 
@@ -94,7 +95,7 @@ export default defineComponent({
                     // (there's a chance it won't be if when the timer finishes,
                     // the animation frame hasn't been called yet)
                     progress.value = 100;
-                    ctx.emit("vtFinished");
+                    ctx.emit('vtFinished');
                 },
                 timerFinishesAt.value.getTime() - Date.now()
             );

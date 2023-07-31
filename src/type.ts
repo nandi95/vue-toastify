@@ -54,11 +54,13 @@ export interface BaseSettings {
      *
      * @default 'dark'
      */
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     theme?: 'light' | 'dark' | string;
 
     /**
      * If string supplied this will apply the usual transition classes (eg.: .name-enter-active).
-     * If an object is supplied, it expects a `name` and optionally a `moveClass` (this class has to use `!important` for its rules) attribute.
+     * If an object is supplied, it expects a `name` and optionally a `moveClass`
+     *   (this class has to use `!important` for its rules) attribute.
      * The name will be applied as above. The move class is applied when the notifications adjust their position.
      */
     transition?: string | { name: string; moveClass?: string };

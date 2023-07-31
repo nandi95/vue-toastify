@@ -155,5 +155,6 @@ module.exports = {
         }],
         'vue/no-v-html': 'off',
         'vue/require-default-prop': 'off',
+        'vue/no-v-text-v-html-on-component': 'off'
     }
 }

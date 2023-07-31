@@ -180,10 +180,9 @@ export default defineComponent({
          * @return {Boolean}
          */
         const arrayHasType = (status: ToastOptions) => {
-            return !!toasts.value.find(
-                toast =>
-                    toast.mode && toast.mode === status.mode ||
-                    toast.type && toast.type === status.type
+            return !!toasts.value.find(toast =>
+                // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+                toast.mode && toast.mode === status.mode || toast.type && toast.type === status.type
             );
         };
 

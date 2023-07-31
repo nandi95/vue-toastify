@@ -1,5 +1,3 @@
-import useSettings from './useSettings';
-
 function darken(color: string, amount: number): string {
     const hex = color.slice(1);
     const rgb = parseInt(hex, 16);
