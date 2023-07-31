@@ -11,15 +11,14 @@ export default {
         hasUrl() {
             return (
                 (isString(this.status.url) && this.status.url.length > 0) ||
-                (isObject(this.status.url) &&
-                    (this.routerRouteExits || !!this.status.url.href))
+                (isObject(this.status.url) && (this.routerRouteExits || !!this.status.url.href))
             );
         },
         urlTarget() {
             if (this.status.url) {
                 if (isString(this.status.url)) {
                     if (!this.routerRouteExits) {
-                        return { href: this.status.url };
+                        return { href: encodeURIComponent(this.status.url) };
                     }
                     return {
                         href: this.$vtRouter.resolve(this.status.url).href
@@ -27,7 +26,7 @@ export default {
                 }
                 if (isObject(this.status.url)) {
                     if (!this.isRouterLinkObject && this.status.url.href) {
-                        return this.status.url;
+                        return encodeURIComponent(this.status.url);
                     }
 
                     if (this.routerRouteExits) {

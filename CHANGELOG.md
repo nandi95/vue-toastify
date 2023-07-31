@@ -1,3 +1,10 @@
+**v1.8.1** *25/11/2021*
+
+Fix:
+- Resolved xss vulnerability stemming from url option not being encoded (#26).
+
+***
+
 **v1.8.0** *05/05/2020*
 
  Feature:

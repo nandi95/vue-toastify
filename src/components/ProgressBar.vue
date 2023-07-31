@@ -1,6 +1,6 @@
 <template>
-    <div class="vt-progress-bar" v-show="!hideProgressbar">
-        <div class="vt-progress" :style="{ width: this.progress + '%' }"></div>
+    <div v-show="!hideProgressbar" class="vt-progress-bar">
+        <div class="vt-progress" :style="{ width: progress + '%' }"></div>
     </div>
 </template>
 
@@ -11,8 +11,7 @@ const requestAnimationFrame =
     window.mozRequestAnimationFrame ||
     window.oRequestAnimationFrame ||
     window.msRequestAnimationFrame;
-const cancelAnimationFrame =
-    window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+const cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
 export default {
     name: "ProgressBar",
     props: {
@@ -22,6 +21,25 @@ export default {
         hideProgressbar: { type: Boolean },
         duration: { type: Number },
         id: { type: String }
+    },
+    data() {
+        return {
+            progress: 0,
+            progressId: null,
+            timerId: null,
+            timerStartedAt: null,
+            timerPausedAt: null,
+            timerFinishesAt: null
+        };
+    },
+    watch: {
+        isHovered: function (boolean) {
+            if (boolean) {
+                this.timerPause();
+            } else {
+                this.timerStart();
+            }
+        }
     },
     beforeMount() {
         this.timerFinishesAt = new Date(this.duration + Date.now());
@@ -44,28 +62,24 @@ export default {
         }
         this.timerStart();
     },
-    data() {
-        return {
-            progress: 0,
-            progressId: null,
-            timerId: null,
-            timerStartedAt: null,
-            timerPausedAt: null,
-            timerFinishesAt: null
-        };
+    beforeDestroy() {
+        this.progress = 0;
+        window.clearTimeout(this.timerId);
+        if (this.progressId) {
+            cancelAnimationFrame(this.progressId);
+            this.progressId = null;
+        }
     },
     methods: {
         timerStart() {
             if (this.canPause) {
                 this.timerStartedAt = new Date(
-                    this.timerStartedAt.getTime() +
-                        (Date.now() - this.timerPausedAt.getTime())
+                    this.timerStartedAt.getTime() + (Date.now() - this.timerPausedAt.getTime())
                 );
 
                 // new future date = future date + elapsed time since pausing
                 this.timerFinishesAt = new Date(
-                    this.timerFinishesAt.getTime() +
-                        (Date.now() - this.timerPausedAt.getTime())
+                    this.timerFinishesAt.getTime() + (Date.now() - this.timerPausedAt.getTime())
                 );
 
                 if (!this.timerId && this.progress > 0) {
@@ -96,9 +110,7 @@ export default {
         },
         progressBar() {
             if (this.progress < 100) {
-                const wholeTime =
-                    this.timerFinishesAt.getTime() -
-                    this.timerStartedAt.getTime();
+                const wholeTime = this.timerFinishesAt.getTime() - this.timerStartedAt.getTime();
                 const elapsed = Date.now() - this.timerStartedAt.getTime();
 
                 this.progress = (elapsed / wholeTime) * 100;
@@ -110,23 +122,6 @@ export default {
             } else {
                 this.progressId = cancelAnimationFrame(this.progressId);
             }
-        }
-    },
-    watch: {
-        isHovered: function(boolean) {
-            if (boolean) {
-                this.timerPause();
-            } else {
-                this.timerStart();
-            }
-        }
-    },
-    beforeDestroy() {
-        this.progress = 0;
-        window.clearTimeout(this.timerId);
-        if (this.progressId) {
-            cancelAnimationFrame(this.progressId);
-            this.progressId = null;
         }
     }
 };

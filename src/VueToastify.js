@@ -132,9 +132,7 @@ const VueToastify = {
                 return ToastContainer.$on(event, payload => callback(payload));
             },
             listenOnce(event, callback) {
-                return ToastContainer.$once(event, payload =>
-                    callback(payload)
-                );
+                return ToastContainer.$once(event, payload => callback(payload));
             }
         };
 
