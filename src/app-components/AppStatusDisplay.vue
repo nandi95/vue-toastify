@@ -1,5 +1,5 @@
 <template>
-    <div class="mockup-code">
+    <div class="mockup-code max-w-lg overflow-x-auto">
         <pre data-prefix="1"><code>// status object</code></pre>
         <pre v-for="(line, i) in lines" :key="i" :data-prefix="i + 2"><code>{{ line }}</code></pre>
     </div>
@@ -21,9 +21,9 @@ export default defineComponent({
 
     setup: (props) => {
         const lines = computed(() => {
-            const clone = {};
+            const clone: Partial<ToastOptions> = {};
 
-            Object.keys(props.status).forEach(key => {
+            (Object.keys(props.status) as (keyof ToastOptions)[]).forEach(key => {
                 if (props.status[key] === undefined || props.status[key] === false || props.status[key] === '') {
                     return;
                 }
