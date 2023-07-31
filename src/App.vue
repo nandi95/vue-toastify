@@ -197,6 +197,9 @@ export default defineComponent({
         });
 
         watch(() => withBackdrop.value, val => {
+            if (val && toast.getToasts().find(t => t.mode === 'loader')) {
+                showWarning.value = true;
+            }
             toast.settings({ withBackdrop: val });
         });
         watch(() => lightTheme.value, val => {
