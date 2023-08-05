@@ -73,7 +73,7 @@ export default defineComponent({
 
                 progress.value = elapsed / wholeTime * 100;
 
-                // if timer is running
+                // if the timer is running
                 if (timerId.value) {
                     progressId.value = requestAnimationFrame(progressBar);
                 }
@@ -87,20 +87,6 @@ export default defineComponent({
 
         onMounted(() => {
             events.emit('vtStarted', { id: props.id });
-
-            // set new timeout
-            timerId.value = window.setTimeout(
-                () => {
-                    // ensure progress bar is full
-                    // (there's a chance it won't be if when the timer finishes,
-                    // the animation frame hasn't been called yet)
-                    progress.value = 100;
-                    ctx.emit('vtFinished');
-                },
-                timerFinishesAt.value.getTime() - Date.now()
-            );
-            // animation start
-            progressId.value = requestAnimationFrame(progressBar);
             timerStart();
         });
 
