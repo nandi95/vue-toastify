@@ -10,3 +10,6 @@ index.es.js
 index.umd.js
 types
 vue-toastify-*
+
+# Local Netlify folder
+.netlify
