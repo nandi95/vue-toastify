@@ -33,7 +33,11 @@ export default defineComponent({
 
             return JSON.stringify(clone, null, 4)
                 .split('\n')
-                .map(line => line.replace('"', '').replace('"', ''));
+                .map(line => line
+                    .replace('"', '')
+                    .replace('"', '')
+                    .replace(/"(\d+)"/g, '$1')
+                );
         });
 
         return {
