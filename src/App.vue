@@ -1,15 +1,28 @@
 <template>
-    <div class="bg-gradient-to-br from-base-100 to-base-300 py-2 min-h-screen">
-        <a href="https://github.com/nandi95/vue-toastify/">
-            <svg width="98"
-                 height="96"
-                 style="transform: scale(35%)"
-                 class="absolute top-0 right-0 text-gray-500"
-                 xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd"
-                      fill="currentColor"
-                      clip-rule="evenodd"
-                      d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059
+    <div class="bg-gradient-to-br from-base-100/40 to-base-300/60 pb-2 min-h-screen">
+        <header class="navbar flex-wrap sm:flex-nowrap bg-base-300/20 mb-10">
+            <div class="navbar-start">
+                <AppThemeToggle />
+            </div>
+            <div class="w-full order-first sm:w-auto sm:order-1 navbar-center flex justify-center text-center flex-col flex-no-wrap">
+                <h2 class="text-primary font-bold text-3xl mb-2">
+                    Vue Toastify
+                </h2>
+                <p class="text-base-content">
+                    A fuss free notification component.
+                </p>
+            </div>
+            <div class="navbar-end order-last">
+                <a href="https://github.com/nandi95/vue-toastify/">
+                    <svg width="98"
+                         height="96"
+                         style="transform: scale(35%)"
+                         class="text-gray-500"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              fill="currentColor"
+                              clip-rule="evenodd"
+                              d="M48.854 0C21.839 0 0 22 0 49.217c0 21.756 13.993 40.172 33.405 46.69 2.427.49 3.316-1.059
                      3.316-2.362 0-1.141-.08-5.052-.08-9.127-13.59
                      2.934-16.42-5.867-16.42-5.867-2.184-5.704-5.42-7.17-5.42-7.17-4.448-3.015.324-3.015.324-3.015
                      4.934.326 7.523 5.052 7.523 5.052 4.367 7.496 11.404 5.378 14.235 4.074.404-3.178 1.699-5.378
@@ -19,16 +32,9 @@
                      11.816.485 13.038 3.155 3.422 5.015 7.822 5.015 13.2 0 18.905-11.404 23.06-22.324 24.283 1.78 1.548
                      3.316 4.481 3.316 9.126 0 6.6-.08 11.897-.08 13.526 0 1.304.89 2.853 3.316 2.364 19.412-6.52
                      33.405-24.935 33.405-46.691C97.707 22 75.788 0 48.854 0z" />
-            </svg>
-        </a>
-        <header
-            class="flex justify-center text-center flex-col flex-no-wrap mb-10 pt-3">
-            <h2 class="text-primary font-bold text-3xl mb-2">
-                Vue Toastify
-            </h2>
-            <p class="text-primary-content/80">
-                A fuss free notification component.
-            </p>
+                    </svg>
+                </a>
+            </div>
         </header>
         <main class="px-2">
             <div
@@ -109,11 +115,11 @@
             </div>
             <div class="flex justify-around items-center align-middle flex-wrap mt-2">
                 <button v-if="status.mode === 'loader'"
-                        class="btn"
+                        class="btn btn-primary"
                         @click="loadStop">
                     Call .stopLoader()
                 </button>
-                <button class="btn" @click="addToast">
+                <button class="btn btn-primary" @click="addToast">
                     Toastify!
                 </button>
             </div>
@@ -129,7 +135,7 @@
                     Make sure to also cancel the loading if your process has
                     failed.
                 </h4>
-                <button class="btn" @click="loadStop">
+                <button class="btn btn-primary" @click="loadStop">
                     Call .stopLoader()
                 </button>
             </div>
@@ -147,10 +153,11 @@ import AppSelect from './app-components/AppSelect.vue';
 import AppTextarea from './app-components/AppTextarea.vue';
 import AppStatusDisplay from './app-components/AppStatusDisplay.vue';
 import { isObject } from './utils';
+import AppThemeToggle from "./app-components/AppThemeToggle.vue";
 
 export default defineComponent({
     name: 'App',
-    components: { AppStatusDisplay, AppTextarea, AppSelect, AppInput, AppToggle },
+    components: { AppThemeToggle, AppStatusDisplay, AppTextarea, AppSelect, AppInput, AppToggle },
 
     setup: () => {
         const status = reactive<ToastOptions>({

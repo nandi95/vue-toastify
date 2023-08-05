@@ -1,9 +1,13 @@
 /**
- * @type {import('@types/tailwindcss').TailwindConfig}
+ * @type {import("@types/tailwindcss").TailwindConfig}
  */
 module.exports = {
-  content: ['**/*.html', './src/**/*.{ts,tsx,vue}'],
+    darkMode: "class",
+    content: ["**/*.html", "./src/**/*.{ts,tsx,vue}"],
     plugins: [
-        require("daisyui"),
-    ]
-}
+        require("daisyui")
+    ],
+    daisyui: {
+        themes: ['emerald', 'halloween']
+    }
+};
