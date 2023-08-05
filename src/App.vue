@@ -40,7 +40,7 @@
                         <AppTextarea v-model="status.body"
                                      name="body"
                                      label="Body"
-                                     :error="status.body < 1 ? 'Needs to have length' : ''" />
+                                     :error="status.body.length < 1 ? 'Needs to have length' : ''" />
                         <AppSelect v-model="status.type"
                                    name="type"
                                    label="Type"
@@ -65,7 +65,10 @@
                 </div>
                 <div class="w-full sm:w-1/2 xl:w-1/4 sm:max-w-50 sm:ml-2">
                     <div class="w-1/2 mx-auto lg:w-2/3 xl:w-1/2 mb-12 space-y-1">
-                        <AppToggle v-model="status.pauseOnHover" label="Can be Paused" @change="checkTimingProps" />
+                        <AppToggle v-model="status.pauseOnHover"
+                                   :disabled="!status.canTimeout"
+                                   label="Can be Paused"
+                                   @change="checkTimingProps" />
                         <AppToggle v-model="status.canTimeout"
                                    label="Can Timeout"
                                    @change="
@@ -84,11 +87,12 @@
                                    label="One notification at a time"
                                    @change="checkIfLoading" />
                         <AppToggle v-model="oneTypeAtAtime"
+                                   :disabled="singular"
                                    label="One type at a time"
                                    @change="checkIfLoading" />
                     </div>
                     <div class="flex flex-col justify-around w-full">
-                        <AppInput v-model.number="status.duration"
+                        <AppInput v-model="status.duration"
                                   name="duration"
                                   label="Duration"
                                   :disabled="!status.canTimeout"

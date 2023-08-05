@@ -1,7 +1,10 @@
 <template>
     <div class="flex">
         <label class="cursor-pointer label">
-            <input v-model="model" type="checkbox" class="toggle toggle-primary">
+            <input v-model="model"
+                   type="checkbox"
+                   :disabled="disabled"
+                   class="toggle toggle-primary">
             <span class="label-text ml-2">{{ label }}</span>
         </label>
     </div>
@@ -22,6 +25,11 @@ export default defineComponent({
         label: {
             type: String,
             required: true
+        },
+
+        disabled: {
+            type: Boolean,
+            default: false
         }
     },
 
