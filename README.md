@@ -122,7 +122,7 @@ The following properties can be set on the object:
 
  property | type  | details |
 ---|---|---
-| body | String | Required parameter, you may pass html to this. |
+| body | String | Required parameter, you may pass html, JSX, or a function that returns JSX to this. |
 | title | String | Enables pausing of the loader and the timeout on hover. |
 | type | String | Defines what notification type should be showing available types: `"success"`, `"warning"`, `"info"`, `"error"` defaults to `"success"`. This can only be set if you're using `this.$vtNotify()` Alternatively you may use the methods: `this.$vToastify.warning("more readable")` |
 | mode | String | If set the notification will be shown in the given mode: `loader`, `prompt`. Alternatively you may use the methods: `this.$vToastify.loader("more readable")`  |
@@ -280,6 +280,48 @@ const mutations = {
     this._vm.$vToastify.success("Successfully updated value!")
   }
 };
+```
+
+### JSX usage
+
+```jsx
+// In your vue component's methods:
+runToast(){
+  // This is needed to avoid using the global `h` function, which vue complains about.
+  // You'll also need `lang="jsx"` in your script tag.
+  const h = this.$createElement;
+  this.$vToastify.success({
+    body: h("div", {}, [
+      h("h1", {}, "Hello"),
+      h("p", {}, "World")
+    ])
+  });
+  // OR
+  const h = this.$createElement;
+  this.$vToastify.success({
+    body: <div>
+      <h1>Hello</h1>
+      <p>World</p>
+    </div>
+  });
+  // OR With Vue 2.7
+  // Your mileage with this may vary - you might need to import `h` from vue
+  this.$vToastify.success(()=><div>Hello</div>)
+}
+```
+
+You can also pass in a function for the body which will have `h` as an argument to circumvent the global `h` function.
+
+```jsx
+Vue.$vToastify.success({
+  body: h => h("div", {}, "hello")
+});
+// OR
+Vue.$vToastify.success({
+  body: (h) => <div>hello</div>
+});
+// OR as only a function
+Vue.$vToastify.success((h)=><div>hello</div>);
 ```
  
 ## Todos

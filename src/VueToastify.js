@@ -1,5 +1,9 @@
 import { default as vToastify } from "./components/VueToastify.vue";
 
+function isBody(value) {
+    return typeof value === "string" || typeof value === "function";
+}
+
 const VueToastify = {
     install(Vue, settings = {}, router = null) {
         let Constructor = Vue.extend(vToastify);
@@ -20,7 +24,7 @@ const VueToastify = {
         }
 
         const vtNotify = (status, title = null) => {
-            if (typeof status === "string") {
+            if (isBody(status)) {
                 status = {
                     body: status
                 };
@@ -38,7 +42,7 @@ const VueToastify = {
                 return vtNotify(status, title);
             },
             info(status, title = null) {
-                if (typeof status === "string") {
+                if (isBody(status)) {
                     status = {
                         body: status
                     };
@@ -50,7 +54,7 @@ const VueToastify = {
                 return vtNotify(status);
             },
             warning(status, title = null) {
-                if (typeof status === "string") {
+                if (isBody(status)) {
                     status = {
                         body: status
                     };
@@ -62,7 +66,7 @@ const VueToastify = {
                 return vtNotify(status);
             },
             error(status, title = null) {
-                if (typeof status === "string") {
+                if (isBody(status)) {
                     status = {
                         body: status
                     };
@@ -80,7 +84,7 @@ const VueToastify = {
                 return vtNotify(status);
             },
             loader(status, title = null) {
-                if (typeof status === "string") {
+                if (isBody(status)) {
                     status = {
                         body: status
                     };
@@ -92,7 +96,7 @@ const VueToastify = {
                 return vtNotify(status);
             },
             prompt(status, title = null) {
-                if (typeof status === "string") {
+                if (isBody(status)) {
                     status = {
                         body: status
                     };
@@ -132,7 +136,9 @@ const VueToastify = {
                 return ToastContainer.$on(event, payload => callback(payload));
             },
             listenOnce(event, callback) {
-                return ToastContainer.$once(event, payload => callback(payload));
+                return ToastContainer.$once(event, payload =>
+                    callback(payload)
+                );
             }
         };
 
@@ -146,7 +152,7 @@ const VueToastify = {
                         return (status, title = null) => {
                             let toast = {};
                             toast = Object.assign(toast, keyValArr[1]);
-                            if (typeof status === "string") {
+                            if (isBody(status)) {
                                 toast.body = status;
                             } else {
                                 toast = { ...keyValArr[1], ...status };

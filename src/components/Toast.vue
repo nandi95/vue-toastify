@@ -83,7 +83,7 @@ export default {
         isJSXBody() {
             const body = this.status.body;
             // basic duck-typing check for jsx VNode
-            if (typeof body === "object" && body.tag != null) {
+            if (typeof body === 'function' || typeof body === "object" && body.tag != null) {
                 return true;
             }
             return false;

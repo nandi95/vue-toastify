@@ -3,6 +3,7 @@ export default Vue.component("VNodes", {
     functional: true,
     props: ["node"],
     render(h, context) {
-        return context.props.node;
+        const { node } = context.props;
+        return typeof node === "function" ? node(h) : node;
     }
 });
