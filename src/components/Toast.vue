@@ -23,7 +23,10 @@
         />
         <div class="vt-content">
             <h2 v-if="status.title" class="vt-title" v-text="status.title" />
-            <p class="vt-paragraph" v-html="status.body" />
+            <div v-if="isJSXBody" class="vt-paragraph">
+                <Node :node="status.body" />
+            </div>
+            <p v-else class="vt-paragraph" v-html="status.body" />
         </div>
         <Icon
             v-if="status.iconEnabled"
@@ -48,10 +51,11 @@ import ProgressBar from "./ProgressBar.vue";
 import Icon from "./Icon.vue";
 import draggable from "./draggable.js";
 import linkable from "./linkable";
+import Node from "./Node.js";
 
 export default {
     name: "Toast",
-    components: { ProgressBar, Icon },
+    components: { ProgressBar, Icon, Node },
     mixins: [draggable, linkable],
     props: {
         status: { type: Object },
@@ -75,6 +79,14 @@ export default {
         },
         isNotification() {
             return ["prompt", "loader"].indexOf(this.status.mode) === -1;
+        },
+        isJSXBody() {
+            const body = this.status.body;
+            // basic duck-typing check for jsx VNode
+            if (typeof body === 'function' || typeof body === "object" && body.tag != null) {
+                return true;
+            }
+            return false;
         }
     },
     mounted() {
