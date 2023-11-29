@@ -4,13 +4,14 @@
   "private": false,
   "description": "Simple, extendable, dependency free notification plugin.",
   "main": "./dist/vue-toastify.umd.min.js",
+  "types": "./types.d.ts",
   "scripts": {
     "serve": "serve -s build",
     "watch": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "compile": "cross-env IS_COMPILE=true vue-cli-service build --target lib --dest dist/ --name vue-toastify ./src/VueToastify.js"
-  },
+},
   "sideEffects": true,
   "dependencies": {
     "vue": "^2.6.12"
