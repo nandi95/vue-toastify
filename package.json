@@ -51,7 +51,7 @@
     "extendable"
   ],
   "files": [
-    "dist/*"
+    "dist/*","./types.d.ts"
   ],
   "author": "Nandor Kraszlan",
   "license": "MIT",
