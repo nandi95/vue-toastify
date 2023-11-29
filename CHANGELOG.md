@@ -1,3 +1,11 @@
+**v1.9.0** *29/11/2023*
+
+Feature:
+- Add JSX body support (#43).
+- Add type definitions to the project (#44).
+
+***
+
 **v1.8.1** *25/11/2021*
 
 Fix:
