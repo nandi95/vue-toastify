@@ -11,7 +11,9 @@ module.exports = {
         ],
         resolve: {
             alias: {
-                "@": path.resolve(__dirname, "src")
+                "@": path.resolve(__dirname, "src"),
+                // Resolve this so that the App will be able to see the type defintitions
+                "vue-toastify": path.resolve(__dirname, "src/VueToastify.js")
             }
         },
         watchOptions: {

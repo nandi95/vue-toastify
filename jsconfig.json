@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths":{
+      "vue-toastify": ["src/VueToastify.js"]
+    }
+  }
+}
