@@ -1,7 +1,7 @@
 import Vue from "vue";
 import App from "./App.vue";
-import "tailwindcss/tailwind.css";
 import VueToastify from "vue-toastify";
+import "@/assets/styles/main.css";
 
 Vue.config.productionTip = false;
 Vue.config.performance = true;

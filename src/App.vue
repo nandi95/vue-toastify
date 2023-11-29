@@ -1,6 +1,6 @@
 <template>
     <div>
-        <header class="flex justify-center text-center flex-col flex-no-wrap mb-10 pt-3">
+        <header class="flex justify-center text-center flex-col flex-nowrap mb-10 pt-3">
             <h2 class="text-blue-800 font-bold text-3xl mb-2">Vue Toastify</h2>
             <p class="text-gray-600">A fuss free notification component.</p>
         </header>
@@ -8,19 +8,7 @@
             <div class="flex xl:justify-center justify-around flex-wrap flex-row">
                 <div class="flex flex-col w-auto sm:max-w-50 sm:mr-2">
                     <div
-                        class="
-                            font-mono
-                            border-gray-200
-                            bg-gray-800
-                            text-gray-400
-                            p-5
-                            rounded-lg
-                            shadow-xl
-                            mx-auto
-                            max-w-md
-                            mb-8
-                            break-words
-                        "
+                        class="font-mono border-gray-200 bg-gray-800 text-gray-400 p-5 rounded-lg shadow-xl mx-auto max-w-md mb-8 break-words"
                     >
                         <p>status: {</p>
                         <p v-if="status.title" class="ml-8">
@@ -309,16 +297,7 @@
                     </div>
                     <div class="flex flex-col justify-around w-full">
                         <div
-                            class="
-                                flex flex-row
-                                justify-between
-                                align-middle
-                                items-center
-                                w-3/4
-                                md:w-2/3
-                                lg:w-10/12
-                                mx-auto
-                            "
+                            class="flex flex-row justify-between align-middle items-center w-3/4 md:w-2/3 lg:w-10/12 mx-auto"
                         >
                             <label for="duration">Duration:</label>
                             <input
@@ -334,17 +313,7 @@
                             />
                         </div>
                         <div
-                            class="
-                                flex flex-row
-                                justify-between
-                                align-middle
-                                items-center
-                                w-3/4
-                                md:w-2/3
-                                lg:w-10/12
-                                mt-3
-                                mx-auto
-                            "
+                            class="flex flex-row justify-between align-middle items-center w-3/4 md:w-2/3 lg:w-10/12 mt-3 mx-auto"
                         >
                             <label for="icon">Icon:</label>
                             <textarea
