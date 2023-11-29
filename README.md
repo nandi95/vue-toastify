@@ -122,7 +122,7 @@ The following properties can be set on the object:
 
  property | type  | details |
 ---|---|---
-| body | String | Required parameter, you may pass html, JSX, or a function that returns JSX to this. |
+| body | String/Function | Required parameter, you may pass html, JSX, or a function that returns JSX to this. |
 | title | String | Enables pausing of the loader and the timeout on hover. |
 | type | String | Defines what notification type should be showing available types: `"success"`, `"warning"`, `"info"`, `"error"` defaults to `"success"`. This can only be set if you're using `this.$vtNotify()` Alternatively you may use the methods: `this.$vToastify.warning("more readable")` |
 | mode | String | If set the notification will be shown in the given mode: `loader`, `prompt`. Alternatively you may use the methods: `this.$vToastify.loader("more readable")`  |
