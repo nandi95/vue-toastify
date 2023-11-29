@@ -1,5 +1,5 @@
 import Vue from "vue";
-export default Vue.component("VNodes", {
+export default Vue.component("VNode", {
     functional: true,
     props: ["node"],
     render(h, context) {
