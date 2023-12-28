@@ -13,9 +13,10 @@ Please carefully read the contribution docs before creating a pull request
 
 <!-- What types of changes does your code introduce? Put an `x` in all the boxes that apply. -->
 
+- [ ] 🧹 Updates to the build process or auxiliary tools and libraries
 - [ ] 📖 Documentation (updates to the documentation or readme)
 - [ ] 🐞 Bug fix (a non-breaking change that fixes an issue)
-- [ ] 👌 Enhancement (improving an existing functionality like performance)
+- [ ] 🚀 Enhancement (improving an existing functionality like performance)
 - [ ] ✨ New feature (a non-breaking change that adds functionality)
 - [ ] ⚠️ Breaking change (fix or feature that would cause existing functionality to change)
 

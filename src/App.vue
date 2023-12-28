@@ -70,7 +70,7 @@
                     </div>
                 </div>
                 <div class="w-full sm:w-1/2 xl:w-1/4 sm:max-w-50 sm:ml-2">
-                    <div class="w-1/2 mx-auto lg:w-2/3 xl:w-1/2 mb-12 space-y-1">
+                    <div class="w-1/2 md:mx-auto lg:w-2/3 xl:w-1/2 mt-12 md:mt-0 mb-12 space-y-1">
                         <AppToggle v-model="status.pauseOnHover"
                                    :disabled="!status.canTimeout"
                                    label="Can be Paused"
@@ -119,7 +119,7 @@
                         @click="loadStop">
                     Call .stopLoader()
                 </button>
-                <button class="btn btn-primary" @click="addToast">
+                <button class="btn btn-primary my-4 md:my-0" @click="addToast">
                     Toastify!
                 </button>
             </div>
@@ -153,7 +153,7 @@ import AppSelect from './app-components/AppSelect.vue';
 import AppTextarea from './app-components/AppTextarea.vue';
 import AppStatusDisplay from './app-components/AppStatusDisplay.vue';
 import { isObject } from './utils';
-import AppThemeToggle from "./app-components/AppThemeToggle.vue";
+import AppThemeToggle from './app-components/AppThemeToggle.vue';
 
 export default defineComponent({
     name: 'App',
