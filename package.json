@@ -1,7 +1,8 @@
 {
     "name": "vue-toastify",
-    "version": "2.0.0-alpha.2",
+    "version": "2.0.0",
     "license": "MIT",
+    "type": "module",
     "author": "Nandor Kraszlan",
     "scripts": {
         "dev": "vite",
