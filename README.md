@@ -1,7 +1,7 @@
 ## <p align="center">🔥Vue Toastify🔥</p>
 <p align="center">Simple and dependency free notification plugin.</p>
 
-## install
+## Installation
 
 ```bash
 npm i vue-toastify
@@ -17,6 +17,8 @@ const app = createApp({  });
 app.use<Settings>(plugin, {  });
 app.mount('#app');
 ```
+
+[Usage with Nuxt](#usage-with-nuxt)
 
 ## Options:
  - [ToastOptions](src/type.ts#L174) - settings per toast
@@ -80,5 +82,55 @@ useVtEvents().once('vtPaused', payload => {
     if (payload.id === toast.id) {
         // do something
     }
+})
+```
+
+### Usage with Nuxt
+The recommended way to install is by creating a plugin. As notifications are expected to be responses to user actions, we can lazy load the plugin to reduce the initial bundle size.
+
+Be sure
+to familiarise yourself with the [Nuxt plugin documentation](https://nuxt.com/docs/guide/directory-structure/plugins).
+
+```ts
+// plugins/toast.client.ts
+// .client will only run the plugin on the client side.
+import type { Settings } from 'vue-toastify';
+
+export default defineNuxtPlugin({
+    name: 'toast',
+    // can load the same time as the rest of the plugins
+    parallel: true,
+    setup: nuxt => {
+        // this will lazy load the plugin therefore won't be included in the entry point
+        void import('vue-toastify').then(exports => {
+            nuxt.vueApp.use<Settings>(exports.default, {
+                pauseOnHover: true,
+                theme: 'light',
+                position: 'top-right'
+            });
+        });
+    }
+});
+
+```
+Then specify the auto-imported preset in your configuration.
+```ts
+// nuxt.config.ts
+export default defineNuxtConfig({
+    imports: {
+        // this will include the composables that the plugin provides
+        // which is negligable in size compared to the plugin itself
+        presets: [
+            {
+                from: 'vue-toastify',
+                imports: [
+                    // include only the composables you need auto-imported
+                    'useToast',
+                    // 'useVtEvents',
+                    // 'useVtSettings'
+                ]
+            }
+        ]
+    },
 })
 ```
