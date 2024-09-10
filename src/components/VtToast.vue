@@ -111,7 +111,6 @@ export default defineComponent({
             ctx.emit('vtRemove');
         };
         const finish = () => {
-            // todo - will this work considering every toast has the same ref name?
             const progress = Math.ceil(progressBar.value?.progress ?? NaN);
 
             // if the notification has finished displaying

@@ -49,7 +49,10 @@ export default defineComponent({
 
             // set new timeout
             timerId.value = window.setTimeout(
-                () => ctx.emit('vtFinished'),
+                () => {
+                    progress.value = 100;
+                    ctx.emit('vtFinished');
+                },
                 timerFinishesAt.value.getTime() - Date.now()
             );
             // animation start
