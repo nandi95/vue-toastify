@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-gradient-to-br from-base-100/40 to-base-300/60 pb-2 min-h-screen">
+    <div class="bg-gradient-to-br from-base-100/25 to-base-300/75 pb-2 min-h-screen">
         <header class="navbar flex-wrap sm:flex-nowrap bg-base-300/20 mb-10">
             <div class="navbar-start">
                 <AppThemeToggle />

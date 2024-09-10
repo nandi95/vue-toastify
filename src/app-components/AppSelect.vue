@@ -7,7 +7,7 @@
                 :name="name"
                 :value="modelValue"
                 v-bind="$attrs"
-                class="select"
+                class="select select-bordered"
                 :class="{
                     'text-red-900 placeholder-text-300 ring-red-300 focus:ring-red-500': error
                 }"

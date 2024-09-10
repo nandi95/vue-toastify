@@ -8,7 +8,7 @@
                    :value="modelValue"
                    :name="name"
                    type="text"
-                   class="input"
+                   class="input input-bordered"
                    v-bind="$attrs"
                    :class="{
                        'text-red-900 placeholder-text-300 ring-red-300 focus:ring-red-500': error
