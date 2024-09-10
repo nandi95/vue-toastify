@@ -9,23 +9,36 @@
         "build:demo": "vite build",
         "serve": "vite preview",
         "lint": "eslint . --fix --ext .ts,.vue,.tsx",
-        "build:lib": "vite build --mode=library && tsc -p tsconfig.build.json && cp -r dist/* ./"
+        "build:lib": "vite build --mode=library && tsc -p tsconfig.build.json"
     },
-    "module": "index.esm.js",
-    "main": "index.umd.js",
+    "module": "dist/index.mjs",
+    "main": "dist/index.cjs",
     "exports": {
         ".": {
-            "import": "./index.es.js",
-            "require": "./index.umd.js"
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.cjs",
+            "types": "./dist/types/src/index.d.ts"
         },
-        "./index.css": "./index.css"
+        "./useToast": {
+            "import": "./dist/useToast.mjs",
+            "require": "./dist/useToast.cjs",
+            "types": "./dist/types/src/composables/useToast.d.ts"
+        },
+        "./useVtEvents": {
+            "import": "./dist/useVtEvents.mjs",
+            "require": "./dist/useVtEvents.cjs",
+            "types": "./dist/types/src/composables/useVtEvents.d.ts"
+        },
+        "./useVtSetting": {
+            "import": "./dist/useVtEvents.mjs",
+            "require": "./dist/useVtEvents.cjs",
+            "types": "./dist/types/src/composables/useSetting.d.ts"
+        },
+        "./index.css": "./dist/index.css"
     },
-    "types": "types/src/index.d.ts",
+    "types": "dist/types/src/index.d.ts",
     "files": [
-        "types",
-        "index.es.js",
-        "index.umd.js",
-        "index.css"
+        "dist"
     ],
     "dependencies": {
         "vue": "^3.0.11"
@@ -53,5 +66,22 @@
         "typescript": "^5.0.2",
         "vite": "^5.4.3",
         "vue-router": "^4.1.6"
-    }
+    },
+    "keywords": [
+        "vue",
+        "toast",
+        "notification",
+        "vue3",
+        "alert",
+        "vue-toastify",
+        "vue-toast",
+        "snackbar",
+        "toast-notification",
+        "notice",
+        "toastify",
+        "toast-component",
+        "toast-plugin",
+        "toastify-component",
+        "vue-notification"
+    ]
 }

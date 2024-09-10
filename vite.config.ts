@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
-import pkg from './package.json' assert { type: 'json' };
+import pkg from './package.json' with { type: 'json' };
 
 const banner = `
 /*! ================================
@@ -24,9 +24,24 @@ export default defineConfig(({ mode }) => {
             minify: true,
             copyPublicDir: false,
             lib: {
-                entry: 'src/index.ts',
+                entry: {
+                    'index': 'src/index.ts',
+                    'useToast': 'src/composables/useToast.ts',
+                    'useVtEvents': 'src/composables/useVtEvents.ts',
+                    'useVtSettings': 'src/composables/useSettings.ts'
+                },
                 name: pkg.name,
-                fileName: (format) => `index.${format}.js`
+                fileName: (format, entryName) => {
+                    if (format === 'es') {
+                        return `${entryName}.mjs`;
+                    }
+
+                    if (format === 'cjs') {
+                        return `${entryName}.cjs`;
+                    }
+
+                    return `${entryName}.${format}.js`
+                }
             },
             rollupOptions: {
                 external: ['vue'],

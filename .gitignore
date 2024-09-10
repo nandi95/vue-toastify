@@ -5,10 +5,6 @@ node_modules
 
 # distribution files
 dist
-index.css
-index.es.js
-index.umd.js
-types
 vue-toastify-*
 
 # Local Netlify folder
