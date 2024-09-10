@@ -5,7 +5,7 @@
         "declaration": true,
         "declarationDir": "dist/types",
         "rootDir": "./",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "strict": true,
         "jsx": "preserve",
         "sourceMap": true,
