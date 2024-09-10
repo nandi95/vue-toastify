@@ -10,25 +10,33 @@
   & > .vt-icon > svg {
     fill: #199919;
   }
-  border-color: #199919;
+  & {
+      border-color: #199919;
+  }
 }
 .vt-info {
   & > .vt-icon > svg {
     fill: #003bc8;
   }
-  border-color: #003bc8;
+  & {
+      border-color: #003bc8;
+  }
 }
 .vt-warning {
   & > .vt-icon > svg {
     fill: #ffb300;
   }
-  border-color: #ffb300;
+  & {
+      border-color: #ffb300;
+  }
 }
 .vt-error {
   & > .vt-icon > svg {
     fill: #b11414;
   }
-  border-color: #b11414;
+  & {
+      border-color: #b11414;
+  }
 }
 // You may reorganise the items with the order rule
 .vt-notification {
