@@ -21,8 +21,15 @@ export default defineComponent({
     name: 'VtTransition',
 
     props: {
-        transition: { type: [String, Object] as PropType<Settings['transition'] | string>, required: true },
-        position: { type: String as PropType<Position>, required: true }
+        transition: {
+            type: [String, Object] as PropType<Settings['transition'] | string>,
+            required: true
+        },
+
+        position: {
+            type: String as PropType<Position>,
+            required: true
+        }
     },
 
     setup: (props) => {
@@ -68,8 +75,8 @@ export default defineComponent({
         const beforeEnter = (el: HTMLDivElement) => {
             const toastContainer = instance?.vnode.el as HTMLDivElement;
 
-            for (const toastContainerElement of toastContainer.children) {
-                delete (toastContainerElement as HTMLDivElement).dataset.delayed;
+            for (let i = 0; i < toastContainer.children.length; i++) {
+                delete (toastContainer.children.item(i) as HTMLDivElement).dataset.delayed;
             }
 
             if (el.dataset.delayed) {

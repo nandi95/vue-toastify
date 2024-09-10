@@ -1,4 +1,4 @@
-import { Coordinates } from './useDraggable';
+import type { Coordinates } from './useDraggable';
 
 /**
  * Event name mapping to the payload of the type.

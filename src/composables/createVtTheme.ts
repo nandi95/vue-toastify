@@ -109,13 +109,12 @@ export default function createVtTheme(name: string, colour: string): void {
 
     if (!style) {
         style = document.createElement('style');
-        style.type = 'text/css';
         style.id = styleSheetId.toString();
         document.head.appendChild(style);
     }
 
     getCssRules(name, colour)
-        .forEach(rule => style!.sheet!.insertRule(
+        .forEach(rule => style.sheet!.insertRule(
             rule.replaceAll('  ', '').replaceAll('\n', ' ')
         ));
 }

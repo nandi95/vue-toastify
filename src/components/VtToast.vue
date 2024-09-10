@@ -29,7 +29,7 @@
         <div v-if="status.mode === 'prompt'" class="vt-buttons">
             <button v-for="(answer, i) in answers"
                     :key="i"
-                    @click="respond(status.answers[answer])"
+                    @click="respond(status.answers![answer])"
                     v-text="answer" />
         </div>
     </div>
@@ -88,7 +88,7 @@ export default defineComponent({
         const isNotification = computed(() => ['prompt', 'loader'].indexOf(props.status.mode!) === -1);
 
         const answers = computed(() => {
-            return Object.keys(props.status.answers);
+            return props.status.answers ? Object.keys(props.status.answers) : [];
         });
 
         const dismiss = () => {

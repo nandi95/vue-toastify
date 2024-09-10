@@ -11,7 +11,8 @@ module.exports = {
         '@vue/typescript/recommended',
     ],
     plugins: [
-        'vue'
+        'vue',
+        '@stylistic/ts'
     ],
     ignorePatterns: [
         'node_modules',
@@ -53,14 +54,14 @@ module.exports = {
         'eqeqeq': 'error',
 
         // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#supported-rules
-        '@typescript-eslint/indent': ['warn', 4],
-        '@typescript-eslint/semi': 'error',
+        '@stylistic/ts/indent': ['warn', 4],
+        '@stylistic/ts/semi': 'error',
         '@typescript-eslint/no-unused-expressions': ['error', {
             allowTernary: true,
             allowShortCircuit: true
         }],
-        '@typescript-eslint/quotes': ['warn', 'single'],
-        '@typescript-eslint/no-extra-parens': 'error',
+        '@stylistic/ts/quotes': ['warn', 'single'],
+        '@stylistic/ts/no-extra-parens': 'error',
         '@typescript-eslint/no-unused-vars': 'warn',
         '@typescript-eslint/no-useless-constructor': 'warn',
         '@typescript-eslint/no-explicit-any': 'off',
@@ -75,17 +76,21 @@ module.exports = {
         '@typescript-eslint/prefer-optional-chain': 'warn',
         '@typescript-eslint/prefer-ts-expect-error': 'warn',
         '@typescript-eslint/promise-function-async': 'error',
-        '@typescript-eslint/func-call-spacing': ['error', 'never'],
-        '@typescript-eslint/comma-spacing': 'warn',
-        '@typescript-eslint/keyword-spacing': 'warn',
+        '@stylistic/ts/func-call-spacing': ['error', 'never'],
+        '@stylistic/ts/comma-spacing': 'warn',
+        '@stylistic/ts/keyword-spacing': 'warn',
         // '@typescript-eslint/consistent-indexed-object-style': ['error', 'record'], // waiting on dependency updates
         // '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
-        '@typescript-eslint/member-delimiter-style': 'warn',
-        '@typescript-eslint/type-annotation-spacing': 'warn',
+        '@stylistic/ts/member-delimiter-style': 'warn',
+        '@stylistic/ts/type-annotation-spacing': 'warn',
         '@typescript-eslint/naming-convention': ['error',
             {
                 selector: 'default',
                 format: ['camelCase']
+            },
+            {
+                selector: 'import',
+                format: null
             },
             {
                 selector: 'objectLiteralProperty',
