@@ -172,7 +172,7 @@ export default defineComponent({
             mode: undefined,
             answers: undefined
         });
-        const lightTheme = ref(false);
+        const lightTheme = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         const defaultTitle = ref(true);
         const withBackdrop = ref(false);
         const singular = ref(false);
@@ -234,9 +234,11 @@ export default defineComponent({
             }
             toast.settings({ withBackdrop: val });
         });
-        watch(() => lightTheme.value, val => {
-            toast.settings({ theme: val ? 'light' : 'dark' });
-        });
+        watch(
+            () => lightTheme.value,
+            val => toast.settings({ theme: val ? 'light' : 'dark' }),
+            { immediate: true }
+        );
         watch(() => defaultTitle.value, val => {
             toast.settings({ defaultTitle: val });
         });
