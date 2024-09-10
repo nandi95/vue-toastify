@@ -71,7 +71,7 @@ export default function useDraggable(
     });
 
     const dragStarted = (event: TouchEvent | MouseEvent) => {
-        element.value.classList.toggle('vt-will-change');
+        element.value.classList.add('vt-will-change');
         isDragged.value = true;
         dragStartPos.value = { x: xPos(event), y: yPos(event) };
         startingClientRect.value = element.value.getBoundingClientRect();
@@ -122,7 +122,7 @@ export default function useDraggable(
                 dragPos.value = undefined;
                 dragStartPos.value = undefined;
                 startingClientRect.value = undefined;
-                element.value.classList.toggle('vt-will-change');
+                element.value.classList.remove('vt-will-change');
             });
         }
     };

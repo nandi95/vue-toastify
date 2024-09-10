@@ -22,7 +22,7 @@ export default defineComponent({
 
     props: {
         transition: {
-            type: [String, Object] as PropType<Settings['transition'] | string>,
+            type: [String, Object] as PropType<Required<Settings['transition']> | string>,
             required: true
         },
 
@@ -36,7 +36,6 @@ export default defineComponent({
         const { settings } = useSettings();
         const instance = getCurrentInstance();
 
-        // todo - consider will-change
         const leave = (el: HTMLDivElement) => {
             if (
                 settings.singular ||
@@ -80,16 +79,18 @@ export default defineComponent({
             }
 
             if (el.dataset.delayed) {
-                el.classList.add('vt-move');
+                el.classList.add('vt-move', 'vt-will-change');
             }
         };
 
         const afterEnter = (el: HTMLDivElement) => {
             el.removeAttribute('data-delayed');
-            el.classList.remove('vt-move');
+            el.classList.remove('vt-move', 'vt-will-change');
         };
 
         const beforeLeave = (el: HTMLDivElement) => {
+            el.classList.add('vt-will-change');
+
             // this ensures that notifications won't move until the other has been removed
             for (let i = 0; i < el.parentNode!.childNodes.length; i++) {
                 if (el.parentNode!.childNodes[i].isSameNode(el)) {
