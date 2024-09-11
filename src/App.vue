@@ -38,7 +38,7 @@
         </header>
         <main class="px-2">
             <div
-                class="flex xl:justify-center justify-around flex-wrap flex-row">
+                class="flex gap-2 xl:justify-center justify-around flex-wrap flex-row">
                 <div class="flex flex-col w-auto sm:max-w-50 sm:mr-2">
                     <AppStatusDisplay :status="status" />
                     <div class="w-full mx-auto">
@@ -313,6 +313,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 .warning {
   top: 50%;
   left: 50%;
