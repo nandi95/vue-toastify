@@ -1,4 +1,20 @@
-**v2.0.0** *13/04/2023*
+**v2.0.0** *10/09/2024*
+
+Performance:
+- ***BREAKING***: removed include of all styles by default. You now have to import the base styles **AND** the theme you want to use.
+- Add `will-change` for transitioning toasts too.
+- Added separate exports for composables.
+
+Fix:
+- Fixed toast might stay on screen if the duration is very low.
+
+Chore:
+- Fixed eslint issues.
+- Updated dependencies.
+- Updated demo app styling.
+- Documented nuxt usage.
+
+**v2.0.0-alpha** *13/04/2023*
 
 Refactor:
 - Rewritten codebase using v3 of Vue, and its composition api.
@@ -9,7 +25,7 @@ Refactor:
 **v1.8.1** *25/11/2021*
 
 Fix:
-- Resolved xss vulnerability stemming from url option not being encoded (#26).
+- Resolved xss vulnerability stemming from an url option not being encoded (#26).
 
 ***
 
@@ -17,8 +33,8 @@ Fix:
 
  Feature:
  - Added a new event for when the notification is being dragged.
- - Drag event payloads now also include position of the notification.
- - Added toastify to the vue as static method for easier handling in vuex.
+ - Drag event payloads now also include the position of the notification.
+ - Added toastify to the vue as a static method for easier handling in vuex.
 
 ***
 
