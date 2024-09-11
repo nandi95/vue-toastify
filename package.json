@@ -42,6 +42,10 @@
     "files": [
         "dist"
     ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nandi95/vue-toastify.git"
+    },
     "dependencies": {
         "vue": "^3.0.11"
     },
