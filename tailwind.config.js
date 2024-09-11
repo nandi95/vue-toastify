@@ -3,7 +3,7 @@
  */
 module.exports = {
     darkMode: "class",
-    content: ["**/*.html", "./src/**/*.{ts,tsx,vue}"],
+    content: ["./src/**/*.{ts,tsx,vue}"],
     plugins: [
         require("daisyui")
     ],
