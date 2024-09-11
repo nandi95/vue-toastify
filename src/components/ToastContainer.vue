@@ -572,5 +572,5 @@ export default defineComponent({
     transform: translate(-50%, -50%);
 }
 
-@import "../assets/toast";
+@import "../assets/base";
 </style>

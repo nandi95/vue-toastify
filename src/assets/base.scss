@@ -1,0 +1,208 @@
+// This is all the styles the toast component uses.
+// You may change any of the default values
+// by appending the value with !important.
+
+.vt-success {
+    & > .vt-icon > svg {
+        fill: #199919;
+    }
+    & {
+        border-color: #199919;
+    }
+}
+.vt-info {
+    & > .vt-icon > svg {
+        fill: #003bc8;
+    }
+    & {
+        border-color: #003bc8;
+    }
+}
+.vt-warning {
+    & > .vt-icon > svg {
+        fill: #ffb300;
+    }
+    & {
+        border-color: #ffb300;
+    }
+}
+.vt-error {
+    & > .vt-icon > svg {
+        fill: #b11414;
+    }
+    & {
+        border-color: #b11414;
+    }
+}
+// You may reorganise the items with the order rule
+.vt-notification {
+    transition: transform 100ms ease; // This ensures that on drag the notification slides back to its original position
+    box-sizing: border-box;
+    pointer-events: auto;
+    box-shadow: 0 0 10px 0.5px rgba(0, 0, 0, 0.35);
+    padding: 10px 20px;
+    min-height: 100px;
+    min-width: 250px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 9999;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-flow: wrap row;
+    align-content: center;
+    user-select: none;
+    & > .vt-progress-bar {
+        height: 3px;
+        width: 100%;
+        margin-bottom: 5px;
+        & > .vt-progress {
+            max-width: 100%;
+            height: 3px;
+            overflow: hidden;
+            transition: max-width 1ms ease-in-out;
+        }
+    }
+    & > .vt-content {
+        width: auto;
+        height: 100%;
+        max-width: 250px;
+        word-break: break-word;
+        & > .vt-title {
+            font-size: 1.4rem;
+            margin: 0;
+        }
+        & > .vt-paragraph {
+            font-size: 1rem;
+            margin: 0.5rem 0;
+        }
+    }
+    & > .vt-circle {
+        border-style: solid;
+        border-width: 2px;
+        width: 65px;
+        height: 65px;
+        border-radius: 50%;
+        margin: 5px !important;
+    }
+    & > .vt-icon-container {
+        margin: 0 20px;
+        position: relative;
+        & > .vt-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+    & > .vt-buttons {
+        flex-basis: 100%;
+        display: flex;
+        flex-flow: row wrap;
+        align-content: center;
+        align-items: center;
+        justify-content: space-evenly;
+        margin: 5px -23px 0;
+        & > button {
+            flex-basis: 48%;
+            width: auto;
+            margin-bottom: 4px;
+            border-radius: 4px;
+        }
+    }
+}
+@media (max-width: 268px) {
+    .vt-notification {
+        min-height: auto;
+        min-width: 100%;
+        border-radius: 0;
+        & > .vt-content {
+            text-align: center;
+        }
+    }
+    .vt-notification-container {
+        width: 100%;
+        margin: 0;
+    }
+}
+.vt-will-change {
+    will-change: transform, opacity;
+}
+
+// This controls how the notification should move when others are added/removed
+.vt-move {
+    transition-timing-function: ease-in-out;
+    transition-property: all;
+    transition-duration: 200ms;
+    &[data-delayed="true"] {
+        transition-delay: 200ms !important; // this should be set to the same as the transition leave duration
+    }
+}
+.vt-spinner {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: transparent;
+    animation: 1s spin linear infinite;
+}
+.vt-cursor-wait {
+    cursor: wait;
+}
+
+@keyframes spin {
+    from {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.vt-right-enter-active,
+.vt-left-enter-active,
+.vt-bottom-enter-active,
+.vt-top-enter-active,
+.vt-center-enter-active {
+    transition: transform 200ms ease-out, opacity 200ms ease-out;
+}
+
+.vt-right-leave-active,
+.vt-left-leave-active,
+.vt-bottom-leave-active,
+.vt-top-leave-active,
+.vt-center-leave-active {
+    transition: transform 200ms ease-in, opacity 200ms ease-in;
+}
+
+.vt-right-enter-from,
+.vt-right-leave-to {
+    transform: translateX(50px);
+    opacity: 0;
+}
+
+.vt-left-enter-from,
+.vt-left-leave-to {
+    transform: translateX(-50px);
+    opacity: 0;
+}
+
+.vt-bottom-enter-from,
+.vt-bottom-leave-to {
+    transform: translateY(50px);
+    opacity: 0;
+}
+
+.vt-top-enter-from,
+.vt-top-leave-to {
+    transform: translateY(-50px);
+    opacity: 0;
+}
+
+.vt-center-enter-from,
+.vt-center-leave-to {
+    opacity: 0;
+}

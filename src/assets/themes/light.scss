@@ -1,0 +1,3 @@
+@use "./common";
+
+@include common.generate-theme('light', #f0f0f0);

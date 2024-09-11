@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import pkg from './package.json' with { type: 'json' };
+import { viteStaticCopy } from 'vite-plugin-static-copy';
+import { compileString, compileStringAsync } from 'sass';
 
 const banner = `
 /*! ================================
@@ -12,7 +14,31 @@ Released under ${pkg.license} License
 
 export default defineConfig(({ mode }) => {
     const config: Parameters<typeof defineConfig>[0] = {
-        plugins: [vue()],
+        plugins: [
+            vue(),
+            viteStaticCopy({
+                targets: [
+                    {
+                        src: ['src/assets/themes/*.scss', '!src/assets/themes/common.scss'],
+                        dest: 'themes',
+                        rename: (fileName) => {
+                            return `${fileName}.css`;
+                        },
+                        transform: (content) => {
+                            return compileString(
+                                content,
+                                {
+                                    syntax: 'scss',
+                                    style: 'compressed',
+                                    // required to be able to resolve common.scss
+                                    loadPaths: ['src/assets/themes']
+                                }
+                            ).css;
+                        }
+                    }
+                ]
+            })
+        ],
         define: {
             // eslint-disable-next-line @typescript-eslint/naming-convention
             __VUE_OPTIONS_API__: false
@@ -40,7 +66,7 @@ export default defineConfig(({ mode }) => {
                         return `${entryName}.cjs`;
                     }
 
-                    return `${entryName}.${format}.js`
+                    return `${entryName}.${format}.js`;
                 }
             },
             rollupOptions: {

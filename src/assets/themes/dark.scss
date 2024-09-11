@@ -1,0 +1,3 @@
+@use "./common.scss";
+
+@include common.generate-theme('dark', #1d1d1d);

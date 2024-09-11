@@ -50,7 +50,7 @@ export interface BaseSettings {
 
     /**
      * The theme that should be displaying.
-     * By default, there's `light` and `dark`.
+     * By default, there's `light` and `dark` theme.
      *
      * @default 'dark'
      */
