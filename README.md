@@ -10,7 +10,10 @@ npm i vue-toastify
 ```ts
 import { createApp } from 'vue';
 import plugin from 'vue-toastify';
+// base styles
 import 'vue-toastify/index.css';
+// theme styles
+import 'vue-toastify/themes/dark.css';
 import type { Settings } from 'vue-toastify';
 
 const app = createApp({  });
@@ -117,6 +120,13 @@ Then specify the auto-imported preset in your configuration.
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
+    css: [
+        // required base themes
+        'vue-toastify/index.css',
+        // include the theme you want to use
+        'vue-toastify/themes/light.css'
+        // or generate one of your own as described in the custom styling section
+    ],
     imports: {
         // this will include the composables that the plugin provides
         // which is negligable in size compared to the plugin itself
