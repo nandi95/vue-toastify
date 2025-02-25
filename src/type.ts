@@ -229,7 +229,9 @@ export interface ToastOptions extends BaseSettings {
 
 export type Status = string | ToastOptions;
 
-export interface Toast extends ToastOptions {
+export type RequiredBy<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
+
+export interface Toast extends RequiredBy<ToastOptions, Exclude<keyof BaseSettings, 'customNotifications'>> {
     /**
      * v4 uuid.
      */
@@ -262,5 +264,5 @@ export type ContainerMethods = {
      * Stop the loader toast by id or all loaders if no id given.
      * @param id
      */
-    stopLoader: (id?: Toast['id']) => number;
+    stopLoader: (id?: MaybeArray<Toast['id']>) => number;
 };

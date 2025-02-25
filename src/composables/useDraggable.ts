@@ -1,5 +1,5 @@
 import { onMounted, onBeforeUnmount, getCurrentInstance, ref, computed } from 'vue';
-import type { Ref, ComputedRef } from 'vue';
+import type { Ref, ComputedRef, CSSProperties } from 'vue';
 import useVtEvents from './useVtEvents';
 import { Toast } from '../type';
 
@@ -21,7 +21,7 @@ export type Coordinates = {
 
 type Draggable = {
     hasMoved: ComputedRef<boolean>;
-    draggableStyles: ComputedRef<Partial<CSSStyleDeclaration>>;
+    draggableStyles: ComputedRef<CSSProperties>;
     isDragged: Readonly<Ref<boolean>>;
 };
 
@@ -50,7 +50,7 @@ export default function useDraggable(
 
         return startingClientRect.value.width * props.status.dragThreshold;
     });
-    const draggableStyles = computed<Partial<CSSStyleDeclaration>>(() => {
+    const draggableStyles = computed<CSSProperties>(() => {
         if (!isDragged.value
             || dragPos.value !== undefined
                 && dragStartPos.value !== undefined
