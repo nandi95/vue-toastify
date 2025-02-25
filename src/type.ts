@@ -266,5 +266,5 @@ export type ContainerMethods = {
      * Stop the loader toast by id or all loaders if no id given.
      * @param id
      */
-    stopLoader: (id?: MaybeArray<Toast['id']>) => number;
+    stopLoader: (id?: Toast['id']) => number;
 };
