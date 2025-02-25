@@ -45,7 +45,7 @@
                         <AppInput v-model="status.title" name="title" label="Title" />
                         <AppTextarea v-model="status.body"
                                      name="body"
-                                     label="Body"
+                                     :label="jsx? 'JSX string body' : 'Body'"
                                      :error="status.body.length < 1 ? 'Needs to have length' : ''" />
                         <AppSelect v-model="status.type"
                                    name="type"
@@ -96,6 +96,9 @@
                                    :disabled="singular"
                                    label="One type at a time"
                                    @change="checkIfLoading" />
+                        <AppToggle v-model="jsx"
+                                   label="Use JSX"
+                                   @change="checkIfLoading" />
                     </div>
                     <div class="flex flex-col justify-around w-full">
                         <AppInput v-model="status.duration"
@@ -144,7 +147,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, markRaw, onMounted, reactive, ref, watch } from 'vue';
+import { defineComponent, markRaw, onMounted, reactive, ref, watch, h } from 'vue';
 import { ToastOptions } from './type';
 import { useToast } from './index';
 import AppToggle from './app-components/AppToggle.vue';
@@ -194,6 +197,7 @@ export default defineComponent({
         ]);
         const answers = ref('{"Yes":true,"No":false}');
         const oneTypeAtAtime = ref(false);
+        const jsx = ref(false);
 
         const updateAnswers = (val: string) => {
             if (!val) {
@@ -254,7 +258,14 @@ export default defineComponent({
                 if (status.mode === 'prompt' && jsonError.value.length) {
                     toast.error(jsonError.value, '😠');
                 } else {
-                    toast.notify(status);
+                    const options: ToastOptions = {...status};
+                    if(jsx.value){
+                        options.body = h('div', null, [
+                            h('p', null, 'This is a JSX element. HTML in the body text will be escaped.'),
+                            h('p', null, status.body)
+                        ]);
+                    }
+                    toast.notify(options);
                     if (status.mode === 'loader' && withBackdrop.value) {
                         showWarning.value = true;
                     }
@@ -306,7 +317,8 @@ export default defineComponent({
             typeOptions,
             modeOptions,
             answers,
-            oneTypeAtAtime
+            oneTypeAtAtime,
+            jsx
         };
     }
 });
