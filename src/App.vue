@@ -160,7 +160,7 @@ export default defineComponent({
     components: { AppThemeToggle, AppStatusDisplay, AppTextarea, AppSelect, AppInput, AppToggle },
 
     setup: () => {
-        const status = reactive<ToastOptions>({
+        const status = reactive<Omit<ToastOptions, 'icon'|'duration'> & { icon?: string, duration?: string }>({
             title: 'Toastified!',
             body: 'This is the body.',
             type: undefined,
@@ -225,7 +225,7 @@ export default defineComponent({
         watch(() => answers.value, updateAnswers);
 
         onMounted(() => {
-            toast.notify(status);
+            addToast()
         });
 
         watch(() => withBackdrop.value, val => {
@@ -251,10 +251,11 @@ export default defineComponent({
 
         const addToast = () => {
             if (status.body.length > 0) {
+                const options = {...status,duration: status.duration ? Number(status.duration) : undefined};
                 if (status.mode === 'prompt' && jsonError.value.length) {
                     toast.error(jsonError.value, '😠');
                 } else {
-                    toast.notify(status);
+                    toast.notify(options);
                     if (status.mode === 'loader' && withBackdrop.value) {
                         showWarning.value = true;
                     }
