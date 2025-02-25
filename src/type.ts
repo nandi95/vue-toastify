@@ -1,3 +1,5 @@
+import { VNode } from 'vue';
+
 export type XPosition = 'left' | 'center' | 'right';
 export type YPosition = 'top' | 'center' | 'bottom';
 export type Position = `${YPosition}-${XPosition}`;
@@ -173,6 +175,8 @@ export interface Settings extends BaseSettings {
     customNotifications?: Record<string, ToastOptions>;
 }
 
+export type ToastBody = string | VNode;
+
 export interface ToastOptions extends BaseSettings {
     /**
      * The time the notification is displayed for in milliseconds regardless of its type. (this cannot be updated later)
@@ -180,9 +184,9 @@ export interface ToastOptions extends BaseSettings {
     duration?: number;
 
     /**
-     * String to display or alternatively a html string.
+     * String to display, JSX, or alternatively an html string.
      */
-    body: string;
+    body: ToastBody;
 
     /**
      * Title to display for the toast.
@@ -227,7 +231,7 @@ export interface ToastOptions extends BaseSettings {
     delay?: number;
 }
 
-export type Status = string | ToastOptions;
+export type Status = ToastBody | ToastOptions;
 
 export interface Toast extends ToastOptions {
     /**
@@ -262,5 +266,5 @@ export type ContainerMethods = {
      * Stop the loader toast by id or all loaders if no id given.
      * @param id
      */
-    stopLoader: (id?: Toast['id']) => number;
+    stopLoader: (id?: MaybeArray<Toast['id']>) => number;
 };

@@ -160,7 +160,7 @@ export default defineComponent({
     components: { AppThemeToggle, AppStatusDisplay, AppTextarea, AppSelect, AppInput, AppToggle },
 
     setup: () => {
-        const status = reactive<ToastOptions>({
+        const status = reactive<Omit<ToastOptions, 'body'> & { body: string }>({
             title: 'Toastified!',
             body: 'This is the body.',
             type: undefined,

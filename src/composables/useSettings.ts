@@ -1,6 +1,5 @@
 import type { Settings } from '../type';
 import { reactive, readonly } from 'vue';
-import type { DeepReadonly } from 'vue';
 
 type DefaultSettings = Omit<Required<Settings>, 'transition'> & Pick<Settings, 'transition'>;
 
@@ -26,11 +25,11 @@ const settings = reactive<DefaultSettings>({
     transition: undefined,
     oneType: false,
     maxToasts: 6,
-    customNotifications: {}
+    customNotifications: {},
 });
 
 type UseSettings = {
-    settings: DeepReadonly<DefaultSettings>;
+    settings: DefaultSettings;
     updateSettings: <T extends keyof Settings | Settings>(
         key: T,
         value?: T extends keyof Settings ? Settings[T] : never
@@ -42,7 +41,7 @@ type UseSettings = {
  */
 export default function useSettings(): UseSettings {
     return {
-        settings: readonly(settings),
+        settings: readonly(settings) as DefaultSettings,
         updateSettings: (key, newSettings) => {
             let settingsNew = {} as Settings;
 
@@ -52,7 +51,7 @@ export default function useSettings(): UseSettings {
                 settingsNew = { [key]: newSettings };
             }
 
-            return Object.assign(settings, settingsNew);
-        }
+            return readonly(Object.assign(settings, settingsNew)) as Settings;
+        },
     };
 }
