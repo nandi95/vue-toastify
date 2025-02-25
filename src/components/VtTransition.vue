@@ -22,7 +22,7 @@ export default defineComponent({
 
     props: {
         transition: {
-            type: [String, Object] as PropType<Required<Settings['transition']> | string>,
+            type: [String, Object] as PropType<Settings['transition'] | string>,
             required: true
         },
 
