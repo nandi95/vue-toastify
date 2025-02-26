@@ -19,7 +19,9 @@
                      @vt-finished="finish" />
         <div class="vt-content">
             <h2 v-if="status.title" class="vt-title" v-text="status.title" />
-            <div v-if="isJSXBody" class="vt-paragraph"><Node :node="status.body"/></div>
+            <div v-if="isJSXBody" class="vt-paragraph">
+                <Node :node="status.body" />
+            </div>
             <p v-else-if="status.body" class="vt-paragraph" v-html="status.body" />
         </div>
         <VtIcon v-if="status.iconEnabled"

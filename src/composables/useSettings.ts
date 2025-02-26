@@ -25,7 +25,7 @@ const settings = reactive<DefaultSettings>({
     transition: undefined,
     oneType: false,
     maxToasts: 6,
-    customNotifications: {},
+    customNotifications: {}
 });
 
 type UseSettings = {
@@ -52,6 +52,6 @@ export default function useSettings(): UseSettings {
             }
 
             return readonly(Object.assign(settings, settingsNew)) as Settings;
-        },
+        }
     };
 }

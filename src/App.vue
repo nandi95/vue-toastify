@@ -258,8 +258,8 @@ export default defineComponent({
                 if (status.mode === 'prompt' && jsonError.value.length) {
                     toast.error(jsonError.value, '😠');
                 } else {
-                    const options: ToastOptions = {...status};
-                    if(jsx.value){
+                    const options: ToastOptions = { ...status };
+                    if (jsx.value){
                         options.body = h('div', null, [
                             h('p', null, 'This is a JSX element. HTML in the body text will be escaped.'),
                             h('p', null, status.body)
