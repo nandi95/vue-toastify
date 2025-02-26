@@ -13,7 +13,7 @@
                    :class="{
                        'text-red-900 placeholder-text-300 ring-red-300 focus:ring-red-500': error
                    }"
-                   @input="e => updateValue(e.target.value)">
+                   @input="updateValue">
         </div>
         <p v-if="error" class="mt-2 text-sm text-red-600" v-text="error" />
     </div>
@@ -52,7 +52,9 @@ export default defineComponent({
     emits: ['update:modelValue', 'change'],
 
     setup(props, { emit }) {
-        const updateValue = (value: string) => {
+        const updateValue = (e: Event) => {
+            const el = e.currentTarget as HTMLInputElement;
+            const value = el.value;
             emit('update:modelValue', value);
             emit('change', value);
         };

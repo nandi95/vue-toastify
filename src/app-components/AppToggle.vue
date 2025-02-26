@@ -19,7 +19,7 @@ export default defineComponent({
     props: {
         modelValue: {
             type: Boolean,
-            required: true
+            default:false,  
         },
 
         label: {
