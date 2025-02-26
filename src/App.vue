@@ -97,8 +97,7 @@
                                    label="One type at a time"
                                    @change="checkIfLoading" />
                         <AppToggle v-model="jsx"
-                                   label="Use JSX"
-                                   @change="checkIfLoading" />
+                                   label="Use JSX" />
                     </div>
                     <div class="flex flex-col justify-around w-full">
                         <AppInput v-model="status.duration"
