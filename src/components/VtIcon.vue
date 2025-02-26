@@ -6,7 +6,9 @@
                        class="vt-icon"
                        :class="userIcon.class"
                        v-html="userIcon.ligature" />
-            <Node v-else :node="userIcon.node" />
+            <div v-else class="vt-icon">
+                <Node :node="userIcon.node" />
+            </div>
         </template>
         <div v-else-if="mode === 'loader'" class="vt-spinner" />
         <div v-else-if="mode === 'prompt'" class="vt-icon">
