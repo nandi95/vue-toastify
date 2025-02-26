@@ -72,7 +72,8 @@ export default defineComponent({
             el.style.position = 'absolute';
         };
 
-        const beforeEnter = (el: HTMLDivElement) => {
+        const beforeEnter = (el: Element) => {
+            if (!(el instanceof HTMLElement)) return;
             const toastContainer = instance?.vnode.el as HTMLDivElement;
 
             for (let i = 0; i < toastContainer.children.length; i++) {
@@ -84,12 +85,14 @@ export default defineComponent({
             }
         };
 
-        const afterEnter = (el: HTMLDivElement) => {
+        const afterEnter = (el: Element) => {
+            if (!(el instanceof HTMLElement)) return;
             el.removeAttribute('data-delayed');
             el.classList.remove('vt-move', 'vt-will-change');
         };
 
-        const beforeLeave = (el: HTMLDivElement) => {
+        const beforeLeave = (el: Element) => {
+            if (!(el instanceof HTMLElement)) return;
             el.classList.add('vt-will-change');
 
             // this ensures that notifications won't move until the other has been removed
