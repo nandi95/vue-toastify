@@ -1,4 +1,4 @@
-import { VNode } from 'vue';
+import type { VNode } from 'vue';
 
 export type XPosition = 'left' | 'center' | 'right';
 export type YPosition = 'top' | 'center' | 'bottom';
