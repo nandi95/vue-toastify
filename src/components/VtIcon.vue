@@ -1,10 +1,13 @@
 <template>
     <div class="vt-icon-container" :class="containerClasses">
-        <component :is="userIcon.tag"
-                   v-if="userIcon"
-                   class="vt-icon"
-                   :class="userIcon.class"
-                   v-html="userIcon.ligature" />
+        <template v-if="userIcon">
+            <component :is="userIcon.tag"
+                       v-if="userIcon.type==='icon'"
+                       class="vt-icon"
+                       :class="userIcon.class"
+                       v-html="userIcon.ligature" />
+            <Node v-else :node="userIcon.node" />
+        </template>
         <div v-else-if="mode === 'loader'" class="vt-spinner" />
         <div v-else-if="mode === 'prompt'" class="vt-icon">
             <svg style="width: 24px; height: 24px" viewBox="0 0 24 24">
@@ -56,19 +59,22 @@
 
 <script lang="ts">
 import { isObject } from '../utils';
-import { computed, defineComponent } from 'vue';
-import type { PropType } from 'vue';
+import { computed, defineComponent, isVNode } from 'vue';
+import type { PropType, VNode } from 'vue';
 import type { Icon } from '../type';
+import Node from './Node';
 
 export default defineComponent({
     name: 'VtIcon',
+    components: { Node },
 
     props: {
         mode: { type: String },
         type: { type: String },
-        icon: { type: [Object, String] as PropType<Icon | string> },
+        icon: { type: [Object, String] as PropType<Icon | string | VNode> },
         baseIconClass: { type: String, default: '' }
     },
+
 
     setup: (props) => {
         const userIcon = computed(() => {
@@ -76,7 +82,8 @@ export default defineComponent({
                 return false;
             }
 
-            let icon = {
+            let icon: {type: 'icon'; tag: string; ligature: string; class: string} | {type: 'node'; node: VNode} = {
+                type:'icon',
                 tag: 'i',
                 ligature: '',
                 class: props.baseIconClass
@@ -89,9 +96,9 @@ export default defineComponent({
                 } else {
                     icon.class = icon.class + ' ' + props.icon;
                 }
-            }
-
-            if (isObject(props.icon)) {
+            } else if (isVNode(props.icon)){
+                icon = { type:'node', node: props.icon };
+            } else if (isObject(props.icon)) {
                 icon = Object.assign(icon, props.icon);
             }
 

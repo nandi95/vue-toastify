@@ -111,7 +111,8 @@
                         <AppTextarea v-model="status.icon"
                                      name="icon"
                                      label="Icon"
-                                     placeholder="Html is expected" />
+                                     placeholder="Html is expected"
+                                     :disabled="jsx" />
                     </div>
                 </div>
             </div>
@@ -162,7 +163,7 @@ export default defineComponent({
     components: { AppThemeToggle, AppStatusDisplay, AppTextarea, AppSelect, AppInput, AppToggle },
 
     setup: () => {
-        const status = reactive<Omit<ToastOptions, 'body'> & { body: string }>({
+        const status = reactive<Omit<ToastOptions, 'body' | 'icon'> & { body: string; icon?: string }>({
             title: 'Toastified!',
             body: 'This is the body.',
             type: undefined,
@@ -263,6 +264,19 @@ export default defineComponent({
                             h('p', null, 'This is a JSX element. HTML in the body text will be escaped.'),
                             h('p', null, status.body)
                         ]);
+                        options.icon = h(
+                            'div',
+                            {
+                                style: {
+                                    padding: '5px',
+                                    border: '2px solid currentColor',
+                                    display: 'flex',
+                                    justifyContent: 'space-around',
+                                    alignItems: 'center'
+                                }
+                            },
+                            'jsx'
+                        );
                     }
                     toast.notify(options);
                     if (status.mode === 'loader' && withBackdrop.value) {

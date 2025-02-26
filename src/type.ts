@@ -177,6 +177,8 @@ export interface Settings extends BaseSettings {
 
 export type ToastBody = string | VNode;
 
+export type ToastIcon = string | Icon | VNode;
+
 export interface ToastOptions extends BaseSettings {
     /**
      * The time the notification is displayed for in milliseconds regardless of its type. (this cannot be updated later)
@@ -218,7 +220,7 @@ export interface ToastOptions extends BaseSettings {
      * This will be displayed instead of the default icons.
      * If is a string the string will be assigned to the class unless it is a svg.
      */
-    icon?: string | Icon;
+    icon?: ToastIcon;
 
     /**
      * This function will be called when the notification has been dismissed or the timeout has finished.
