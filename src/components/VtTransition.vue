@@ -39,7 +39,7 @@ export default defineComponent({
         const leave = (el: Element) => {
             if (
                 settings.singular ||
-                (settings.oneType && el.parentNode!.childNodes.length === 1)
+                settings.oneType && el.parentNode!.childNodes.length === 1
                 || !(el instanceof HTMLElement)
             ) {
                 return;

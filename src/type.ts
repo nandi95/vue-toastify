@@ -229,9 +229,9 @@ export interface ToastOptions extends BaseSettings {
 
 export type Status = string | ToastOptions;
 
-export type RequiredBy<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
+export type RequireSome<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
-export interface Toast extends RequiredBy<ToastOptions, Exclude<keyof BaseSettings, 'customNotifications'>> {
+export interface Toast extends RequireSome<ToastOptions, Exclude<keyof BaseSettings, 'customNotifications'>> {
     /**
      * v4 uuid.
      */
