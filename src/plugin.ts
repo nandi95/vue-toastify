@@ -6,6 +6,7 @@ import { createApp } from 'vue';
 import ToastContainer from './components/ToastContainer.vue';
 import { toastMethods, app } from './composables/useToast';
 import useSettings from './composables/useSettings';
+import { isBody } from './utils';
 
 const pluginInjectionKey: InjectionKey<any> = Symbol('vue-toastify');
 const plugin: Plugin = (_, settings: Settings = {}) => {
@@ -34,7 +35,7 @@ const plugin: Plugin = (_, settings: Settings = {}) => {
                     return (status: Status, title?: string) => {
                         let toast: ToastOptions = Object.assign({}, keyValArr[1]);
 
-                        if (typeof status === 'string') {
+                        if (isBody(status)) {
                             toast.body = status;
                         } else {
                             toast = { ...keyValArr[1], ...status };
