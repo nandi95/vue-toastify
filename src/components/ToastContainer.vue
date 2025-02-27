@@ -31,8 +31,8 @@
 import VtToast from './VtToast.vue';
 import { isBetween, isBoolean, uuidV4 } from '../utils';
 import VtTransition from './VtTransition.vue';
-import { computed, defineComponent, nextTick, ref, watch } from 'vue';
-import type { ContainerMethods, ToastOptions, MaybeArray, Toast } from '../type';
+import { computed, CSSProperties, defineComponent, nextTick, ref, watch } from 'vue';
+import type { ContainerMethods, ToastOptions, Toast } from '../type';
 import useVtEvents from '../composables/useVtEvents';
 import useSettings from '../composables/useSettings';
 
@@ -57,8 +57,6 @@ export default defineComponent({
         /**
          * Return the appropriate transition
          * based on the position.
-         *
-         * @return {String}
          */
         const getTransition = computed(() => {
             if (settings.transition) {
@@ -81,10 +79,8 @@ export default defineComponent({
          * Return a style object for determining
          * the toasts order.
          * todo - simplify this
-         *
-         * @return {Object}
          */
-        const flexDirection = computed<Partial<CSSStyleDeclaration>>(() => {
+        const flexDirection = computed<CSSProperties>(() => {
             return {
                 flexDirection:
                     settings.orderLatest &&
@@ -96,8 +92,6 @@ export default defineComponent({
         /**
          * Return the appropriate classes
          * based on the position.
-         *
-         * @return {Object}
          */
         const positionClasses = computed(() => {
             const position = settings.position.split('-');
@@ -118,8 +112,6 @@ export default defineComponent({
         /**
          * Find the toast with the given id in the toasts
          * and return its index from the array
-         *
-         * @return {Number}
          */
         const findToast = (id: Toast['id']) => {
             return toasts.value.findIndex(toast => {
@@ -129,8 +121,6 @@ export default defineComponent({
         /**
          * Find the toast with the given id in the queue
          * and return its index from the array
-         *
-         * @return {Number}
          */
         const findQueuedToast = (id: Toast['id']) => {
             return queue.value.findIndex(toast => {
@@ -139,10 +129,6 @@ export default defineComponent({
         };
         /**
          * Figure out the title from the status object.
-         *
-         * @param {Object} status
-         *
-         * @return {String}
          */
         const getTitle = (status: ToastOptions) => {
             if (status.title) {
@@ -174,10 +160,6 @@ export default defineComponent({
         };
         /**
          * Check if the toast already is being displayed.
-         *
-         * @param {Object} status
-         *
-         * @return {Boolean}
          */
         const arrayHasType = (status: ToastOptions) => {
             return !!toasts.value.find(toast =>
@@ -208,12 +190,8 @@ export default defineComponent({
          * or all of the loaders. Return
          * the count of the dismissed
          * loaders.
-         *
-         * @param {String|String[]} id
-         *
-         * @return {Number}
          */
-        const stopLoader: ContainerMethods['stopLoader'] = (id?: MaybeArray<Toast['id']>) => {
+        const stopLoader: ContainerMethods['stopLoader'] = (id) => {
             const ids = [];
             if (typeof id === 'string') {
                 ids.push(id);
@@ -234,12 +212,8 @@ export default defineComponent({
          * or queue respectively with all
          * the parameters assigned.
          * Return the uuid.
-         *
-         * @param {Object} status
-         *
-         * @return {String}
          */
-        const add: ContainerMethods['add'] = (status: ToastOptions) => {
+        const add: ContainerMethods['add'] = (status) => {
             // copy object
             const toast = Object.assign(
                 {},
@@ -337,12 +311,8 @@ export default defineComponent({
          * or the queue, if not found
          * return false, otherwise
          * return all.
-         *
-         * @param {String} id
-         *
-         * @return {Boolean|Object|Object[]}
          */
-        const get: ContainerMethods['get'] = <T extends Toast['id']>(id?: T): ReturnType<ContainerMethods['get']>=> {
+        const get: ContainerMethods['get'] = (id) => {
             if (id) {
                 return toasts.value.find(toast => toast.id === id) ?? queue.value.find(toast => toast.id === id);
             }
@@ -357,13 +327,8 @@ export default defineComponent({
          * argument and the existing status.
          * Returns whether the update was
          * successful or not.
-         *
-         * @param {String} id
-         * @param {Object} status
-         *
-         * @return {Boolean}
          */
-        const set: ContainerMethods['set'] = (id: Toast['id'], status) => {
+        const set: ContainerMethods['set'] = (id, status) => {
             const toast = get(id);
 
             if (!toast) {
@@ -390,11 +355,8 @@ export default defineComponent({
          * found returns false, otherwise
          * an array of ids currently
          * visible to the user.
-         *
-         * @param {String} id
-         * @return {Boolean|Array}
          */
-        const remove: ContainerMethods['remove'] = (id?: Toast['id']) => {
+        const remove: ContainerMethods['remove'] = (id) => {
             if (id) {
                 let index = findQueuedToast(id);
 
@@ -462,7 +424,7 @@ export default defineComponent({
                         if (newValue.length === 0) {
                             // fixme - this will re-trigger the watch?
                             toasts.value.push({
-                                ...queue.value.shift(),
+                                ...queue.value.shift()!,
                                 delayed: true
                             });
                         }
@@ -485,7 +447,7 @@ export default defineComponent({
 
                     if (toasts.value.length < settings.maxToasts) {
                         toasts.value.push({
-                            ...queue.value.shift(),
+                            ...queue.value.shift()!,
                             delayed: true
                         });
                     }

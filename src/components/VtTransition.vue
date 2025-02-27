@@ -1,8 +1,8 @@
 <template>
-    <transition-group :name="transition.name ? transition.name : transition"
+    <transition-group :name="typeof transition!=='string' ?  transition?.name : transition"
                       :css="true"
                       tag="div"
-                      :move-class="transition.moveClass ? transition.moveClass : 'vt-move'"
+                      :move-class="(typeof transition!=='string' ? transition?.moveClass : null )??'vt-move'"
                       @leave="leave"
                       @before-enter="beforeEnter"
                       @after-enter="afterEnter"
@@ -22,7 +22,7 @@ export default defineComponent({
 
     props: {
         transition: {
-            type: [String, Object] as PropType<Required<Settings['transition']> | string>,
+            type: [String, Object] as PropType<Settings['transition'] | string>,
             required: true
         },
 
@@ -36,14 +36,15 @@ export default defineComponent({
         const { settings } = useSettings();
         const instance = getCurrentInstance();
 
-        const leave = (el: HTMLDivElement) => {
+        const leave = (el: Element) => {
             if (
                 settings.singular ||
                 settings.oneType && el.parentNode!.childNodes.length === 1
+                || !(el instanceof HTMLElement)
             ) {
                 return;
             }
-            const position: [YPosition, XPosition] = props.position.split('-');
+            const position = props.position.split('-') as [YPosition, XPosition];
             // https://forum.vuejs.org/t/transition-group-move-class-not-occuring-in-the-array/6381/5
             // these rules ensure the toast stays where it is
             const { height, width, marginBottom } = window.getComputedStyle(el);
@@ -71,7 +72,8 @@ export default defineComponent({
             el.style.position = 'absolute';
         };
 
-        const beforeEnter = (el: HTMLDivElement) => {
+        const beforeEnter = (el: Element) => {
+            if (!(el instanceof HTMLElement)) return;
             const toastContainer = instance?.vnode.el as HTMLDivElement;
 
             for (let i = 0; i < toastContainer.children.length; i++) {
@@ -83,12 +85,14 @@ export default defineComponent({
             }
         };
 
-        const afterEnter = (el: HTMLDivElement) => {
+        const afterEnter = (el: Element) => {
+            if (!(el instanceof HTMLElement)) return;
             el.removeAttribute('data-delayed');
             el.classList.remove('vt-move', 'vt-will-change');
         };
 
-        const beforeLeave = (el: HTMLDivElement) => {
+        const beforeLeave = (el: Element) => {
+            if (!(el instanceof HTMLElement)) return;
             el.classList.add('vt-will-change');
 
             // this ensures that notifications won't move until the other has been removed
