@@ -277,7 +277,7 @@ const add: ContainerMethods['add'] = (status) => {
         // if oneType turned on and that type already showing
         settings.oneType && arrayHasType(toast) ||
         // if it exceeds the max number of displayed toasts
-        toasts.value.length + 1 >= settings.maxToasts
+        toasts.value.length >= settings.maxToasts
     ) {
         if (toast.delay) {
             setTimeout(() => {
