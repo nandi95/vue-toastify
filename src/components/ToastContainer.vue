@@ -287,8 +287,6 @@ const add: ContainerMethods['add'] = (status) => {
             queue.value.push({ ...toast, delayed: true });
         }
 
-        queue.value.push({ ...toast, delayed: true });
-
         return toast.id;
     }
 
