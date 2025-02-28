@@ -84,7 +84,7 @@ export default defineComponent({
                 obj['vt-cursor-wait'] = true;
             }
 
-            obj['vt-theme-' + props.status.theme!] = true;
+            obj['vt-theme-' + props.status.theme] = true;
 
             return obj;
         });

@@ -19,7 +19,7 @@ export default defineComponent({
     props: {
         modelValue: {
             type: Boolean,
-            default:false,  
+            default:false
         },
 
         label: {
@@ -39,8 +39,10 @@ export default defineComponent({
         const model = computed({
             get: () => props.modelValue,
             set: (value: boolean) => {
+                console.log('set', value);
                 emit('update:modelValue', value);
                 emit('change', value);
+                console.log(props.modelValue);
             }
         });
 
