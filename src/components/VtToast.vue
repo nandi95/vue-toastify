@@ -19,7 +19,10 @@
                      @vt-finished="finish" />
         <div class="vt-content">
             <h2 v-if="status.title" class="vt-title" v-text="status.title" />
-            <p v-if="status.body" class="vt-paragraph" v-html="status.body" />
+            <div v-if="isJSXBody" class="vt-paragraph">
+                <Node :node="status.body" />
+            </div>
+            <p v-else-if="status.body" class="vt-paragraph" v-html="status.body" />
         </div>
         <VtIcon v-if="status.iconEnabled"
                 :mode="status.mode"
@@ -39,15 +42,15 @@
 import ProgressBar from './ProgressBar.vue';
 import VtIcon from './VtIcon.vue';
 import useDraggable from '../composables/useDraggable';
-import { computed, defineComponent, onMounted, onUnmounted, ref } from 'vue';
+import { computed, defineComponent, isVNode, onMounted, onUnmounted, ref } from 'vue';
 import type { PropType } from 'vue';
 import type { Toast } from '../type';
 import useVtEvents from '../composables/useVtEvents';
-
+import Node from './Node';
 export default defineComponent({
     name: 'VtToast',
 
-    components: { ProgressBar, VtIcon },
+    components: { ProgressBar, VtIcon, Node },
 
     props: {
         status: {
@@ -81,11 +84,12 @@ export default defineComponent({
                 obj['vt-cursor-wait'] = true;
             }
 
-            obj['vt-theme-' + props.status.theme!] = true;
+            obj['vt-theme-' + props.status.theme] = true;
 
             return obj;
         });
         const isNotification = computed(() => ['prompt', 'loader'].indexOf(props.status.mode!) === -1);
+        const isJSXBody = computed(() => isVNode(props.status.body));
 
         const answers = computed(() => {
             return props.status.answers ? Object.keys(props.status.answers) : [];
@@ -143,6 +147,7 @@ export default defineComponent({
             isHovered,
             notificationClass,
             isNotification,
+            isJSXBody,
             respond,
             dismiss,
             draggableStyles,

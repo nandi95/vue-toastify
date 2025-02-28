@@ -1,5 +1,5 @@
 <template>
-    <transition-group :name="typeof transition!=='string' ?  transition?.name : transition"
+    <transition-group :name="typeof transition!=='string' ? transition?.name : transition"
                       :css="true"
                       tag="div"
                       :move-class="(typeof transition!=='string' ? transition?.moveClass : null )??'vt-move'"

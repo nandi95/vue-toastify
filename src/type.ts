@@ -1,3 +1,5 @@
+import type { VNode } from 'vue';
+
 export type XPosition = 'left' | 'center' | 'right';
 export type YPosition = 'top' | 'center' | 'bottom';
 export type Position = `${YPosition}-${XPosition}`;
@@ -173,6 +175,10 @@ export interface Settings extends BaseSettings {
     customNotifications?: Record<string, ToastOptions>;
 }
 
+export type ToastBody = string | VNode;
+
+export type ToastIcon = string | Icon | VNode;
+
 export interface ToastOptions extends BaseSettings {
     /**
      * The time the notification is displayed for in milliseconds regardless of its type. (this cannot be updated later)
@@ -180,9 +186,9 @@ export interface ToastOptions extends BaseSettings {
     duration?: number;
 
     /**
-     * String to display or alternatively a html string.
+     * String to display, JSX, or alternatively an html string.
      */
-    body: string;
+    body: ToastBody;
 
     /**
      * Title to display for the toast.
@@ -214,7 +220,7 @@ export interface ToastOptions extends BaseSettings {
      * This will be displayed instead of the default icons.
      * If is a string the string will be assigned to the class unless it is a svg.
      */
-    icon?: string | Icon;
+    icon?: ToastIcon;
 
     /**
      * This function will be called when the notification has been dismissed or the timeout has finished.
@@ -227,7 +233,7 @@ export interface ToastOptions extends BaseSettings {
     delay?: number;
 }
 
-export type Status = string | ToastOptions;
+export type Status = ToastBody | ToastOptions;
 
 export type RequireSome<T, K extends keyof T> = Required<Pick<T, K>> & Omit<T, K>;
 
