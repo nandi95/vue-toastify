@@ -1,3 +1,6 @@
+import { isVNode } from 'vue';
+import { Status, ToastBody } from './type';
+
 export const isBoolean = (value: any): value is boolean => {
     return typeof value === 'boolean';
 };
@@ -13,3 +16,5 @@ export const uuidV4 = (): string => {
 
     return '10000000-1000-4000-8000-100000000000'.replace(search, replace);
 };
+
+export const isBody = (value: Status): value is ToastBody => typeof value === 'string' || isVNode(value);

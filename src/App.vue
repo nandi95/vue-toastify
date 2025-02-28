@@ -4,7 +4,8 @@
             <div class="navbar-start">
                 <AppThemeToggle />
             </div>
-            <div class="w-full order-first sm:w-auto sm:order-1 navbar-center flex justify-center text-center flex-col flex-no-wrap">
+            <div class="w-full order-first sm:w-auto sm:order-1 navbar-center flex justify-center text-center flex-col
+                        flex-no-wrap">
                 <h2 class="text-primary font-bold text-3xl mb-2">
                     Vue Toastify
                 </h2>
@@ -37,24 +38,20 @@
             </div>
         </header>
         <main class="px-2">
-            <div
-                class="flex gap-2 xl:justify-center justify-around flex-wrap flex-row">
+            <div class="flex gap-2 xl:justify-center justify-around flex-wrap flex-row">
                 <div class="flex flex-col w-auto sm:max-w-50 sm:mr-2">
                     <AppStatusDisplay :status="status" />
                     <div class="w-full mx-auto">
                         <AppInput v-model="status.title" name="title" label="Title" />
                         <AppTextarea v-model="status.body"
                                      name="body"
-                                     label="Body"
+                                     :label="jsx ? 'JSX string body' : 'Body'"
                                      :error="status.body.length < 1 ? 'Needs to have length' : ''" />
                         <AppSelect v-model="status.type"
                                    name="type"
                                    label="Type"
                                    :options="typeOptions"
-                                   :disabled="
-                                       status.mode === 'loader' ||
-                                           status.mode === 'prompt'
-                                   " />
+                                   :disabled="status.mode === 'loader' || status.mode === 'prompt'" />
                         <AppSelect v-model="status.mode"
                                    name="mode"
                                    label="Mode"
@@ -65,7 +62,7 @@
                                      name="answers"
                                      label="Answers"
                                      :error="jsonError"
-                                     placeholder="eg.: '{&quot;Yes&quot;:true,&quot;No&quot;:false}'"
+                                     placeholder="eg.: &apos;{&quot;Yes&quot;:true,&quot;No&quot;:false}&apos;"
                                      @update:model-value="updateAnswers" />
                     </div>
                 </div>
@@ -81,21 +78,15 @@
                                        checkTimingProps();
                                        disableProps();
                                    " />
-                        <AppToggle v-model="status.defaultTitle"
-                                   label="Use Default Title"
-                                   @change="disableProps" />
-                        <AppToggle v-model="lightTheme"
-                                   label="Use Light Theme" />
-                        <AppToggle v-model="withBackdrop"
-                                   label="With Backdrop"
-                                   @change="checkIfLoading" />
-                        <AppToggle v-model="singular"
-                                   label="One notification at a time"
-                                   @change="checkIfLoading" />
+                        <AppToggle v-model="status.defaultTitle" label="Use Default Title" @change="disableProps" />
+                        <AppToggle v-model="lightTheme" label="Use Light Theme" />
+                        <AppToggle v-model="withBackdrop" label="With Backdrop" />
+                        <AppToggle v-model="singular" label="One notification at a time" @change="checkIfLoading" />
                         <AppToggle v-model="oneTypeAtAtime"
                                    :disabled="singular"
                                    label="One type at a time"
                                    @change="checkIfLoading" />
+                        <AppToggle v-model="jsx" label="Use JSX" />
                     </div>
                     <div class="flex flex-col justify-around w-full">
                         <AppInput v-model="status.duration"
@@ -109,14 +100,13 @@
                         <AppTextarea v-model="status.icon"
                                      name="icon"
                                      label="Icon"
-                                     placeholder="Html is expected" />
+                                     placeholder="Html is expected"
+                                     :disabled="jsx" />
                     </div>
                 </div>
             </div>
             <div class="flex justify-around items-center align-middle flex-wrap mt-2">
-                <button v-if="status.mode === 'loader'"
-                        class="btn btn-primary"
-                        @click="loadStop">
+                <button v-if="status.mode === 'loader'" class="btn btn-primary" @click="loadStop">
                     Call .stopLoader()
                 </button>
                 <button class="btn btn-primary my-4 md:my-0" @click="addToast">
@@ -132,8 +122,7 @@
                     With backdrop the rest of the page is inaccessible.
                 </h3>
                 <h4 class="text-sm mb-3">
-                    Make sure to also cancel the loading if your process has
-                    failed.
+                    Make sure to also cancel the loading if your process has failed.
                 </h4>
                 <button class="btn btn-primary" @click="loadStop">
                     Call .stopLoader()
@@ -144,7 +133,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, markRaw, onMounted, reactive, ref, watch } from 'vue';
+import { defineComponent, markRaw, onMounted, reactive, ref, watch, h } from 'vue';
 import { ToastOptions } from './type';
 import { useToast } from './index';
 import AppToggle from './app-components/AppToggle.vue';
@@ -160,7 +149,9 @@ export default defineComponent({
     components: { AppThemeToggle, AppStatusDisplay, AppTextarea, AppSelect, AppInput, AppToggle },
 
     setup: () => {
-        const status = reactive<Omit<ToastOptions, 'icon'|'duration'> & { icon?: string, duration?: string }>({
+        const status = reactive<
+            Omit<ToastOptions, 'body' | 'icon' | 'duration'> & { body: string; icon?: string; duration?: string }
+        >({
             title: 'Toastified!',
             body: 'This is the body.',
             type: undefined,
@@ -194,6 +185,7 @@ export default defineComponent({
         ]);
         const answers = ref('{"Yes":true,"No":false}');
         const oneTypeAtAtime = ref(false);
+        const jsx = ref(false);
 
         const updateAnswers = (val: string) => {
             if (!val) {
@@ -225,36 +217,70 @@ export default defineComponent({
         watch(() => answers.value, updateAnswers);
 
         onMounted(() => {
-            addToast()
+            addToast();
         });
 
-        watch(() => withBackdrop.value, val => {
-            if (val && toast.getToasts().find(t => t.mode === 'loader')) {
-                showWarning.value = true;
+        watch(
+            () => withBackdrop.value,
+            (val) => {
+                if (val && toast.getToasts().find((t) => t.mode === 'loader')) {
+                    showWarning.value = true;
+                }
+                toast.settings({ withBackdrop: val });
             }
-            toast.settings({ withBackdrop: val });
-        });
+        );
         watch(
             () => lightTheme.value,
-            val => toast.settings({ theme: val ? 'light' : 'dark' }),
+            (val) => toast.settings({ theme: val ? 'light' : 'dark' }),
             { immediate: true }
         );
-        watch(() => defaultTitle.value, val => {
-            toast.settings({ defaultTitle: val });
-        });
-        watch(() => singular.value, val => {
-            toast.settings({ singular: val });
-        });
-        watch(() => oneTypeAtAtime.value, val => {
-            toast.settings({ oneType: val });
-        });
+        watch(
+            () => defaultTitle.value,
+            (val) => {
+                toast.settings({ defaultTitle: val });
+            }
+        );
+        watch(
+            () => singular.value,
+            (val) => {
+                toast.settings({ singular: val });
+            }
+        );
+        watch(
+            () => oneTypeAtAtime.value,
+            (val) => {
+                toast.settings({ oneType: val });
+            }
+        );
 
         const addToast = () => {
             if (status.body.length > 0) {
-                const options = {...status,duration: status.duration ? Number(status.duration) : undefined};
+                const options: ToastOptions = {
+                    ...status,
+                    duration: status.duration ? Number(status.duration) : undefined
+                };
                 if (status.mode === 'prompt' && jsonError.value.length) {
                     toast.error(jsonError.value, '😠');
                 } else {
+                    if (jsx.value) {
+                        options.body = h('div', null, [
+                            h('p', null, 'This is a JSX element. HTML in the body text will be escaped.'),
+                            h('p', null, status.body)
+                        ]);
+                        options.icon = h(
+                            'div',
+                            {
+                                style: {
+                                    padding: '5px',
+                                    border: '2px solid currentColor',
+                                    display: 'flex',
+                                    justifyContent: 'space-around',
+                                    alignItems: 'center'
+                                }
+                            },
+                            'jsx'
+                        );
+                    }
                     toast.notify(options);
                     if (status.mode === 'loader' && withBackdrop.value) {
                         showWarning.value = true;
@@ -307,7 +333,8 @@ export default defineComponent({
             typeOptions,
             modeOptions,
             answers,
-            oneTypeAtAtime
+            oneTypeAtAtime,
+            jsx
         };
     }
 });
@@ -319,22 +346,22 @@ export default defineComponent({
 @tailwind utilities;
 
 .warning {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .warning-enter-active {
-  transition: all 150ms ease-out;
-  transition-delay: 150ms;
+    transition: all 150ms ease-out;
+    transition-delay: 150ms;
 }
 
 .warning-leave-active {
-  transition: all 100ms ease-in;
+    transition: all 100ms ease-in;
 }
 
 .warning-enter-from,
 .warning-leave-to {
-  opacity: 0;
+    opacity: 0;
 }
 </style>

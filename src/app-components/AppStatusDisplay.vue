@@ -14,17 +14,17 @@ export default defineComponent({
 
     props: {
         status: {
-            type: Object as PropType<Omit<ToastOptions,'duration'> & {duration?: string}>,
+            type: Object as PropType<Omit<ToastOptions, 'duration'> & {duration?: string}>,
             required: true
         }
     },
 
     setup: (props) => {
         const lines = computed(() => {
-            const clone = Object.fromEntries(Object.entries(props.status).flatMap(([key,value])=>{
-                if(value===undefined || value ===false || value==='') return [];
-                return [[key,value]];
-            }))
+            const clone = Object.fromEntries(Object.entries(props.status).flatMap(([key, value])=>{
+                if (value===undefined || value ===false || value==='') return [];
+                return [[key, value]];
+            }));
 
             return JSON.stringify(clone, null, 4)
                 .split('\n')

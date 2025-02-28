@@ -1,12 +1,7 @@
-import type {
-    ContainerMethods,
-    Settings,
-    Status,
-    Toast,
-    ToastOptions
-} from '../type';
+import type { ContainerMethods, Settings, Status, Toast, ToastOptions } from '../type';
 import useSettings from './useSettings';
 import useVtEvents from './useVtEvents';
+import { isBody } from '../utils';
 
 export type CustomMethods = Record<string, (status?: Status, title?: string) => string>;
 
@@ -31,7 +26,7 @@ export interface ToastPluginAPI {
 export let app: { container: ContainerMethods } = {};
 
 const notify = (status: Status, title?: string): ReturnType<ToastPluginAPI['notify']> => {
-    if (typeof status === 'string') {
+    if (isBody(status)) {
         status = {
             body: status
         };
@@ -49,7 +44,7 @@ export const toastMethods: ToastPluginAPI = {
     notify,
     success: (status: Status, title?: string) => notify(status, title),
     info: (status: Status, title?: string) => {
-        if (typeof status === 'string') {
+        if (isBody(status)) {
             status = {
                 body: status
             };
@@ -61,7 +56,7 @@ export const toastMethods: ToastPluginAPI = {
         return notify(status);
     },
     warning: (status: Status, title?: string) => {
-        if (typeof status === 'string') {
+        if (isBody(status)) {
             status = {
                 body: status
             };
@@ -75,7 +70,7 @@ export const toastMethods: ToastPluginAPI = {
     error: (status: Status, title?: string) => {
         const notification = {} as ToastOptions;
 
-        if (typeof status === 'string') {
+        if (isBody(status)) {
             notification.body = status;
         }
 
@@ -88,7 +83,7 @@ export const toastMethods: ToastPluginAPI = {
         return notify(notification);
     },
     loader: (status: Status, title?: string) => {
-        if (typeof status === 'string') {
+        if (isBody(status)) {
             status = {
                 body: status
             };
