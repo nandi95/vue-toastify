@@ -80,7 +80,7 @@
                                    " />
                         <AppToggle v-model="status.defaultTitle" label="Use Default Title" @change="disableProps" />
                         <AppToggle v-model="lightTheme" label="Use Light Theme" />
-                        <AppToggle v-model="withBackdrop" label="With Backdrop" @change="checkIfLoading" />
+                        <AppToggle v-model="withBackdrop" label="With Backdrop" />
                         <AppToggle v-model="singular" label="One notification at a time" @change="checkIfLoading" />
                         <AppToggle v-model="oneTypeAtAtime"
                                    :disabled="singular"
