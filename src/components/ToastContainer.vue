@@ -165,23 +165,6 @@ const arrayHasType = (status: ToastOptions) => {
 };
 
 /**
- * Merges the passed in settings where the key exists
- * in the original. If no argument merge refresh
- * from the original settings.
- *
- * @param {Object} settings
- *
- * @return {Object<*>}
- */
-/**
- * If argument set return the given setting,
- * else return the settings object.
- *
- * @param {String} setting
- *
- * @return {Object|*}
- */
-/**
  * Dismiss the loader for the given ids
  * or all of the loaders. Return
  * the count of the dismissed
@@ -450,7 +433,7 @@ watch(
     { deep: true }
 );
 
-defineExpose({ add, get, set, remove, stopLoader });
+defineExpose<ContainerMethods>({ add, get, set, remove, stopLoader });
 </script>
 
 <style lang="scss">
