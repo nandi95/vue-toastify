@@ -74,7 +74,8 @@ export default defineComponent({
         mode: { type: String },
         type: { type: String },
         icon: { type: [Object, String] as PropType<Icon | string | VNode> },
-        baseIconClass: { type: String, default: '' }
+        baseIconClass: { type: String, default: '' },
+        enableHtml: { type: Boolean, required: true }
     },
 
 
@@ -92,7 +93,7 @@ export default defineComponent({
             };
 
             if (typeof props.icon === 'string') {
-                if (props.icon.toLowerCase().includes('<svg')) {
+                if (props.enableHtml && props.icon.toLowerCase().includes('<svg')) {
                     icon.tag = 'div';
                     icon.ligature = props.icon;
                 } else {
