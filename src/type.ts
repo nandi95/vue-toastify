@@ -15,7 +15,6 @@ export interface Icon {
      * The html to use.
      */
     ligature?: string;
-    icon?: string;
 }
 
 /**
