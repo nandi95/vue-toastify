@@ -48,10 +48,12 @@ export default defineComponent({
             // https://forum.vuejs.org/t/transition-group-move-class-not-occuring-in-the-array/6381/5
             // these rules ensure the toast stays where it is
             const { height, width, marginBottom } = window.getComputedStyle(el);
+            // Add a tiny bit extra to account for fractional pixels being lopped off
+            const widthPx = parseFloat(width) + 0.01;
 
             // when the last toast removed the container collapses hence the need for the width subtraction
             el.style.left =
-                String(el.offsetLeft - (el.parentNode!.childNodes.length === 1 ? parseInt(width) / 2 : 0)) + 'px';
+                String(el.offsetLeft - (el.parentNode!.childNodes.length === 1 ? widthPx / 2 : 0)) + 'px';
             el.style.top = String(el.offsetTop) + 'px';
 
             if (position[0] === 'center') {
@@ -68,7 +70,7 @@ export default defineComponent({
             }
 
             // an absolute position may mess with the width, so let's set to initial
-            el.style.width = width;
+            el.style.width = `${widthPx}px`;
             el.style.position = 'absolute';
         };
 
