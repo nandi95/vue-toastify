@@ -87,6 +87,7 @@
                                    label="One type at a time"
                                    @change="checkIfLoading" />
                         <AppToggle v-model="jsx" label="Use JSX" />
+                        <AppToggle v-model="status.enableHtmlInterpretation" label="Allow HTML" />
                     </div>
                     <div class="flex flex-col justify-around w-full">
                         <AppInput v-model="status.duration"
@@ -100,7 +101,10 @@
                         <AppTextarea v-model="status.icon"
                                      name="icon"
                                      label="Icon"
-                                     placeholder="Html is expected"
+                                     :placeholder="
+                                         status.enableHtmlInterpretation ?
+                                             'Html is expected' :
+                                             'icon className'"
                                      :disabled="jsx" />
                     </div>
                 </div>
@@ -161,7 +165,8 @@ export default defineComponent({
             duration: undefined,
             icon: undefined,
             mode: undefined,
-            answers: undefined
+            answers: undefined,
+            enableHtmlInterpretation: true
         });
         const lightTheme = ref(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         const defaultTitle = ref(true);

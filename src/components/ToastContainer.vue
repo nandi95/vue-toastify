@@ -235,6 +235,9 @@ const add: ContainerMethods['add'] = (status) => {
     toast.iconEnabled = isBoolean(status.iconEnabled)
         ? status.iconEnabled
         : settings.iconEnabled;
+    toast.enableHtmlInterpretation = isBoolean(status.enableHtmlInterpretation)
+        ? status.enableHtmlInterpretation
+        : settings.enableHtmlInterpretation;
 
     if (status.mode === 'prompt' || status.mode === 'loader') {
         toast.draggable = false;

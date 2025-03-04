@@ -19,16 +19,22 @@
                      @vt-finished="finish" />
         <div class="vt-content">
             <h2 v-if="status.title" class="vt-title" v-text="status.title" />
-            <div v-if="isJSXBody" class="vt-paragraph">
-                <Node :node="status.body" />
-            </div>
-            <p v-else-if="status.body" class="vt-paragraph" v-html="status.body" />
+            <template v-if="status.body">
+                <div v-if="isJSXBody" class="vt-paragraph">
+                    <Node :node="status.body" />
+                </div>
+                <p v-else-if="status.enableHtmlInterpretation" class="vt-paragraph" v-html="status.body" />
+                <p v-else class="vt-paragraph">
+                    {{ status.body }}
+                </p>
+            </template>
         </div>
         <VtIcon v-if="status.iconEnabled"
                 :mode="status.mode"
                 :type="status.type"
                 :icon="status.icon"
-                :base-icon-class="baseIconClass" />
+                :base-icon-class="baseIconClass"
+                :enable-html="status.enableHtmlInterpretation" />
         <div v-if="status.mode === 'prompt'" class="vt-buttons">
             <button v-for="(answer, i) in answers"
                     :key="i"

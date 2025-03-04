@@ -24,10 +24,14 @@ app.mount('#app');
 [Usage with Nuxt](#usage-with-nuxt)
 
 ## Options:
- - [ToastOptions](src/type.ts#L174) - settings per toast
- - [Settings](src/type.ts#L96) - global settings (default settings [here](src/composables/useSettings.ts#L7))
+ - [ToastOptions](src/type.ts#L195) - settings per toast
+ - [Settings](src/type.ts#L113) - global settings (default settings [here](src/composables/useSettings.ts#L7))
  - [ToastPluginAPI](src/composables/useToast.ts#L13) - methods available on the `useToast()` composable
  - [Events](src/composables/useVtEvents.ts#L6) - events emitted by the plugin
+
+## Migration Information
+
+In the future `enableHtmlInterpretation` setting will default to `false`. If you rely on that behavior, make sure to enable it in the settings. If you don't want user input treated as html, make sure to set it to `false`.
 
 ## Custom styling
 Styles include a `'dark'`(default) and a `'light'` theme. If you would like to create your own styles you may use the following helpers:

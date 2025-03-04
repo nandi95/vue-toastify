@@ -25,7 +25,8 @@ const settings = reactive<DefaultSettings>({
     transition: undefined,
     oneType: false,
     maxToasts: 6,
-    customNotifications: {}
+    customNotifications: {},
+    enableHtmlInterpretation: true
 });
 
 type UseSettings = {
