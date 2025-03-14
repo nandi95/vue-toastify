@@ -16,7 +16,7 @@ export default defineComponent({
 
         watch(
             isDark,
-            value => document.documentElement.dataset.theme = value ? 'halloween' : 'emerald'
+            value => document.documentElement.dataset.theme = value ? 'dim' : 'emerald'
         );
 
         return {
