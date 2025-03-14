@@ -1,9 +1,10 @@
 <template>
     <div class="vt-notification"
-         role="alert"
+         :role="status.type === 'error' || status.type === 'warning' ? 'alert' : 'status'"
          :style="draggableStyles"
          :class="notificationClass"
          draggable="false"
+         :aria-label="status.title || `${status.type || 'info'} notification`"
          :data-delayed="delayed"
          @click="dismiss"
          @mouseenter="isHovered = true"

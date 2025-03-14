@@ -1,5 +1,9 @@
 <template>
-    <div class="vt-progress-bar">
+    <div class="vt-progress-bar"
+         :aria-valuenow="progress"
+         aria-valuemin="0"
+         aria-valuemax="100"
+         role="progressbar">
         <div class="vt-progress" :style="{ width: progress + '%' }" />
     </div>
 </template>
