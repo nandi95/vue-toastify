@@ -1,0 +1,72 @@
+$tinyScreen: 268px;
+
+.vt-notification-container {
+    pointer-events: none;
+    box-sizing: border-box;
+    position: fixed;
+    display: flex;
+    gap: 10px;
+    width: auto;
+    height: auto;
+    z-index: 9999;
+}
+
+.vt-backdrop-hidden {
+    transition: all 150ms ease-out;
+    opacity: 0;
+    visibility: hidden;
+    z-index: 50;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+}
+
+.vt-backdrop-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.vt-top {
+    top: 10px;
+}
+
+.vt-centerY {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.vt-bottom {
+    bottom: 10px;
+}
+
+.vt-left {
+    left: 10px;
+}
+
+.vt-centerX {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.vt-right {
+    right: 10px;
+}
+
+.vt-center-center {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@media (max-width: $tinyScreen) {
+    .vt-notification-container {
+        width: 100%;
+        margin: 0;
+        right: 0;
+        &:not(.vt-centerX) {
+            left: 0;
+        }
+    }
+}

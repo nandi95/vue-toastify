@@ -1,3 +1,4 @@
+@use "container";
 // This is all the styles the toast component uses.
 // You may change any of the default values
 // by appending the value with !important.
@@ -44,7 +45,6 @@
     min-height: 100px;
     min-width: 250px;
     border-radius: 5px;
-    margin-bottom: 10px;
     margin-left: auto;
     margin-right: auto;
     z-index: 9999;
@@ -113,7 +113,7 @@
         }
     }
 }
-@media (max-width: 268px) {
+@media (max-width: container.$tinyScreen) {
     .vt-notification {
         min-height: auto;
         min-width: 100%;
@@ -121,10 +121,6 @@
         & > .vt-content {
             text-align: center;
         }
-    }
-    .vt-notification-container {
-        width: 100%;
-        margin: 0;
     }
 }
 .vt-will-change {
