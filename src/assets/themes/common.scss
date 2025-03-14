@@ -1,10 +1,12 @@
+@use "sass:color";
+@use "sass:map";
 @use "sass:math";
 
 @function luminance($color) {
     $colors: (
-        'red': red($color),
-        'green': green($color),
-        'blue': blue($color)
+        'red': color.channel($color, "red", $space: rgb),
+        'green': color.channel($color, "green", $space: rgb),
+        'blue': color.channel($color, "blue", $space: rgb)
     );
 
     @each $name, $value in $colors {
@@ -17,16 +19,16 @@
             $value: math.pow($value, 2); // todo exponent used to be 2.4
         }
 
-        $colors: map-merge($colors, ($name: $value));
+        $colors: map.merge($colors, ($name: $value));
     }
 
-    @return (map-get($colors, 'red') * .2126) + (map-get($colors, 'green') * .7152) + (map-get($colors, 'blue') * .0722);
+    @return (map.get($colors, 'red') * .2126) + (map.get($colors, 'green') * .7152) + (map.get($colors, 'blue') * .0722);
 }
 @function color-change($color, $percentage) {
     @if (luminance($color) > 0.4) {
-        $color: darken($color, $percentage);
+        $color: color.adjust($color, $lightness: -$percentage);
     } @else {
-        $color: lighten($color, $percentage);
+        $color: color.adjust($color, $lightness: $percentage);
     }
     @return $color;
 }

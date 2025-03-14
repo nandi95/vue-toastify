@@ -432,6 +432,7 @@ defineExpose<ContainerMethods>({ add, get, set, remove, stopLoader });
 </script>
 
 <style lang="scss">
+@use "../assets/base";
 .vt-notification-container {
     pointer-events: none;
     box-sizing: border-box;
@@ -492,6 +493,4 @@ defineExpose<ContainerMethods>({ add, get, set, remove, stopLoader });
     left: 50%;
     transform: translate(-50%, -50%);
 }
-
-@import "../assets/base";
 </style>

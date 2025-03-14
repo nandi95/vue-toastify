@@ -75,7 +75,9 @@ export default defineConfig(({ mode }) => {
                     globals: {
                         vue: 'Vue'
                     },
-                    assetFileNames: assetInfo => assetInfo.name === 'style.css' ? 'index.css' :assetInfo.name!,
+                    assetFileNames: assetInfo => {
+                        return assetInfo.names.includes('vue-toastify.css') ? 'index.css' : assetInfo.names[0];
+                    },
                     exports: 'named',
                     banner
                 }
