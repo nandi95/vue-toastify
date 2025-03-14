@@ -42,7 +42,6 @@ import type { ContainerMethods, ToastOptions, Toast } from '../type';
 import useVtEvents from '../composables/useVtEvents';
 import useSettings from '../composables/useSettings';
 
-
 const temp = {} as { orderLatest?: boolean };
 
 const toasts = ref<(Toast & { delayed?: boolean })[]>([]);
@@ -130,29 +129,22 @@ const getTitle = (status: ToastOptions) => {
     if (status.title) {
         return status.title;
     }
-    if (isBoolean(status.defaultTitle)) {
-        if (status.defaultTitle) {
-            if (status.mode === 'prompt' || status.mode === 'loader') {
-                return '';
-            }
 
-            if (status.type) {
-                return status.type.charAt(0).toUpperCase() + status.type.slice(1);
-            }
-        } else {
-            return '';
-        }
+    if (status.mode === 'prompt' || status.mode === 'loader') {
+        return '';
     }
-    if (settings.defaultTitle) {
-        if (status.mode === 'prompt' || status.mode === 'loader') {
-            return '';
-        }
 
-        if (status.type) {
-            return status.type.charAt(0).toUpperCase() + status.type.slice(1);
-        }
+    if (
+        (
+            isBoolean(status.defaultTitle) && status.defaultTitle
+            || isBoolean(settings.defaultTitle) && settings.defaultTitle
+        )
+        && status.type
+    ) {
+        return status.type.charAt(0).toUpperCase() + status.type.slice(1);
     }
-    return 'Info';
+
+    return '';
 };
 /**
  * Check if the toast already is being displayed.
