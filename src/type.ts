@@ -15,7 +15,6 @@ export interface Icon {
      * The html to use.
      */
     ligature?: string;
-    icon?: string;
 }
 
 /**
@@ -95,6 +94,20 @@ export interface BaseSettings {
      * @default true
      */
     pauseOnFocusLoss?: boolean;
+
+    /**
+     * If set to true, the string body and string icon of a toast can be interpreted as html directly.
+     *
+     * **Warning**: This is a potential avenue for XSS issues,
+     * so use sanitizers (e.g. dompurify) when putting user input in toasts if you have this enabled.
+     *
+     * - For the body, any string will be treated as html.
+     * - For the icon, if the string has `<svg` in it, then it will be treated as html
+     * otherwise it will be treated as the `className`.
+     *
+     * @default true - This will be changed to `false` in a later release for security reasons
+     */
+    enableHtmlInterpretation?: boolean;
 }
 
 export interface Settings extends BaseSettings {
