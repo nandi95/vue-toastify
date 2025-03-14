@@ -23,13 +23,7 @@ const plugin: Plugin = (_, settings: Settings = {}) => {
         settings.customNotifications &&
             Object.entries(settings.customNotifications).length > 0
     ) {
-        const reservedMethods = Object.keys(toastMethods);
-
         Object.entries(settings.customNotifications).forEach(keyValArr => {
-            if (reservedMethods.includes(keyValArr[0])) {
-                throw new Error(`The method name ${keyValArr[0]} is reserved by vue-toastify.`);
-            }
-
             Object.defineProperty(toastMethods, keyValArr[0], {
                 get() {
                     return (status: Status, title?: string) => {

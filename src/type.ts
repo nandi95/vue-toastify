@@ -201,7 +201,7 @@ export interface ToastOptions extends BaseSettings {
     /**
      * String to display, JSX, or alternatively an HTML string.
      */
-    body: ToastBody;
+    body?: ToastBody;
 
     /**
      * Title to display for the toast.

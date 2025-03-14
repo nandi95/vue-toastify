@@ -45,8 +45,7 @@
                         <AppInput v-model="status.title" name="title" label="Title" />
                         <AppTextarea v-model="status.body"
                                      name="body"
-                                     :label="jsx ? 'JSX string body' : 'Body'"
-                                     :error="status.body.length < 1 ? 'Needs to have length' : ''" />
+                                     :label="jsx ? 'JSX string body' : 'Body'" />
                         <AppSelect v-model="status.type"
                                    name="type"
                                    label="Type"
@@ -259,40 +258,36 @@ export default defineComponent({
         );
 
         const addToast = () => {
-            if (status.body.length > 0) {
-                const options: ToastOptions = {
-                    ...status,
-                    duration: status.duration ? Number(status.duration) : undefined
-                };
-                if (status.mode === 'prompt' && jsonError.value.length) {
-                    toast.error(jsonError.value, '😠');
-                } else {
-                    if (jsx.value) {
-                        options.body = h('div', null, [
-                            h('p', null, 'This is a JSX element. HTML in the body text will be escaped.'),
-                            h('p', null, status.body)
-                        ]);
-                        options.icon = h(
-                            'div',
-                            {
-                                style: {
-                                    padding: '5px',
-                                    border: '2px solid currentColor',
-                                    display: 'flex',
-                                    justifyContent: 'space-around',
-                                    alignItems: 'center'
-                                }
-                            },
-                            'jsx'
-                        );
-                    }
-                    toast.notify(options);
-                    if (status.mode === 'loader' && withBackdrop.value) {
-                        showWarning.value = true;
-                    }
-                }
+            const options: ToastOptions = {
+                ...status,
+                duration: status.duration ? Number(status.duration) : undefined
+            };
+            if (status.mode === 'prompt' && jsonError.value.length) {
+                toast.error(jsonError.value, '😠');
             } else {
-                toast.error('The body has to be present.', '😠');
+                if (jsx.value) {
+                    options.body = h('div', null, [
+                        h('p', null, 'This is a JSX element. HTML in the body text will be escaped.'),
+                        h('p', null, status.body)
+                    ]);
+                    options.icon = h(
+                        'div',
+                        {
+                            style: {
+                                padding: '5px',
+                                border: '2px solid currentColor',
+                                display: 'flex',
+                                justifyContent: 'space-around',
+                                alignItems: 'center'
+                            }
+                        },
+                        'jsx'
+                    );
+                }
+                toast.notify(options);
+                if (status.mode === 'loader' && withBackdrop.value) {
+                    showWarning.value = true;
+                }
             }
         };
         const checkTimingProps = () => {
