@@ -8,11 +8,11 @@ export type MaybeArray<T> = T | T[];
 
 export interface Icon {
     /**
-     * The html element name to use.
+     * The HTML element name to use.
      */
     tag?: keyof HTMLElementTagNameMap;
     /**
-     * The html to use.
+     * The HTML to use.
      */
     ligature?: string;
 }
@@ -59,7 +59,7 @@ export interface BaseSettings {
     theme?: 'light' | 'dark' | string;
 
     /**
-     * If string supplied this will apply the usual transition classes (eg.: .name-enter-active).
+     * If string supplied this will apply the usual transition classes (e.g.: .name-enter-active).
      * If an object is supplied, it expects a `name` and optionally a `moveClass`
      *   (this class has to use `!important` for its rules) attribute.
      * The name will be applied as above. The move class is applied when the notifications adjust their position.
@@ -96,13 +96,13 @@ export interface BaseSettings {
     pauseOnFocusLoss?: boolean;
 
     /**
-     * If set to true, the string body and string icon of a toast can be interpreted as html directly.
+     * If set to true, the string body and string icon of a toast can be interpreted as HTML directly.
      *
      * **Warning**: This is a potential avenue for XSS issues,
-     * so use sanitizers (e.g. dompurify) when putting user input in toasts if you have this enabled.
+     * so use sanitisers (e.g. dompurify) when putting user input in toasts if you have this enabled.
      *
-     * - For the body, any string will be treated as html.
-     * - For the icon, if the string has `<svg` in it, then it will be treated as html
+     * - For the body, any string will be treated as HTML.
+     * - For the icon, if the string has `<svg` in it, then it will be treated as HTML
      * otherwise it will be treated as the `className`.
      *
      * @default true - This will be changed to `false` in a later release for security reasons
@@ -131,7 +131,7 @@ export interface Settings extends BaseSettings {
     withBackdrop?: boolean;
 
     /**
-     * The color of the backdrop.
+     * The colour of the backdrop.
      *
      * @default rgba(0, 0, 0, 0.2)
      */
@@ -199,7 +199,7 @@ export interface ToastOptions extends BaseSettings {
     duration?: number;
 
     /**
-     * String to display, JSX, or alternatively an html string.
+     * String to display, JSX, or alternatively an HTML string.
      */
     body: ToastBody;
 
@@ -217,13 +217,13 @@ export interface ToastOptions extends BaseSettings {
     type?: 'info' | 'warning' | 'error' | 'success';
 
     /**
-     * If set the notification will be shown in the given mode: loader, prompt.
-     * Alternatively you may use the methods: `this.$vToastify.loader("more readable")`
+     * If set, the notification will be shown in the given mode: loader, prompt.
+     * Alternatively, you may use the methods: `useToast().loader("more readable")`
      */
     mode?: 'loader' | 'prompt';
 
     /**
-     * If the type is prompt the object keys will display to the user and the value will be returned to the promise.
+     * If the type is prompt, the object keys will display to the user and the value will be returned to the promise.
      *
      * @default {{ Yes: true, No: false }}
      */

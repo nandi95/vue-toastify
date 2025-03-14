@@ -1,5 +1,5 @@
 ## <p align="center">🔥Vue Toastify🔥</p>
-<p align="center">Simple and dependency free notification plugin.</p>
+<p align="center">Simple and dependency-free notification plugin.</p>
 
 ## Installation
 
