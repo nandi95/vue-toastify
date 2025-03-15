@@ -1,3 +1,28 @@
+**v2.1.0** *15/03/2025*
+
+Chore:
+- Add a missing build step
+- Convert toast container to setup for better type inference
+
+Fix:
+- fix typings internal to the package/demo
+- fix toast sizing issue on chrome
+- fix logic for getting title - respect defaultTitle setting
+- added `enableHtmlInterpretation` flag enabling v-html input for the body and icon (xss risk)
+- fix text legibility issue on theme generator
+- fix centering issue on small screens
+
+Feature:
+- Add JSX support for body and icon
+- updated dependencies
+- added some a11y attributes
+- allow overwriting built in methods with `customNotifications`
+
+**v2.0.1** *11/09/2024*
+
+Chore:
+- Add a missing build step
+
 **v2.0.0** *10/09/2024*
 
 Performance:
